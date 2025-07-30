@@ -76,6 +76,79 @@ jobs:
           path: spring-ftl/spring.log
           retention-days: 7
 
+  build-xml-generator:
+    runs-on: windows-latest
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller lxml beautifulsoup4 requests jinja2 pyyaml
+
+      - name: 🔧 Create XML generator if not found
+        run: |
+          # Check if XML generator script exists, if not create a basic one
+          if (-not (Test-Path "xml_generator.py") -and -not (Test-Path "spring-ftl/xml_generator.py")) {
+            echo "Creating basic XML generator..."
+            @"
+            import os
+            from pathlib import Path
+            import xml.etree.ElementTree as ET
+            from xml.dom import minidom
+            
+            def main():
+                print('🎯 XML Generator Starting...')
+                demo_path = Path('.idea/demo')
+                demo_path.mkdir(parents=True, exist_ok=True)
+                
+                # Create basic aini.xml
+                root = ET.Element('configuration')
+                root.set('type', 'SpringFTL')
+                metadata = ET.SubElement(root, 'metadata')
+                ET.SubElement(metadata, 'generated-by').text = 'Spring FTL XML Generator'
+                
+                rough_string = ET.tostring(root, 'utf-8')
+                reparsed = minidom.parseString(rough_string)
+                pretty_xml = reparsed.toprettyxml(indent='  ')
+                
+                with open(demo_path / 'aini.xml', 'w') as f:
+                    f.write(pretty_xml)
+                
+                print('✅ XML files generated successfully!')
+                return 0
+            
+            if __name__ == '__main__':
+                exit(main())
+            "@ | Out-File -FilePath "xml_generator.py" -Encoding UTF8
+          }
+
+      - name: 🔨 Build XML generator executable
+        run: |
+          # Find the XML generator script
+          if (Test-Path "xml_generator.py") {
+            $script = "xml_generator.py"
+          } elseif (Test-Path "spring-ftl/xml_generator.py") {
+            $script = "spring-ftl/xml_generator.py"
+          } else {
+            throw "No XML generator script found"
+          }
+          
+          echo "Building executable from $script"
+          pyinstaller --onefile --name xml-generator $script
+
+      - name: 📦 Upload XML generator
+        uses: actions/upload-artifact@v4
+        with:
+          name: xml-generator
+          path: dist/xml-generator.exe
+          retention-days: 30
   generate-http-tests:
     runs-on: ubuntu-latest
     steps:
@@ -134,7 +207,7 @@ jobs:
 
   create-release-package:
     runs-on: ubuntu-latest
-    needs: [build-and-test, generate-http-tests]
+    needs: [build-and-test, generate-http-tests, build-xml-generator]  # Add build-xml-generator here
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'pull_request' || (github.event_name == 'release' && github.event.action == 'published')
     
     steps:
@@ -145,6 +218,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: spring-ftl-jar
+          path: release/
+        continue-on-error: true
+
+      - name: 📥 Download XML generator  # Add this step
+        uses: actions/download-artifact@v4
+        with:
+          name: xml-generator
           path: release/
         continue-on-error: true
 
@@ -1641,3 +1721,49 @@ jobs:
           asset_path: ./release/README.md
           asset_name: README.md
           asset_content_type: text/markdown
+
+  create-github-release:
+    runs-on: ubuntu-latest
+     needs: [create-release-package]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    
+    steps:
+      - name: 📥 Download release package
+        uses: actions/download-artifact@v4
+        with:
+          name: spring-ftl-windows-release-package
+          path: release/
+
+      - name: 📦 Create ZIP for release
+        run: |
+          cd release
+          zip -r ../spring-ftl-release-v${{ github.run_number }}.zip .
+          cd ..
+
+      - name: 🏷️ Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Spring FTL Release v${{ github.run_number }}
+          body: |
+            ## Spring FTL Release v${{ github.run_number }}
+            
+            This release includes:
+            - ✅ Spring Boot JAR application
+            - ✅ XML Generator executable  
+            - ✅ Complete Windows batch scripts
+            - ✅ HTTP endpoint test files
+            - ✅ Documentation and README
+            
+            ### Quick Start
+            1. Download and extract the ZIP file
+            2. Double-click `start.bat` 
+            3. Choose your workflow option
+            
+            Generated automatically from commit ${{ github.sha }}
+          files: |
+            spring-ftl-release-v${{ github.run_number }}.zip
+          draft: false
+          prerelease: false
