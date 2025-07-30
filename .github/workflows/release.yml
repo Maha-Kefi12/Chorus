@@ -65,6 +65,16 @@ jobs:
         run: |
           .\mvnw.cmd clean package -DskipTests
 
+      - name: Fix main.spec path for current OS
+        run: |
+          if [ "$RUNNER_OS" != "Windows" ]; then
+            sed -i "s|\\\\|/|g" main.spec
+          fi
+
+      - name: Check for main.py
+        run: |
+          ls -l spring-ftl/src/main/resources/scripts/ || (echo "main.py not found!" && exit 1)
+
       - name: Build Python executable
         run: |
           pyinstaller main.spec --clean
