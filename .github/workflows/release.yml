@@ -169,7 +169,7 @@ jobs:
   create-release:
     needs: build-multi-platform
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Download all artifacts
@@ -188,10 +188,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag_name || github.ref_name }}
+          release_name: Release ${{ github.event_name == 'workflow_dispatch' && inputs.tag_name || github.ref_name }}
           body: |
-            ## Application Release ${{ github.ref_name }}
+            ## Application Release ${{ github.event_name == 'workflow_dispatch' && inputs.tag_name || github.ref_name }}
 
             This release contains executable packages for multiple platforms:
 
