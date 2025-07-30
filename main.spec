@@ -1,12 +1,27 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-
 a = Analysis(
     ['spring-ftl\\src\\main\\resources\\scripts\\main.py'],
-    pathex=[],
+    pathex=['spring-ftl\\src\\main\\resources\\scripts'],
     binaries=[],
-    datas=[('output', 'output'), ('spring-ftl\\src\\main\\java\\com\\example\\spring_ftl\\controller', 'controller'), ('spring-ftl\\src\\main\\java\\com\\example\\spring_ftl\\dto', 'dto'), ('spring-ftl\\src\\main\\java\\com\\example\\spring_ftl\\service', 'service'), ('spring-ftl\\src\\main\\resources\\templates', 'templates'), ('*.properties', '.')],
-    hiddenimports=['scripts'],
+    datas=[
+        ('output', 'output'),
+        ('spring-ftl\\src\\main\\java\\com\\example\\spring_ftl\\controller', 'controller'),
+        ('spring-ftl\\src\\main\\java\\com\\example\\spring_ftl\\dto', 'dto'),
+        ('spring-ftl\\src\\main\\java\\com\\example\\spring_ftl\\service', 'service'),
+        ('spring-ftl\\src\\main\\resources\\templates', 'templates'),
+        ('*.properties', '.'),
+        ('spring-ftl\\src\\main\\resources\\scripts\\combined.py', '.'),
+        ('spring-ftl\\src\\main\\resources\\scripts\\mapping.py', '.'),
+        ('spring-ftl\\src\\main\\resources\\scripts\\lov_impl_.py', '.'),
+        ('spring-ftl\\src\\main\\resources\\scripts\\screenfinal.py', '.'),
+    ],
+    hiddenimports=[
+        'combined',
+        'mapping',
+        'lov_impl_',
+        'screenfinal'
+    ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -14,6 +29,7 @@ a = Analysis(
     noarchive=False,
     optimize=0,
 )
+
 pyz = PYZ(a.pure)
 
 exe = EXE(

@@ -1,3 +1,0 @@
-- name: Install http-client-cli
-  run: |
-    npm install -g http-client-cli

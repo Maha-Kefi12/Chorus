@@ -1,0 +1,223 @@
+name: Create Release with Executables
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for the release'
+        required: true
+        default: 'v1.0.0'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  build-multi-platform:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            executable_name: xml-generator
+            archive_name: linux-x64
+            spring_jar_name: spring-ftl.jar
+          - os: windows-latest
+            executable_name: xml-generator.exe
+            archive_name: windows-x64
+            spring_jar_name: spring-ftl.jar
+          - os: macos-latest
+            executable_name: xml-generator
+            archive_name: macos-x64
+            spring_jar_name: spring-ftl.jar
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install jinja2 pyinstaller
+
+      - name: Build Spring Boot JAR (Linux/macOS)
+        if: runner.os != 'Windows'
+        working-directory: spring-ftl
+        run: |
+          chmod +x mvnw
+          ./mvnw clean package -DskipTests
+
+      - name: Build Spring Boot JAR (Windows)
+        if: runner.os == 'Windows'
+        working-directory: spring-ftl
+        run: |
+          .\mvnw.cmd clean package -DskipTests
+
+      - name: Fix main.spec path for current OS
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" != "Windows" ]; then
+            sed -i.bak "s|\\\\|/|g" main.spec
+          fi
+
+      - name: Check for main.py
+        shell: bash
+        run: |
+          ls -l spring-ftl/src/main/resources/scripts/ || (echo "main.py not found!" && exit 1)
+
+      - name: Build Python executable
+        run: |
+          pyinstaller main.spec --clean
+
+      - name: Create platform-specific package (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          mkdir -p release-package
+          cp spring-ftl/target/spring-ftl-*.jar release-package/${{ matrix.spring_jar_name }}
+          cp dist/main release-package/${{ matrix.executable_name }}
+          cat > release-package/start.sh << 'EOF'
+          #!/bin/bash
+          echo "Starting Spring Boot application..."
+          java -jar ${{ matrix.spring_jar_name }} &
+          SPRING_PID=$!
+          echo "Waiting for application to start..."
+          sleep 15
+          echo "Running XML generator..."
+          ./${{ matrix.executable_name }}
+          echo "Stopping Spring Boot application..."
+          kill $SPRING_PID 2>/dev/null || true
+          echo "Process completed!"
+          EOF
+          chmod +x release-package/start.sh
+          chmod +x release-package/${{ matrix.executable_name }}
+
+      - name: Create platform-specific package (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          mkdir release-package
+          copy "spring-ftl\target\spring-ftl-*.jar" "release-package\${{ matrix.spring_jar_name }}"
+          copy "dist\main.exe" "release-package\${{ matrix.executable_name }}"
+          echo @echo off > release-package\start.bat
+          echo echo Starting Spring Boot application... >> release-package\start.bat
+          echo start /B java -jar ${{ matrix.spring_jar_name }} >> release-package\start.bat
+          echo timeout /t 15 /nobreak >> release-package\start.bat
+          echo echo Running XML generator... >> release-package\start.bat
+          echo ${{ matrix.executable_name }} >> release-package\start.bat
+          echo echo Process completed! >> release-package\start.bat
+          echo pause >> release-package\start.bat
+
+      - name: Create README for package
+        shell: bash
+        run: |
+          cat > release-package/README.md << 'EOF'
+          # Application Package - ${{ matrix.archive_name }}
+
+          This package contains:
+          - `${{ matrix.spring_jar_name }}`: Spring Boot web application
+          - `${{ matrix.executable_name }}`: Python executable for generating XMLs
+          - Startup script: `start.sh` (Linux/macOS) or `start.bat` (Windows)
+
+          ## Usage
+
+          ### Quick Start:
+          - Linux/macOS: `./start.sh`
+          - Windows: `start.bat`
+
+          ### Manual execution:
+          1. Start Spring Boot: `java -jar ${{ matrix.spring_jar_name }}`
+          2. Run XML generator: `./${{ matrix.executable_name }}`
+
+          ## Requirements
+          - Java 17 or higher
+          - ${{ matrix.archive_name }} system
+          EOF
+
+      - name: Create archive (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          cd release-package
+          tar -czf ../application-${{ matrix.archive_name }}.tar.gz *
+          cd ..
+
+      - name: Create archive (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          Compress-Archive -Path release-package\* -DestinationPath application-${{ matrix.archive_name }}.zip
+
+      - name: Upload platform artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: application-${{ matrix.archive_name }}
+          path: |
+            application-${{ matrix.archive_name }}.*
+          retention-days: 90
+
+  create-release:
+    needs: build-multi-platform
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Display downloaded artifacts
+        run: |
+          ls -la artifacts/
+          find artifacts/ -type f
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag_name || github.ref_name }}
+          name: Release ${{ github.event_name == 'workflow_dispatch' && inputs.tag_name || github.ref_name }}
+          body: |
+            ## Application Release ${{ github.event_name == 'workflow_dispatch' && inputs.tag_name || github.ref_name }}
+
+            This release contains executable packages for multiple platforms:
+
+            ### Downloads:
+            - **Linux x64**: `application-linux-x64.tar.gz`
+            - **Windows x64**: `application-windows-x64.zip`  
+            - **macOS x64**: `application-macos-x64.tar.gz`
+
+            ### What's included:
+            - Spring Boot JAR application
+            - Python executable for XML generation
+            - Platform-specific startup scripts
+            - Documentation
+
+            ### Quick Start:
+            1. Download the package for your platform
+            2. Extract the archive
+            3. Run the startup script (`start.sh` or `start.bat`)
+
+            ### Requirements:
+            - Java 17 or higher
+
+          files: |
+            ./artifacts/application-linux-x64/application-linux-x64.tar.gz
+            ./artifacts/application-windows-x64/application-windows-x64.zip
+            ./artifacts/application-macos-x64/application-macos-x64.tar.gz
+          draft: false
+          prerelease: false
