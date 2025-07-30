@@ -38,7 +38,7 @@ jobs:
           distribution: 'temurin'
 
       - name: 🔧 Ensure DB driver is present
-        run: ./mvnw dependency:resolve -DincludeScope=runtime
+        run: run: mvn clean install -DskipTests
 
       - name: 🧪 Build Spring Boot app
         run: ./mvnw clean install -DskipTests
