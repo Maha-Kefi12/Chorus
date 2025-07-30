@@ -1419,11 +1419,9 @@ jobs:
           cd release
           zip -r ../spring-ftl-windows-x64.zip .
           cd ..
-
       - name: 📤 Upload Windows release package
         if: github.event_name == 'release'
         uses: actions/upload-release-asset@v1
-
       - name: 📤 Upload comprehensive API tests
         if: github.event_name == 'release'
         uses: actions/upload-release-asset@v1
