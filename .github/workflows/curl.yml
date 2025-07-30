@@ -14,19 +14,18 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      postgres:
-        image: postgres:13
+      mysql:
+        image: mysql:8
         env:
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: pass
-          POSTGRES_DB: testdb
+          MYSQL_ROOT_PASSWORD: ''
+          MYSQL_DATABASE: chorus
         ports:
-          - 5432:5432
+          - 3306:3306
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - name: 📥 Checkout repository
@@ -38,29 +37,15 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 🔧 Install Maven if mvnw missing
-        run: |
-          if [ ! -f "./mvnw" ]; then
-            echo "🔍 Maven wrapper not found, installing Maven..."
-            sudo apt-get update
-            sudo apt-get install -y maven
-          fi
+      - name: 🔧 Ensure DB driver is present
+        run: ./mvnw dependency:resolve -DincludeScope=runtime
 
       - name: 🧪 Build Spring Boot app
-        run: |
-          if [ -f "./mvnw" ]; then
-            ./mvnw clean install -DskipTests
-          else
-            mvn clean install -DskipTests
-          fi
+        run: ./mvnw clean install -DskipTests
 
       - name: 🚀 Run Spring Boot app in background
         run: |
-          if [ -f "./mvnw" ]; then
-            nohup ./mvnw spring-boot:run > spring.log 2>&1 &
-          else
-            nohup mvn spring-boot:run > spring.log 2>&1 &
-          fi
+          nohup ./mvnw spring-boot:run > spring.log 2>&1 &
           sleep 30
 
       - name: ⏳ Wait for app to become ready
@@ -70,7 +55,7 @@ jobs:
               echo "✅ App is up!"
               break
             fi
-            echo "⏳ Waiting for app... ($i)"
+            echo "⏳ Waiting for app..."
             sleep 5
           done
 
@@ -92,7 +77,7 @@ jobs:
           curl -i -X POST http://localhost:8080/transform/field-mapping-table -H "Content-Type: application/json" -d '{}'
           curl -i -X POST http://localhost:8080/api/visibility-analyzer/analyze/file -H "Content-Type: application/json" -d '{}'
 
-      - name: 📄 Upload Spring Boot log on failure
+      - name: 📄 Upload Spring log on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
