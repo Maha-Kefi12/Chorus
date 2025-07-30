@@ -73,6 +73,7 @@ jobs:
           fi
 
       - name: Check for main.py
+        shell: bash
         run: |
           ls -l spring-ftl/src/main/resources/scripts/ || (echo "main.py not found!" && exit 1)
 
@@ -82,6 +83,7 @@ jobs:
 
       - name: Create platform-specific package (Linux/macOS)
         if: runner.os != 'Windows'
+        shell: bash
         run: |
           mkdir -p release-package
           cp spring-ftl/target/spring-ftl-*.jar release-package/${{ matrix.spring_jar_name }}
@@ -118,6 +120,7 @@ jobs:
           echo pause >> release-package\start.bat
 
       - name: Create README for package
+        shell: bash
         run: |
           cat > release-package/README.md << 'EOF'
           # Application Package - ${{ matrix.archive_name }}
@@ -144,6 +147,7 @@ jobs:
 
       - name: Create archive (Linux/macOS)
         if: runner.os != 'Windows'
+        shell: bash
         run: |
           cd release-package
           tar -czf ../application-${{ matrix.archive_name }}.tar.gz *
