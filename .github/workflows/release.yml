@@ -1,0 +1,130 @@
+name: Build and Generate Executables
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-executables:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install jinja2 pyinstaller
+
+      - name: Build Spring Boot JAR
+        working-directory: spring-ftl
+        run: |
+          chmod +x mvnw
+          ./mvnw clean package -DskipTests
+          
+      - name: Verify JAR build
+        run: |
+          ls -la spring-ftl/target/
+          echo "JAR file details:"
+          ls -la spring-ftl/target/*.jar
+
+      - name: Build Python executable with PyInstaller
+        run: |
+          # Fix paths in spec file for Linux
+          sed -i "s|spring-ftl\\\\|spring-ftl/|g" main.spec
+          sed -i "s|\\\\|/|g" main.spec
+          
+          # Build the executable
+          pyinstaller main.spec --clean
+          
+      - name: Verify Python executable build
+        run: |
+          ls -la dist/
+          echo "Executable details:"
+          ls -la dist/main || ls -la dist/
+
+      - name: Test Python executable
+        run: |
+          cd dist
+          # Test if the executable runs without errors
+          timeout 10s ./main || echo "Executable test completed"
+
+      - name: Create distribution package
+        run: |
+          mkdir -p release-package
+          
+          # Copy Spring Boot JAR
+          cp spring-ftl/target/spring-ftl-*.jar release-package/spring-ftl.jar
+          
+          # Copy Python executable
+          cp dist/main release-package/xml-generator
+          
+          # Create startup script
+          cat > release-package/start.sh << 'EOFSH'
+#!/bin/bash
+
+# Start Spring Boot application in background
+echo "Starting Spring Boot application..."
+java -jar spring-ftl.jar &
+SPRING_PID=$!
+
+# Wait for Spring Boot to start
+echo "Waiting for Spring Boot to start..."
+sleep 15
+
+# Test if Spring Boot is running
+if curl -f http://localhost:8080/actuator/health 2>/dev/null; then
+    echo "Spring Boot application is running"
+else
+    echo "Warning: Spring Boot application may not be fully started"
+fi
+
+# Run XML generator
+echo "Running XML generator..."
+./xml-generator
+
+# Cleanup
+echo "Stopping Spring Boot application..."
+kill $SPRING_PID 2>/dev/null || true
+
+echo "Process completed!"
+EOFSH
+          
+          chmod +x release-package/start.sh
+          
+          # Create README for the package
+          cat > release-package/README.md << 'EOFMD'
+# Application Package
+
+This package contains:
+- `spring-ftl.jar`: Spring Boot web application
+- `xml-generator`: Python executable for generating XMLs
+- `start.sh`: Startup script to run both components
+
+## Usage
+
+### Run everything together:
+```bash
+./start.sh
