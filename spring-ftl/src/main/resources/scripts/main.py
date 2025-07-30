@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import subprocess
 import glob
 import os
@@ -13,13 +14,30 @@ def print_all_xmls(output_base_dir):
 
 def run_script(script_name):
     print(f"\n=== Running {script_name} ===")
-    result = subprocess.run([sys.executable, script_name], capture_output=True, text=True)
+    result = subprocess.run([sys.executable, script_name], capture_output=True, text=True, encoding='utf-8')
     print(result.stdout)
     if result.stderr:
         print(result.stderr)
     print(f"=== Finished {script_name} ===\n")
 
+def safe_print(message):
+    """Print message with proper encoding handling for Windows"""
+    try:
+        print(message)
+    except UnicodeEncodeError:
+        # Fallback to ASCII-safe version
+        safe_message = message.encode('ascii', 'replace').decode('ascii')
+        print(safe_message)
+
 def main():
+    # Set UTF-8 encoding for Windows console if possible
+    if sys.platform.startswith('win'):
+        try:
+            # Try to set console to UTF-8 mode
+            os.system('chcp 65001 >nul 2>&1')
+        except:
+            pass
+    
     output_dir = os.path.join('.idea', 'demo')
 
     # List of scripts to run in order
@@ -38,9 +56,9 @@ def main():
             run_script(script)
             print_all_xmls(output_dir)
         else:
-            print(f"⚠️ Warning: Script {script} not found, skipping...")
+            safe_print("WARNING: Script {} not found, skipping...".format(script))
     
-    print("✅ XML generation workflow completed!")
+    safe_print("SUCCESS: XML generation workflow completed!")
 
 if __name__ == "__main__":
     main()
