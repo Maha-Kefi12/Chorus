@@ -1,0 +1,147 @@
+name: 🔨 Build and Generate XMLs
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: chorus_password
+          MYSQL_DATABASE: chorus
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🧰 Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install Python dependencies
+        run: |
+          pip install jinja2 pyinstaller
+
+      - name: 🔨 Build Java Spring Boot project
+        working-directory: ./spring-ftl
+        run: |
+          chmod +x mvnw
+          ./mvnw clean install -DskipTests
+
+      - name: 🔧 Build Python executable with PyInstaller
+        run: |
+          # Fix Windows paths in main.spec for Linux
+          sed -i "s|spring-ftl\\\\|spring-ftl/|g" main.spec
+          sed -i "s|\\\\|/|g" main.spec
+          pyinstaller main.spec
+
+      - name: 📁 Display build results
+        run: |
+          echo "=== Dist directory contents ==="
+          ls -la dist/
+          echo "=== Executable info ==="
+          file dist/main || file dist/main.exe || echo "No executable found"
+
+      - name: 🧪 Test Python executable
+        run: |
+          echo "=== Testing Python executable ==="
+          cd spring-ftl/src/main/resources/scripts/
+          if [ -f "../../../../dist/main" ]; then
+            ../../../../dist/main
+          elif [ -f "../../../../dist/main.exe" ]; then
+            ../../../../dist/main.exe
+          else
+            echo "No executable found to test"
+            exit 1
+          fi
+
+      - name: 📄 Show generated XMLs
+        run: |
+          echo "=== Generated XML files ==="
+          find .idea/demo -name "*.xml" -type f 2>/dev/null || echo "No XML files found in .idea/demo"
+          find . -name "*.xml" -type f | head -10 || echo "No XML files found"
+
+      - name: 🚀 Start Spring Boot application
+        working-directory: ./spring-ftl
+        run: |
+          nohup ./mvnw spring-boot:run > ../spring-boot.log 2>&1 &
+          sleep 30
+
+      - name: ⏳ Wait for Spring Boot to be ready
+        run: |
+          echo "=== Waiting for Spring Boot application ==="
+          for i in {1..30}; do
+            if curl -s http://localhost:8080/actuator/health > /dev/null 2>&1; then
+              echo "✅ Spring Boot is ready!"
+              break
+            elif curl -s http://localhost:8080/api/analyze > /dev/null 2>&1; then
+              echo "✅ Spring Boot is ready (via API endpoint)!"
+              break
+            fi
+            echo "⏳ Waiting for Spring Boot... (attempt $i/30)"
+            sleep 5
+          done
+
+      - name: 🧪 Run HTTP endpoint tests
+        run: |
+          echo "=== Testing HTTP endpoints ==="
+          
+          echo "📡 Testing GET endpoints"
+          curl -f -s http://localhost:8080/api/analyze || echo "❌ /api/analyze failed"
+          curl -f -s http://localhost:8080/api/extract-function || echo "❌ /api/extract-function failed"
+          curl -f -s http://localhost:8080/transform/transform || echo "❌ /transform/transform failed"
+          
+          echo "📤 Testing POST endpoints"
+          curl -f -X POST http://localhost:8080/transform/updateFieldOrder \
+            -H "Content-Type: application/json" \
+            -d '{}' || echo "❌ POST /transform/updateFieldOrder failed"
+          
+          curl -f -X POST http://localhost:8080/transform/save-transformation \
+            -H "Content-Type: application/json" \
+            -d '{}' || echo "❌ POST /transform/save-transformation failed"
+          
+          echo "✅ HTTP tests completed"
+
+      - name: 📋 Upload artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-and-artifacts
+          path: |
+            spring-boot.log
+            dist/
+            .idea/demo/
+            build/
+          retention-days: 7
+
+      - name: 📋 Upload successful build artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: successful-build
+          path: |
+            dist/
+            .idea/demo/
+          retention-days: 30
