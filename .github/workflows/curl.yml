@@ -38,14 +38,14 @@ jobs:
           distribution: 'temurin'
 
       - name: 🔧 Ensure DB driver is present
-        run: run: mvn clean install -DskipTests
+        run: mvn dependency:resolve -DincludeScope=runtime
 
       - name: 🧪 Build Spring Boot app
-        run: ./mvnw clean install -DskipTests
+        run: mvn clean install -DskipTests
 
       - name: 🚀 Run Spring Boot app in background
         run: |
-          nohup ./mvnw spring-boot:run > spring.log 2>&1 &
+          nohup mvn spring-boot:run > spring.log 2>&1 &
           sleep 30
 
       - name: ⏳ Wait for app to become ready
