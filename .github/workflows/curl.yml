@@ -38,12 +38,15 @@ jobs:
           distribution: 'temurin'
 
       - name: 🔧 Ensure DB driver is present
+        working-directory: ./spring-ftl
         run: mvn dependency:resolve -DincludeScope=runtime
 
       - name: 🧪 Build Spring Boot app
+        working-directory: ./spring-ftl
         run: mvn clean install -DskipTests
 
       - name: 🚀 Run Spring Boot app in background
+        working-directory: ./spring-ftl
         run: |
           nohup mvn spring-boot:run > spring.log 2>&1 &
           sleep 30
@@ -82,4 +85,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: spring-boot-log
-          path: spring.log
+          path: ./spring-ftl/spring.log
