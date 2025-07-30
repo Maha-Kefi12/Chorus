@@ -66,9 +66,9 @@ jobs:
           .\mvnw.cmd clean package -DskipTests
 
       - name: Fix main.spec path for current OS
+        shell: bash
         run: |
           if [ "$RUNNER_OS" != "Windows" ]; then
-            # Use a portable sed for both Linux and macOS
             sed -i.bak "s|\\\\|/|g" main.spec
           fi
 
