@@ -78,6 +78,8 @@ jobs:
 
   generate-http-tests:
     runs-on: ubuntu-latest
+    # Only run this job for releases
+    if: github.event_name == 'release' && github.event.action == 'published'
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
@@ -87,9 +89,123 @@ jobs:
         with:
           python-version: '3.9'
 
+      - name: 📁 Create httpRequests directory
+        run: |
+          cd spring-ftl
+          mkdir -p httpRequests
+
       - name: 🔍 Generate HTTP endpoint tests
         run: |
           cd spring-ftl
+          
+          # Check if generate_http_tests.py exists, if not create it
+          if [ ! -f "generate_http_tests.py" ]; then
+            echo "Creating generate_http_tests.py script..."
+            cat > generate_http_tests.py << 'EOF'
+          #!/usr/bin/env python3
+          """
+          Generate HTTP test files for Spring Boot endpoints
+          """
+          import os
+          
+          def create_http_requests():
+              # Ensure httpRequests directory exists
+              os.makedirs('httpRequests', exist_ok=True)
+              
+              # API tests
+              with open('httpRequests/api-tests.http', 'w') as f:
+                  f.write("""### Test analyze endpoint
+          GET http://localhost:8080/api/analyze
+          Accept: application/json
+          
+          ###
+          
+          ### Test extract-function endpoint
+          GET http://localhost:8080/api/extract-function?path=test.java
+          Accept: application/json
+          
+          ###
+          
+          ### Test extract-function-name endpoint
+          GET http://localhost:8080/api/extract-function-name?path=test.java
+          Accept: application/json
+          
+          ###
+          
+          ### Test parser fromCode endpoint
+          POST http://localhost:8080/api/parser/fromCode
+          Content-Type: text/plain
+          
+          public class TestClass {
+              public void testMethod() {
+                  System.out.println("Hello World");
+              }
+          }
+          
+          ###
+          """)
+          
+              # Transform tests
+              with open('httpRequests/transform-tests.http', 'w') as f:
+                  f.write("""### Test updateFieldOrder endpoint
+          POST http://localhost:8080/transform/updateFieldOrder
+          Content-Type: application/json
+          
+          {
+            "fields": ["field1", "field2", "field3"],
+            "order": "ASC"
+          }
+          
+          ###
+          
+          ### Test save-transformation endpoint
+          POST http://localhost:8080/transform/save-transformation
+          Content-Type: application/json
+          
+          {
+            "transformation": "test transformation",
+            "type": "field_mapping",
+            "metadata": {
+              "author": "system",
+              "timestamp": "2024-01-01T00:00:00Z"
+            }
+          }
+          
+          ###
+          """)
+          
+              # Health and monitoring tests
+              with open('httpRequests/health-tests.http', 'w') as f:
+                  f.write("""### Health check
+          GET http://localhost:8080/actuator/health
+          Accept: application/json
+          
+          ###
+          
+          ### Info endpoint
+          GET http://localhost:8080/actuator/info
+          Accept: application/json
+          
+          ###
+          
+          ### Metrics endpoint
+          GET http://localhost:8080/actuator/metrics
+          Accept: application/json
+          
+          ###
+          """)
+          
+              print("✅ HTTP test files generated successfully!")
+              print("📁 Files created in httpRequests/:")
+              for file in os.listdir('httpRequests'):
+                  print(f"   - {file}")
+          
+          if __name__ == "__main__":
+              create_http_requests()
+          EOF
+          fi
+          
+          # Run the script
           python generate_http_tests.py
 
       - name: 📦 Upload HTTP test files
