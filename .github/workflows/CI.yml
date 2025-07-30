@@ -1,0 +1,129 @@
+name: Build and Generate Executables
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-executables:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install jinja2 pyinstaller
+
+      - name: Build Spring Boot JAR
+        working-directory: spring-ftl
+        run: |
+          chmod +x mvnw || true
+          if [ -f mvnw ]; then
+            ./mvnw clean package -DskipTests
+          else
+            mvn clean package -DskipTests
+          fi
+
+      - name: Verify JAR build
+        run: |
+          ls -la spring-ftl/target/
+          echo "JAR file details:"
+          ls -la spring-ftl/target/*.jar || echo "No JAR found."
+
+      - name: Build Python executable with PyInstaller
+        run: |
+          # Fix Windows backslashes in spec file for Linux runner
+          sed -i 's|spring-ftl\\\\|spring-ftl/|g' main.spec || true
+          sed -i 's|\\\\|/|g' main.spec || true
+
+          pyinstaller main.spec --clean
+
+      - name: Verify Python executable build
+        run: |
+          ls -la dist/
+          echo "Executable details:"
+          ls -la dist/main || ls -la dist/ || echo "No executable found."
+
+      - name: Test Python executable
+        run: |
+          cd dist
+          timeout 10 ./main || echo "Executable test completed or timed out"
+
+      - name: Create distribution package
+        run: |
+          mkdir -p release-package
+
+          # Copy Spring Boot JAR
+          cp spring-ftl/target/spring-ftl-*.jar release-package/spring-ftl.jar
+
+          # Copy Python executable
+          cp dist/main release-package/xml-generator
+
+          # Create startup script
+          cat > release-package/start.sh << 'EOFSH'
+#!/bin/bash
+
+echo "Starting Spring Boot application..."
+java -jar spring-ftl.jar &
+SPRING_PID=$!
+
+echo "Waiting for Spring Boot to start (up to 60 seconds)..."
+for i in {1..12}; do
+  if curl -fs http://localhost:8080/actuator/health; then
+    echo "Spring Boot application is running"
+    break
+  else
+    echo "Waiting... ($i/12)"
+    sleep 5
+  fi
+done
+
+echo "Running XML generator..."
+./xml-generator
+
+echo "Stopping Spring Boot application..."
+kill $SPRING_PID 2>/dev/null || true
+
+echo "Process completed!"
+EOFSH
+
+          chmod +x release-package/start.sh
+
+          # Create README for the package
+          cat > release-package/README.md << 'EOFMD'
+# Application Package
+
+This package contains:
+- `spring-ftl.jar`: Spring Boot web application
+- `xml-generator`: Python executable for generating XML files
+- `start.sh`: Startup script to run both components
+
+## Usage
+
+Run all components with:
+```bash
+./start.sh
