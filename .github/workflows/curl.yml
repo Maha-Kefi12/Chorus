@@ -38,13 +38,29 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: 🔧 Install Maven if mvnw missing
+        run: |
+          if [ ! -f "./mvnw" ]; then
+            echo "🔍 Maven wrapper not found, installing Maven..."
+            sudo apt-get update
+            sudo apt-get install -y maven
+          fi
+
       - name: 🧪 Build Spring Boot app
         run: |
-          ./mvnw clean install -DskipTests
+          if [ -f "./mvnw" ]; then
+            ./mvnw clean install -DskipTests
+          else
+            mvn clean install -DskipTests
+          fi
 
       - name: 🚀 Run Spring Boot app in background
         run: |
-          nohup ./mvnw spring-boot:run > spring.log 2>&1 &
+          if [ -f "./mvnw" ]; then
+            nohup ./mvnw spring-boot:run > spring.log 2>&1 &
+          else
+            nohup mvn spring-boot:run > spring.log 2>&1 &
+          fi
           sleep 30
 
       - name: ⏳ Wait for app to become ready
@@ -54,7 +70,7 @@ jobs:
               echo "✅ App is up!"
               break
             fi
-            echo "⏳ Waiting for app..."
+            echo "⏳ Waiting for app... ($i)"
             sleep 5
           done
 
@@ -76,7 +92,7 @@ jobs:
           curl -i -X POST http://localhost:8080/transform/field-mapping-table -H "Content-Type: application/json" -d '{}'
           curl -i -X POST http://localhost:8080/api/visibility-analyzer/analyze/file -H "Content-Type: application/json" -d '{}'
 
-      - name: 📄 Upload Spring log on failure
+      - name: 📄 Upload Spring Boot log on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
