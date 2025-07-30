@@ -10,7 +10,7 @@ on:
 jobs:
   build-executables:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -43,7 +43,7 @@ jobs:
         run: |
           chmod +x mvnw
           ./mvnw clean package -DskipTests
-          
+
       - name: Verify JAR build
         run: |
           ls -la spring-ftl/target/
@@ -55,10 +55,9 @@ jobs:
           # Fix paths in spec file for Linux
           sed -i "s|spring-ftl\\\\|spring-ftl/|g" main.spec
           sed -i "s|\\\\|/|g" main.spec
-          
           # Build the executable
           pyinstaller main.spec --clean
-          
+
       - name: Verify Python executable build
         run: |
           ls -la dist/
@@ -74,15 +73,12 @@ jobs:
       - name: Create distribution package
         run: |
           mkdir -p release-package
-          
           # Copy Spring Boot JAR
           cp spring-ftl/target/spring-ftl-*.jar release-package/spring-ftl.jar
-          
           # Copy Python executable
           cp dist/main release-package/xml-generator
-          
           # Create startup script
-          cat > release-package/start.sh << 'EOFSH'
+cat > release-package/start.sh << 'EOF'
 #!/bin/bash
 
 # Start Spring Boot application in background
@@ -110,12 +106,10 @@ echo "Stopping Spring Boot application..."
 kill $SPRING_PID 2>/dev/null || true
 
 echo "Process completed!"
-EOFSH
-          
+EOF
           chmod +x release-package/start.sh
-          
           # Create README for the package
-          cat > release-package/README.md << 'EOFMD'
+cat > release-package/README.md << 'EOF'
 # Application Package
 
 This package contains:
