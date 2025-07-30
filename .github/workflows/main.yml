@@ -71,6 +71,19 @@ jobs:
           # Test if the executable runs without errors
           timeout 10s ./main || echo "Executable test completed"
 
+      - name: Test workflow scripts
+        run: |
+          # Make scripts executable
+          chmod +x run-xml-generator.sh
+          
+          # Test help functionality
+          ./run-xml-generator.sh --help
+          
+          # Test prerequisites check (should pass)
+          echo "Testing prerequisites..."
+          java -version
+          python3 --version || python --version
+
       - name: Create distribution package
         run: |
           mkdir -p release-package
@@ -81,50 +94,55 @@ jobs:
           # Copy Python executable
           cp dist/main release-package/xml-generator
           
-          # Create startup script
+          # Copy our comprehensive workflow scripts
+          cp run-xml-generator.sh release-package/
+          cp run-xml-generator.bat release-package/
+          chmod +x release-package/run-xml-generator.sh
+          
+          # Copy Python scripts
+          cp -r spring-ftl/src/main/resources/scripts release-package/
+          
+          # Create simple startup script for backward compatibility
           cat > release-package/start.sh << 'EOFSH'
 #!/bin/bash
 
-# Start Spring Boot application in background
-echo "Starting Spring Boot application..."
-java -jar spring-ftl.jar &
-SPRING_PID=$!
-
-# Wait for Spring Boot to start
-echo "Waiting for Spring Boot to start..."
-sleep 15
-
-# Test if Spring Boot is running
-if curl -f http://localhost:8080/actuator/health 2>/dev/null; then
-    echo "Spring Boot application is running"
-else
-    echo "Warning: Spring Boot application may not be fully started"
-fi
-
-# Run XML generator
-echo "Running XML generator..."
-./xml-generator
-
-# Cleanup
-echo "Stopping Spring Boot application..."
-kill $SPRING_PID 2>/dev/null || true
-
-echo "Process completed!"
+# Use the comprehensive workflow script
+./run-xml-generator.sh "$@"
 EOFSH
           
           chmod +x release-package/start.sh
           
           # Create README for the package
           cat > release-package/README.md << 'EOFMD'
-# Application Package
+# XML Generator Application Package
 
 This package contains:
-- `spring-ftl.jar`: Spring Boot web application
-- `xml-generator`: Python executable for generating XMLs
-- `start.sh`: Startup script to run both components
+- `spring-ftl.jar`: Spring Boot web application for Java class analysis
+- `xml-generator`: Python executable for generating XMLs (PyInstaller build)
+- `run-xml-generator.sh`: Comprehensive workflow script for Linux/macOS
+- `run-xml-generator.bat`: Comprehensive workflow script for Windows
+- `start.sh`: Simple startup script (backward compatibility)
+- `scripts/`: Python source scripts for XML generation
 
 ## Usage
 
-### Run everything together:
+### Recommended (comprehensive workflow):
+
+**Linux/macOS:**
+```bash
+./run-xml-generator.sh
+```
+
+**Windows:**
+```cmd
+run-xml-generator.bat
+```
+
+**With Git operations:**
+```bash
+./run-xml-generator.sh --git
+```
+
+### Simple usage (backward compatibility):
 ```bash
 ./start.sh
