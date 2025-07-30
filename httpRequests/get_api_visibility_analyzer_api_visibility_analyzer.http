@@ -1,0 +1,4 @@
+### RequestMapping - GET api/visibility-analyzer/api/visibility-analyzer
+GET http://localhost:8080/api/visibility-analyzer/api/visibility-analyzer
+Accept: application/json
+

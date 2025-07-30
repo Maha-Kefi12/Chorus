@@ -1,0 +1,4 @@
+### RequestMapping - GET transform/transform
+GET http://localhost:8080/transform/transform
+Accept: application/json
+

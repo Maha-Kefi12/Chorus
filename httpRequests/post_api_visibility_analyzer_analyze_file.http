@@ -1,0 +1,9 @@
+### PostMapping - POST api/visibility-analyzer/analyze/file
+POST http://localhost:8080/api/visibility-analyzer/analyze/file
+Content-Type: application/json
+Accept: application/json
+
+{
+  "sampleField": "value",
+  "anotherField": 123
+}

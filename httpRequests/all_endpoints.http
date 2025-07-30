@@ -1,0 +1,95 @@
+### All Generated Endpoints
+
+### API CONTROLLER
+
+### GetMapping - GET api/analyze
+GET http://localhost:8080/api/analyze
+Accept: application/json
+
+
+### GetMapping - GET api/extract-function
+GET http://localhost:8080/api/extract-function
+Accept: application/json
+
+
+### GetMapping - GET api/extract-function-name
+GET http://localhost:8080/api/extract-function-name
+Accept: application/json
+
+
+### GetMapping - GET api/extract-function-name-1
+GET http://localhost:8080/api/extract-function-name-1
+Accept: application/json
+
+
+### RequestMapping - GET api/api
+GET http://localhost:8080/api/api
+Accept: application/json
+
+
+### RequestMapping - GET api/parser/api/parser
+GET http://localhost:8080/api/parser/api/parser
+Accept: application/json
+
+
+### PostMapping - POST api/visibility-analyzer/analyze/file
+POST http://localhost:8080/api/visibility-analyzer/analyze/file
+Content-Type: application/json
+Accept: application/json
+
+{
+  "sampleField": "value",
+  "anotherField": 123
+}
+
+### RequestMapping - GET api/visibility-analyzer/api/visibility-analyzer
+GET http://localhost:8080/api/visibility-analyzer/api/visibility-analyzer
+Accept: application/json
+
+
+==================================================
+
+### TRANSFORM CONTROLLER
+
+### PostMapping - POST transform/updateFieldOrder
+POST http://localhost:8080/transform/updateFieldOrder
+Content-Type: application/json
+Accept: application/json
+
+{
+  "sampleField": "value",
+  "anotherField": 123
+}
+
+### PostMapping - POST transform/save-transformation
+POST http://localhost:8080/transform/save-transformation
+Content-Type: application/json
+Accept: application/json
+
+{
+  "sampleField": "value",
+  "anotherField": 123
+}
+
+### PostMapping - POST transform/field-mapping-table
+POST http://localhost:8080/transform/field-mapping-table
+Content-Type: application/json
+Accept: application/json
+
+{
+  "sampleField": "value",
+  "anotherField": 123
+}
+
+### RequestMapping - GET transform/transform
+GET http://localhost:8080/transform/transform
+Accept: application/json
+
+
+### RequestMapping - GET transform/transform
+GET http://localhost:8080/transform/transform
+Accept: application/json
+
+
+==================================================
+

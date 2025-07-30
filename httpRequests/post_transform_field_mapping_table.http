@@ -1,0 +1,9 @@
+### PostMapping - POST transform/field-mapping-table
+POST http://localhost:8080/transform/field-mapping-table
+Content-Type: application/json
+Accept: application/json
+
+{
+  "sampleField": "value",
+  "anotherField": 123
+}

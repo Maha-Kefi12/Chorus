@@ -1,0 +1,4 @@
+### RequestMapping - GET api/api
+GET http://localhost:8080/api/api
+Accept: application/json
+

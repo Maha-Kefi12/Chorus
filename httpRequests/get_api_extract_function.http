@@ -1,0 +1,4 @@
+### GetMapping - GET api/extract-function
+GET http://localhost:8080/api/extract-function
+Accept: application/json
+
