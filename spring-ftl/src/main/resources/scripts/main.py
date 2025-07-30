@@ -30,9 +30,17 @@ def main():
         'screenfinal.py'
     ]
 
+    # Create output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
+
     for script in scripts:
-        run_script(script)
-        print_all_xmls(output_dir)
+        if os.path.exists(script):
+            run_script(script)
+            print_all_xmls(output_dir)
+        else:
+            print(f"⚠️ Warning: Script {script} not found, skipping...")
+    
+    print("✅ XML generation workflow completed!")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,25 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.3)
+
+2025-07-30T09:52:37.907Z  INFO 3011 --- [spring-ftl] [           main] c.e.spring_ftl.SpringFtlApplication      : Starting SpringFtlApplication v0.0.1-SNAPSHOT using Java 21.0.7 with PID 3011 (/workspace/spring-ftl/target/spring-ftl-0.0.1-SNAPSHOT.jar started by ubuntu in /workspace)
+2025-07-30T09:52:37.909Z  INFO 3011 --- [spring-ftl] [           main] c.e.spring_ftl.SpringFtlApplication      : No active profile set, falling back to 1 default profile: "default"
+2025-07-30T09:52:38.481Z  INFO 3011 --- [spring-ftl] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-07-30T09:52:38.490Z  INFO 3011 --- [spring-ftl] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-07-30T09:52:38.491Z  INFO 3011 --- [spring-ftl] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.42]
+2025-07-30T09:52:38.518Z  INFO 3011 --- [spring-ftl] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-07-30T09:52:38.518Z  INFO 3011 --- [spring-ftl] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 571 ms
+2025-07-30T09:52:38.839Z  INFO 3011 --- [spring-ftl] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-07-30T09:52:38.847Z  INFO 3011 --- [spring-ftl] [           main] c.e.spring_ftl.SpringFtlApplication      : Started SpringFtlApplication in 1.203 seconds (process running for 1.492)
+✅ FreeMarker template generated successfully: /workspace/src/main/resources/templates/generated_complete_template_with_fieldlinks_sibling.ftl.j2
+2025-07-30T09:52:39.404Z  INFO 3011 --- [spring-ftl] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-07-30T09:52:39.404Z  INFO 3011 --- [spring-ftl] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-07-30T09:52:39.404Z  INFO 3011 --- [spring-ftl] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2025-07-30T09:53:07.346Z  INFO 3011 --- [spring-ftl] [ionShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-07-30T09:53:07.350Z  INFO 3011 --- [spring-ftl] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
