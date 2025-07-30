@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<form xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="avniBlockForm" xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd" fatherId="LotIntervallePortefeuille" beanId="avniFormService">
+  <graphic>
+    <headerVisible>false</headerVisible>
+    <collapsible>false</collapsible>
+    <collapsed>false</collapsed>
+  </graphic>
+  <fieldLinks>
+  </fieldLinks>
+  <areas>
+    <area id="area1" sortNumber="1">
+      <graphic>
+        <headerVisible>false</headerVisible>
+      </graphic>
+      <fields>
+        <field id="devs" nature="dualfield" columnNumber="1" sortNumber="10" readOnly="false" hidden="false" lov="devsLovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" maxDualFieldValues="4" />
+        <field id="aidvvlp" nature="checkbox" columnNumber="1" sortNumber="11" readOnly="false" hidden="false" />
+        <field id="adtvld_c" nature="date" columnNumber="1" sortNumber="12" readOnly="false" hidden="false" />
+        <field id="adtvlf_c" nature="date" columnNumber="1" sortNumber="13" readOnly="false" hidden="false" />
+      </fields>
+    </area>
+    <area id="area2" sortNumber="2">
+      <fields>
+        <field id="riddev" nature="lov" lov="IprapRiddevLovQueryServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" columnNumber="1" sortNumber="1" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        </field>
+        <field id="acetdev" nature="lov" lov="IprapAcetdevLovQueryServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" columnNumber="1" sortNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        </field>
+        <field id="adtchgo" nature="date" sortNumber="1" columnNumber="2">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        </field>
+        <field id="rcepla" nature="lov" lov="IprapRceplaLovQueryServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" columnNumber="2" sortNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        </field>
+      </fields>
+    </area>
+  </areas>
+</form>

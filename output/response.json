@@ -1,0 +1,224 @@
+{
+  "aini" : {
+    "optcrm" : {
+      "readOnly" : "false",
+      "id" : "optcrm",
+      "label" : "Cours moyen",
+      "hidden" : "false",
+      "nature" : "checkbox",
+      "defaultValue" : ""
+    },
+    "adtech" : {
+      "readOnly" : "false",
+      "id" : "adtech",
+      "label" : "Date d'échéance",
+      "hidden" : "false",
+      "nature" : "date",
+      "defaultValue" : ""
+    },
+    "valeurc" : {
+      "readOnly" : "false",
+      "id" : "valeurc",
+      "label" : "Valeur",
+      "hidden" : "false",
+      "nature" : "checkbox",
+      "defaultValue" : ""
+    },
+    "adtcou" : {
+      "readOnly" : "false",
+      "id" : "adtcou",
+      "label" : "Date rech. cours",
+      "hidden" : "false",
+      "nature" : "date",
+      "defaultValue" : ""
+    },
+    "ridori" : {
+      "lov" : "ridoriLovServiceImpl",
+      "displayTemplate" : "{value} - {longLabel}",
+      "hidden" : "false",
+      "nature" : "lov",
+      "defaultValue" : "",
+      "readOnly" : "false",
+      "id" : "ridori",
+      "label" : "Origine des valeurs",
+      "valueField" : "value"
+    },
+    "adtfin" : {
+      "readOnly" : "false",
+      "id" : "adtfin",
+      "label" : "Date de calcul du couru",
+      "hidden" : "false",
+      "nature" : "date",
+      "defaultValue" : ""
+    },
+    "opt_immo" : {
+      "lov" : "opt_immoLovServiceImpl",
+      "displayTemplate" : "{value} - {longLabel}",
+      "hidden" : "false",
+      "nature" : "lov",
+      "defaultValue" : "",
+      "readOnly" : "false",
+      "id" : "opt_immo",
+      "label" : "Option sur l'immobilier",
+      "valueField" : "value"
+    },
+    "bidftc" : {
+      "lov" : "bidftcLovServiceImpl",
+      "displayTemplate" : "{value} - {longLabel}",
+      "hidden" : "false",
+      "nature" : "lov",
+      "defaultValue" : "",
+      "readOnly" : "false",
+      "id" : "bidftc",
+      "label" : "Type de cours",
+      "valueField" : "value"
+    },
+    "valeurPanel" : {
+      "readOnly" : "false",
+      "id" : "valeurPanel",
+      "label" : "",
+      "hidden" : "false",
+      "nature" : "string",
+      "defaultValue" : ""
+    },
+    "aidtrp" : {
+      "lov" : "aidtrpLovServiceImpl",
+      "displayTemplate" : "{value} - {longLabel}",
+      "hidden" : "false",
+      "nature" : "lov",
+      "defaultValue" : "",
+      "readOnly" : "false",
+      "id" : "aidtrp",
+      "label" : "Option stock",
+      "valueField" : "value"
+    },
+    "acerat" : {
+      "readOnly" : "false",
+      "id" : "acerat",
+      "label" : "Recherche données rating",
+      "hidden" : "false",
+      "nature" : "checkbox",
+      "defaultValue" : ""
+    },
+    "ridtins" : {
+      "readOnly" : "false",
+      "id" : "ridtins",
+      "label" : "Type instrument",
+      "hidden" : "false",
+      "nature" : "checkbox",
+      "defaultValue" : ""
+    },
+    "opt_libcpta" : {
+      "readOnly" : "false",
+      "id" : "opt_libcpta",
+      "label" : "",
+      "hidden" : "false",
+      "nature" : "string",
+      "defaultValue" : ""
+    },
+    "devs" : {
+      "lov" : "devsLovServiceImpl",
+      "displayTemplate" : "{value} - {longLabel}",
+      "hidden" : "false",
+      "nature" : "dualfield",
+      "columnNumber" : 1,
+      "defaultValue" : "",
+      "sortNumber" : 19,
+      "readOnly" : "false",
+      "id" : "devs",
+      "label" : "Devises",
+      "maxDualFieldValues" : "4",
+      "valueField" : "value"
+    },
+    "xceopt" : {
+      "lov" : "xceoptLovServiceImpl",
+      "displayTemplate" : "{value} - {longLabel}",
+      "hidden" : "false",
+      "nature" : "lov",
+      "defaultValue" : "",
+      "readOnly" : "false",
+      "id" : "xceopt",
+      "label" : "Option",
+      "valueField" : "value"
+    },
+    "opt_cpta" : {
+      "lov" : "opt_cptaLovServiceImpl",
+      "displayTemplate" : "{value} - {longLabel}",
+      "hidden" : "false",
+      "nature" : "lov",
+      "defaultValue" : "",
+      "readOnly" : "false",
+      "id" : "opt_cpta",
+      "label" : "Option compta TCN precomptes",
+      "valueField" : "value"
+    },
+    "traitvni" : {
+      "readOnly" : "false",
+      "id" : "traitvni",
+      "label" : "Traitement en devise VNI",
+      "hidden" : "true",
+      "nature" : "checkbox",
+      "defaultValue" : ""
+    },
+    "opt_amti" : {
+      "readOnly" : "false",
+      "id" : "opt_amti",
+      "label" : "Interets échus décalés",
+      "hidden" : "false",
+      "nature" : "checkbox",
+      "defaultValue" : ""
+    },
+    "csoPanel" : {
+      "readOnly" : "false",
+      "id" : "csoPanel",
+      "label" : "",
+      "hidden" : "false",
+      "nature" : "string",
+      "defaultValue" : ""
+    },
+    "adtinv" : {
+      "lov" : "adtinvLovServiceImpl",
+      "displayTemplate" : "{value} - {longLabel}",
+      "hidden" : "false",
+      "nature" : "lov",
+      "defaultValue" : "",
+      "readOnly" : "false",
+      "id" : "adtinv",
+      "label" : "Date d'inventaire",
+      "valueField" : "value"
+    },
+    "xidcev" : {
+      "lov" : "xidcevLovServiceImpl",
+      "displayTemplate" : "{value} - {longLabel}",
+      "hidden" : "false",
+      "nature" : "lov",
+      "defaultValue" : "",
+      "readOnly" : "false",
+      "id" : "xidcev",
+      "label" : "Type de codification",
+      "valueField" : "value"
+    },
+    "opt_libimmo" : {
+      "readOnly" : "false",
+      "id" : "opt_libimmo",
+      "label" : "",
+      "hidden" : "false",
+      "nature" : "string",
+      "defaultValue" : ""
+    },
+    "ridtins_dualfield" : {
+      "lov" : "devsLovServiceImpl",
+      "displayTemplate" : "{value} - {longLabel}",
+      "hidden" : "false",
+      "nature" : "dualfield",
+      "columnNumber" : 1,
+      "defaultValue" : "",
+      "sortNumber" : 19,
+      "readOnly" : "false",
+      "id" : "ridtins_dualfield",
+      "label" : "Devises",
+      "maxDualFieldValues" : "4",
+      "valueField" : "value"
+    }
+  }
+}

@@ -1,0 +1,57 @@
+<#-- Template FTL générique générée par Jinja2 -->
+
+<form id="InventoryReportSpecifique" beanId="AINIReportBlockService">
+  <graphic>
+    <headerVisible>false</headerVisible>
+  </graphic>
+  <areas>
+
+  {% for area in areas %}
+    <area id="${area.id}" sortNumber="${area.sortNumber}">
+      <graphic>
+        <headerVisible>false</headerVisible>
+      </graphic>
+      <fields>
+        <#list area.fields as field>
+          <#if field.nature == "lov">
+            <field
+              clearValueIfNotInStore="${field.clearValueIfNotInStore!''}"
+              columnNumber="${field.columnNumber!''}"
+              defaultValue="${field.defaultValue!''}"
+              displayTemplate="${field.displayTemplate!''}"
+              hidden="${field.hidden!''}"
+              id="${field.id!''}"
+              lov="${field.lov!''}"
+              maxDualFieldValues="${field.maxDualFieldValues!''}"
+              maxLength="${field.maxLength!''}"
+              nature="${field.nature!''}"
+              readOnly="${field.readOnly!''}"
+              sortNumber="${field.sortNumber!''}"
+              valueField="${field.valueField!''}"
+              label="${field.label!''}"
+            />
+          <#else>
+            <field
+              clearValueIfNotInStore="<#if field.clearValueIfNotInStore??>${field.clearValueIfNotInStore}</#if>"
+              columnNumber="<#if field.columnNumber??>${field.columnNumber}</#if>"
+              defaultValue="<#if field.defaultValue??>${field.defaultValue}</#if>"
+              displayTemplate="<#if field.displayTemplate??>${field.displayTemplate}</#if>"
+              hidden="<#if field.hidden??>${field.hidden}</#if>"
+              id="<#if field.id??>${field.id}</#if>"
+              lov="<#if field.lov??>${field.lov}</#if>"
+              maxDualFieldValues="<#if field.maxDualFieldValues??>${field.maxDualFieldValues}</#if>"
+              maxLength="<#if field.maxLength??>${field.maxLength}</#if>"
+              nature="<#if field.nature??>${field.nature}</#if>"
+              readOnly="<#if field.readOnly??>${field.readOnly}</#if>"
+              sortNumber="<#if field.sortNumber??>${field.sortNumber}</#if>"
+              valueField="<#if field.valueField??>${field.valueField}</#if>"
+              label="<#if field.label??>${field.label}</#if>"
+            />
+          </#if>
+        </#list>
+      </fields>
+    </area>
+  {% endfor %}
+
+  </areas>
+</form>

@@ -1,0 +1,490 @@
+{
+  "originalJson": {
+    "aini": {
+      "optcrm": {
+        "readOnly": "false",
+        "id": "optcrm",
+        "label": "Cours moyen",
+        "hidden": "false",
+        "nature": "checkbox",
+        "defaultValue": ""
+      },
+      "adtech": {
+        "readOnly": "false",
+        "id": "adtech",
+        "label": "Date d'échéance",
+        "hidden": "false",
+        "nature": "date",
+        "defaultValue": ""
+      },
+      "valeurc": {
+        "readOnly": "false",
+        "id": "valeurc",
+        "label": "Valeur",
+        "hidden": "false",
+        "nature": "checkbox",
+        "defaultValue": ""
+      },
+      "adtcou": {
+        "readOnly": "false",
+        "id": "adtcou",
+        "label": "Date rech. cours",
+        "hidden": "false",
+        "nature": "date",
+        "defaultValue": ""
+      },
+      "ridori": {
+        "lov": "ridoriLovServiceImpl",
+        "displayTemplate": "{value} - {longLabel}",
+        "hidden": "false",
+        "nature": "lov",
+        "defaultValue": "",
+        "readOnly": "false",
+        "id": "ridori",
+        "label": "Origine des valeurs",
+        "valueField": "value"
+      },
+      "adtfin": {
+        "readOnly": "false",
+        "id": "adtfin",
+        "label": "Date de calcul du couru",
+        "hidden": "false",
+        "nature": "date",
+        "defaultValue": ""
+      },
+      "opt_immo": {
+        "lov": "opt_immoLovServiceImpl",
+        "displayTemplate": "{value} - {longLabel}",
+        "hidden": "false",
+        "nature": "lov",
+        "defaultValue": "",
+        "readOnly": "false",
+        "id": "opt_immo",
+        "label": "Option sur l'immobilier",
+        "valueField": "value"
+      },
+      "bidftc": {
+        "lov": "bidftcLovServiceImpl",
+        "displayTemplate": "{value} - {longLabel}",
+        "hidden": "false",
+        "nature": "lov",
+        "defaultValue": "",
+        "readOnly": "false",
+        "id": "bidftc",
+        "label": "Type de cours",
+        "valueField": "value"
+      },
+      "valeurPanel": {
+        "readOnly": "false",
+        "id": "valeurPanel",
+        "label": "",
+        "hidden": "false",
+        "nature": "string",
+        "defaultValue": ""
+      },
+      "aidtrp": {
+        "lov": "aidtrpLovServiceImpl",
+        "displayTemplate": "{value} - {longLabel}",
+        "hidden": "false",
+        "nature": "lov",
+        "defaultValue": "",
+        "readOnly": "false",
+        "id": "aidtrp",
+        "label": "Option stock",
+        "valueField": "value"
+      },
+      "acerat": {
+        "readOnly": "false",
+        "id": "acerat",
+        "label": "Recherche données rating",
+        "hidden": "false",
+        "nature": "checkbox",
+        "defaultValue": ""
+      },
+      "ridtins": {
+        "readOnly": "false",
+        "id": "ridtins",
+        "label": "Type instrument",
+        "hidden": "false",
+        "nature": "checkbox",
+        "defaultValue": ""
+      },
+      "opt_libcpta": {
+        "readOnly": "false",
+        "id": "opt_libcpta",
+        "label": "",
+        "hidden": "false",
+        "nature": "string",
+        "defaultValue": ""
+      },
+      "devs": {
+        "lov": "devsLovServiceImpl",
+        "displayTemplate": "{value} - {longLabel}",
+        "hidden": "false",
+        "nature": "dualfield",
+        "columnNumber": 1,
+        "defaultValue": "",
+        "sortNumber": 19,
+        "readOnly": "false",
+        "id": "devs",
+        "label": "Devises",
+        "maxDualFieldValues": "4",
+        "valueField": "value"
+      },
+      "xceopt": {
+        "lov": "xceoptLovServiceImpl",
+        "displayTemplate": "{value} - {longLabel}",
+        "hidden": "false",
+        "nature": "lov",
+        "defaultValue": "",
+        "readOnly": "false",
+        "id": "xceopt",
+        "label": "Option",
+        "valueField": "value"
+      },
+      "opt_cpta": {
+        "lov": "opt_cptaLovServiceImpl",
+        "displayTemplate": "{value} - {longLabel}",
+        "hidden": "false",
+        "nature": "lov",
+        "defaultValue": "",
+        "readOnly": "false",
+        "id": "opt_cpta",
+        "label": "Option compta TCN precomptes",
+        "valueField": "value"
+      },
+      "traitvni": {
+        "readOnly": "false",
+        "id": "traitvni",
+        "label": "Traitement en devise VNI",
+        "hidden": "true",
+        "nature": "checkbox",
+        "defaultValue": ""
+      },
+      "opt_amti": {
+        "readOnly": "false",
+        "id": "opt_amti",
+        "label": "Interets échus décalés",
+        "hidden": "false",
+        "nature": "checkbox",
+        "defaultValue": ""
+      },
+      "csoPanel": {
+        "readOnly": "false",
+        "id": "csoPanel",
+        "label": "",
+        "hidden": "false",
+        "nature": "string",
+        "defaultValue": ""
+      },
+      "adtinv": {
+        "lov": "adtinvLovServiceImpl",
+        "displayTemplate": "{value} - {longLabel}",
+        "hidden": "false",
+        "nature": "lov",
+        "defaultValue": "",
+        "readOnly": "false",
+        "id": "adtinv",
+        "label": "Date d'inventaire",
+        "valueField": "value"
+      },
+      "xidcev": {
+        "lov": "xidcevLovServiceImpl",
+        "displayTemplate": "{value} - {longLabel}",
+        "hidden": "false",
+        "nature": "lov",
+        "defaultValue": "",
+        "readOnly": "false",
+        "id": "xidcev",
+        "label": "Type de codification",
+        "valueField": "value"
+      },
+      "opt_libimmo": {
+        "readOnly": "false",
+        "id": "opt_libimmo",
+        "label": "",
+        "hidden": "false",
+        "nature": "string",
+        "defaultValue": ""
+      },
+      "ridtins_dualfield": {
+        "lov": "devsLovServiceImpl",
+        "displayTemplate": "{value} - {longLabel}",
+        "hidden": "false",
+        "nature": "dualfield",
+        "columnNumber": 1,
+        "defaultValue": "",
+        "sortNumber": 19,
+        "readOnly": "false",
+        "id": "ridtins_dualfield",
+        "label": "Devises",
+        "maxDualFieldValues": "4",
+        "valueField": "value"
+      }
+    }
+  },
+  "labelMappings": [
+    {
+      "nouveau": "Option",
+      "ancien": "Option"
+    },
+    {
+      "nouveau": "Lot de portefeuilles",
+      "ancien": "Lot de portefeuilles"
+    },
+    {
+      "nouveau": "Portefeuille",
+      "ancien": "Portefeuille"
+    },
+    {
+      "nouveau": "Option stock",
+      "ancien": "Option stock"
+    },
+    {
+      "nouveau": "Intervalle de portefeuilles",
+      "ancien": "Intervalle de portefeuilles"
+    },
+    {
+      "nouveau": "Date inventaire",
+      "ancien": "Date d'inventaire"
+    },
+    {
+      "nouveau": "Alias",
+      "ancien": "Alias"
+    },
+    {
+      "nouveau": "Date calcul du couru",
+      "ancien": "Date de calcul du couru"
+    },
+    {
+      "nouveau": "Code portefeuille",
+      "ancien": "Code portefeuille"
+    },
+    {
+      "nouveau": "Date recherche des cours",
+      "ancien": "Date rech. cours"
+    },
+    {
+      "nouveau": "Intérêts échus décalés",
+      "ancien": "Interets échus décalés"
+    },
+    {
+      "nouveau": "Filtrer sur le type d'instrument",
+      "ancien": "Type instrument"
+    },
+    {
+      "nouveau": "Option compta TCN précomptes",
+      "ancien": "Option compta TCN precomptes"
+    },
+    {
+      "nouveau": "Type(s) d'instrument(s)",
+      "ancien": "Type instrument"
+    },
+    {
+      "nouveau": "Option sur l'immobilier",
+      "ancien": "Option sur l'immobilier"
+    },
+    {
+      "nouveau": "Filtrer sur un instrument",
+      "ancien": "Valeur"
+    },
+    {
+      "nouveau": "Cours moyen",
+      "ancien": "Cours moyen"
+    },
+    {
+      "nouveau": "Code Instrument",
+      "ancien": "Code instrument"
+    },
+    {
+      "nouveau": "Type de cours",
+      "ancien": "Type de cours"
+    },
+    {
+      "nouveau": "Origine",
+      "ancien": "Origine"
+    },
+    {
+      "nouveau": "Données rating",
+      "ancien": "Recherche données rating"
+    },
+    {
+      "nouveau": "Place de cotation",
+      "ancien": "Place de cotation"
+    },
+    {
+      "nouveau": "Type de codification",
+      "ancien": "Type de codification"
+    },
+    {
+      "nouveau": "Date palier",
+      "ancien": "Date palier"
+    },
+    {
+      "nouveau": "Libellé instrument",
+      "ancien": "Libellé instrument"
+    }
+  ],
+  "areaConfigs": [
+    {
+      "area": "Critères de lancement",
+      "fields": [
+        {
+          "name": "Option",
+          "sort_number": 20,
+          "columnNumber": 2,
+          "area": "area1"
+        },
+        {
+          "name": "Lot de portefeuilles",
+          "sort_number": 20,
+          "columnNumber": 1,
+          "area": "area1"
+        },
+        {
+          "name": "Portefeuille",
+          "sort_number": 21,
+          "columnNumber": 1,
+          "area": "area1"
+        },
+        {
+          "name": "Option stock",
+          "sort_number": 21,
+          "columnNumber": 2,
+          "area": "area1"
+        },
+        {
+          "name": "Intervalle de portefeuilles",
+          "sort_number": 22,
+          "columnNumber": 1,
+          "area": "area1"
+        },
+        {
+          "name": "Date inventaire",
+          "sort_number": 22,
+          "columnNumber": 2,
+          "area": "area1"
+        },
+        {
+          "name": "Alias",
+          "sort_number": 23,
+          "columnNumber": 1,
+          "area": "area1"
+        },
+        {
+          "name": "Date calcul du couru",
+          "sort_number": 23,
+          "columnNumber": 2,
+          "area": "area1"
+        },
+        {
+          "name": "Code portefeuille",
+          "sort_number": 24,
+          "columnNumber": 1,
+          "area": "area1"
+        },
+        {
+          "name": "Date recherche des cours",
+          "sort_number": 25,
+          "columnNumber": 2,
+          "area": "area1"
+        }
+      ]
+    },
+    {
+      "area": "Critères avancés",
+      "fields": [
+        {
+          "name": "Intérêts échus décalés",
+          "sort_number": 10,
+          "columnNumber": 1,
+          "area": "area2"
+        },
+        {
+          "name": "Filtrer sur le type d'instrument",
+          "sort_number": 10,
+          "columnNumber": 2,
+          "area": "area2"
+        },
+        {
+          "name": "Option compta TCN précomptes",
+          "sort_number": 11,
+          "columnNumber": 1,
+          "area": "area2"
+        },
+        {
+          "name": "Type(s) d'instrument(s)",
+          "sort_number": 11,
+          "columnNumber": 2,
+          "area": "area2"
+        },
+        {
+          "name": "Option sur l'immobilier",
+          "sort_number": 12,
+          "columnNumber": 1,
+          "area": "area2"
+        },
+        {
+          "name": "Filtrer sur un instrument",
+          "sort_number": 12,
+          "columnNumber": 2,
+          "area": "area2"
+        },
+        {
+          "name": "Cours moyen",
+          "sort_number": 13,
+          "columnNumber": 1,
+          "area": "area2"
+        },
+        {
+          "name": "Code Instrument",
+          "sort_number": 13,
+          "columnNumber": 2,
+          "area": "area2"
+        },
+        {
+          "name": "Type de cours",
+          "sort_number": 14,
+          "columnNumber": 1,
+          "area": "area2"
+        },
+        {
+          "name": "Origine",
+          "sort_number": 14,
+          "columnNumber": 2,
+          "area": "area2"
+        },
+        {
+          "name": "Données rating",
+          "sort_number": 15,
+          "columnNumber": 1,
+          "area": "area2"
+        },
+        {
+          "name": "Place de cotation",
+          "sort_number": 15,
+          "columnNumber": 2,
+          "area": "area2"
+        },
+        {
+          "name": "Type de codification",
+          "sort_number": 16,
+          "columnNumber": 1,
+          "area": "area2"
+        },
+        {
+          "name": "Date palier",
+          "sort_number": 16,
+          "columnNumber": 2,
+          "area": "area2"
+        },
+        {
+          "name": "Libellé instrument",
+          "sort_number": 17,
+          "columnNumber": 2,
+          "area": "area2"
+        }
+      ]
+    }
+  ]
+}

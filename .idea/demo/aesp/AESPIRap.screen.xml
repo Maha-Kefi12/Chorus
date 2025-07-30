@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<function xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd"
+          type="create"
+          id="AESPIRap"
+          beanId="AESPScreenService"
+          icon="icons/kate.png">
+
+  <graphic>
+    <headerVisible>true</headerVisible>
+    <borderVisible>true</borderVisible>
+  </graphic>
+
+  <form sortNumber="1"
+        id="aesp"
+        editable="true"
+        fatherId="aespBlockForm">
+    <graphic>
+      <borderVisible>true</borderVisible>
+      <fieldSetMode>true</fieldSetMode>
+    </graphic>
+  </form>
+
+  <screenActions>
+    <screenAction id="launchAESP" code="launchAESP" icon="edition" evaluateControls="true">
+      <actionResponses>
+        <onSuccess>
+          <refreshScreens>
+            <functionIds>
+              <functionId>AESPIRap</functionId>
+            </functionIds>
+          </refreshScreens>
+        </onSuccess>
+      </actionResponses>
+    </screenAction>
+  </screenActions>
+
+</function>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<form xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="bfinBlockForm" xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd" fatherId="LotIntervallePortefeuille" beanId="bfinFormService">
+  <graphic>
+    <headerVisible>false</headerVisible>
+    <collapsible>false</collapsible>
+    <collapsed>false</collapsed>
+  </graphic>
+  <fieldLinks>
+  </fieldLinks>
+  <areas>
+    <area id="area1" sortNumber="1">
+      <graphic>
+        <headerVisible>false</headerVisible>
+      </graphic>
+      <fields>
+        <field id="lot" nature="string" columnNumber="1" sortNumber="10" readOnly="false" hidden="false" />
+        <field id="devs" nature="dualfield" columnNumber="1" sortNumber="11" readOnly="false" hidden="false" lov="devsLovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" maxDualFieldValues="4" />
+        <field id="prt" nature="string" columnNumber="1" sortNumber="12" readOnly="false" hidden="false" />
+        <field id="choixButtonGroup" nature="string" columnNumber="1" sortNumber="13" readOnly="false" hidden="false" />
+      </fields>
+    </area>
+  </areas>
+</form>

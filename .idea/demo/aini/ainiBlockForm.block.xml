@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<form xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="ainiBlockForm" xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd" fatherId="LotIntervallePortefeuille" beanId="ainiFormService">
+  <graphic>
+    <headerVisible>false</headerVisible>
+    <collapsible>false</collapsible>
+    <collapsed>false</collapsed>
+  </graphic>
+  <fieldLinks>
+    <fieldLink childFieldId="adtech" id="link_adtech" methodName="isAdtechVisible" nature="CONDITIONNALHIDDEN" disabled="false" beanId="ainiFieldLinkServiceFieldLinkService">
+      <fieldLinkFather fatherFieldId="xceopt"/>
+    </fieldLink>
+    <fieldLink childFieldId="devs" id="link_devs" methodName="isDevsVisible" nature="CONDITIONNALHIDDEN" disabled="false" beanId="ainiFieldLinkServiceFieldLinkService">
+      <fieldLinkFather fatherFieldId="xceopt"/>
+    </fieldLink>
+    <fieldLink childFieldId="ridori" id="link_ridori" methodName="isRidoriVisible" nature="CONDITIONNALHIDDEN" disabled="false" beanId="ainiFieldLinkServiceFieldLinkService">
+      <fieldLinkFather fatherFieldId="xceopt"/>
+    </fieldLink>
+    <fieldLink childFieldId="adtfin" id="link_adtfin" methodName="isAdtfinVisible" nature="CONDITIONNALHIDDEN" disabled="false" beanId="ainiFieldLinkServiceFieldLinkService">
+      <fieldLinkFather fatherFieldId="xceopt"/>
+    </fieldLink>
+    <fieldLink childFieldId="opt_cpta" id="link_opt_cpta" methodName="isOpt_cptaVisible" nature="CONDITIONNALHIDDEN" disabled="false" beanId="ainiFieldLinkServiceFieldLinkService">
+      <fieldLinkFather fatherFieldId="xceopt"/>
+    </fieldLink>
+    <fieldLink childFieldId="opt_libcpta" id="link_opt_libcpta" methodName="isOpt_libcptaVisible" nature="CONDITIONNALHIDDEN" disabled="false" beanId="ainiFieldLinkServiceFieldLinkService">
+      <fieldLinkFather fatherFieldId="xceopt"/>
+    </fieldLink>
+    <fieldLink childFieldId="bidftc" id="link_bidftc" methodName="isBidftcVisible" nature="CONDITIONNALHIDDEN" disabled="false" beanId="ainiFieldLinkServiceFieldLinkService">
+      <fieldLinkFather fatherFieldId="xceopt"/>
+      <fieldLinkFather fatherFieldId="optcrm"/>
+    </fieldLink>
+    <fieldLink childFieldId="opt_immo" id="link_opt_immo" methodName="isOpt_immoVisible" nature="CONDITIONNALHIDDEN" disabled="false" beanId="ainiFieldLinkServiceFieldLinkService">
+      <fieldLinkFather fatherFieldId="xceopt"/>
+    </fieldLink>
+    <fieldLink childFieldId="opt_libimmo" id="link_opt_libimmo" methodName="isOpt_libimmoVisible" nature="CONDITIONNALHIDDEN" disabled="false" beanId="ainiFieldLinkServiceFieldLinkService">
+      <fieldLinkFather fatherFieldId="xceopt"/>
+    </fieldLink>
+    <fieldLink childFieldId="optcrm" id="link_optcrm" methodName="isOptcrmVisible" nature="CONDITIONNALHIDDEN" disabled="false" beanId="ainiFieldLinkServiceFieldLinkService">
+      <fieldLinkFather fatherFieldId="xceopt"/>
+    </fieldLink>
+  </fieldLinks>
+  <areas>
+    <area id="area1" sortNumber="1">
+      <graphic>
+        <headerVisible>false</headerVisible>
+      </graphic>
+      <fields>
+        <field id="adtcou" nature="date" columnNumber="2" sortNumber="10" readOnly="true" hidden="false"/>
+        <field id="adtech" nature="date" columnNumber="1" sortNumber="20" readOnly="true" hidden="false"/>
+        <field id="adtfin" nature="date" columnNumber="2" sortNumber="30" readOnly="true" hidden="false"/>
+        <field id="adtinv" nature="lov" columnNumber="2" sortNumber="40" readOnly="true" hidden="false" valueField="value" displayTemplate="{value} - {longLabel}" lov="adtinvLovServiceImpl">
+          <filters>
+            <filter id="acealia" fieldId="acealia"/>
+            <filter id="aidprt" fieldId="aidprt"/>
+            <filter id="lot_aidlot" fieldId="lot_aidlot"/>
+            <filter id="aidprt_d" fieldId="aidprt_d"/>
+            <filter id="aidprt_f" fieldId="aidprt_f"/>
+            <filter id="xceopt" fieldId="xceopt"/>
+          </filters>
+        </field>
+        <field id="aidtrp" nature="lov" columnNumber="2" sortNumber="50" readOnly="true" hidden="false" valueField="value" displayTemplate="{value} - {longLabel}" lov="aidtrpLovServiceImpl"/>
+        <field id="devs" nature="dualfield" columnNumber="1" sortNumber="60" readOnly="true" hidden="false"/>
+        <field id="ridori" nature="lov" columnNumber="1" sortNumber="70" readOnly="true" hidden="false" valueField="value" displayTemplate="{value} - {longLabel}" lov="ridoriLovServiceImpl"/>
+        <field id="traitvni" nature="checkbox" columnNumber="1" sortNumber="80" readOnly="true" hidden="true"/>
+        <field id="xceopt" nature="lov" columnNumber="2" sortNumber="90" readOnly="true" hidden="false" valueField="value" displayTemplate="{value} - {longLabel}" lov="xceoptLovServiceImpl"/>
+      </fields>
+    </area>
+    <area id="area2" sortNumber="3">
+      <fields>
+        <field id="opt_amti" nature="checkbox" columnNumber="1" sortNumber="10" readOnly="true" hidden="false"/>
+        <field id="opt_cpta" nature="lov" columnNumber="1" sortNumber="11" readOnly="true" hidden="false" valueField="value" displayTemplate="{value} - {longLabel}" lov="opt_cptaLovServiceImpl"/>
+        <field id="opt_immo" nature="lov" columnNumber="1" sortNumber="12" readOnly="true" hidden="false" valueField="value" displayTemplate="{value} - {longLabel}" lov="opt_immoLovServiceImpl"/>
+        <field id="optcrm" nature="checkbox" columnNumber="1" sortNumber="13" readOnly="true" hidden="false"/>
+        <field id="bidftc" nature="lov" columnNumber="1" sortNumber="14" readOnly="true" hidden="false" valueField="value" displayTemplate="{value} - {longLabel}" lov="bidftcLovServiceImpl"/>
+        <field id="acerat" nature="checkbox" columnNumber="1" sortNumber="15" readOnly="true" hidden="false"/>
+        <field id="xidcev" nature="lov" columnNumber="1" sortNumber="16" readOnly="true" hidden="false" valueField="value" displayTemplate="{value} - {longLabel}" lov="xidcevLovServiceImpl"/>
+        <field id="ridtins" nature="checkbox" columnNumber="2" sortNumber="10" readOnly="true" hidden="false"/>
+        <field id="ridtins_dualfield" nature="dualfield" columnNumber="2" sortNumber="11" readOnly="true" hidden="false"/>
+        <field id="valeurc" nature="checkbox" columnNumber="2" sortNumber="12" readOnly="true" hidden="false"/>
+        <field id="reiv_rceval" nature="fk" columnNumber="2" sortNumber="13" readOnly="false" functionId="FK_instrument" valueField="acecev" fkSearchField="acecev" displayTemplate="{acecev}" clearValueIfNotInStore="true">
+          <controls>
+            <control id="mandatory" nature="MANDATORY"/>
+          </controls>
+        </field>
+        <field id="reiv_ridori" nature="lov" columnNumber="2" sortNumber="14" readOnly="false" valueField="value" displayTemplate="{value} - {longLabel}" clearValueIfNotInStore="true" lov="IprapRidoriLovQueryServiceImpl">
+          <controls>
+            <control id="mandatory" nature="MANDATORY"/>
+          </controls>
+          <filters>
+            <filter id="reiv_rceval" fieldId="reiv_rceval"/>
+            <filter id="reiv_xidcev" fieldId="reiv_xidcev"/>
+          </filters>
+        </field>
+        <field id="reic_rcepla" nature="lov" columnNumber="2" sortNumber="15" readOnly="false" valueField="value" displayTemplate="{value} - {longLabel}" clearValueIfNotInStore="true" lov="IprapRceplaLovQueryServiceImpl">
+          <controls>
+            <control id="mandatory" nature="MANDATORY"/>
+          </controls>
+          <filters>
+            <filter id="reiv_rceval" fieldId="reiv_rceval"/>
+            <filter id="reiv_xidcev" fieldId="reiv_xidcev"/>
+            <filter id="reiv_ridori" fieldId="reiv_ridori"/>
+          </filters>
+        </field>
+        <field id="iprap_adtvalid" nature="lov" columnNumber="2" sortNumber="16" readOnly="false" valueField="value" displayTemplate="{value}" clearValueIfNotInStore="true" lov="IprapAdtpalLovQueryServiceImpl">
+          <controls>
+            <control id="mandatory" nature="MANDATORY"/>
+          </controls>
+          <filters>
+            <filter id="reiv_rceval" fieldId="reiv_rceval"/>
+            <filter id="reiv_xidcev" fieldId="reiv_xidcev"/>
+            <filter id="reiv_ridori" fieldId="reiv_ridori"/>
+            <filter id="xetb_xidcec" fieldId="xetb_xidcec"/>
+            <filter id="xetb_xidced" fieldId="xetb_xidced"/>
+            <filter id="reic_rcepla" fieldId="reic_rcepla"/>
+            <filter id="xuti_xidclg" fieldId="xuti_xidclg"/>
+          </filters>
+        </field>
+        <field id="rgvlm_rllgvl" nature="string" columnNumber="2" sortNumber="17" readOnly="false" hidden="false"/>
+      </fields>
+    </area>
+    <area id="area3" sortNumber="2">
+      <fields>
+        <field id="riddev" nature="lov" columnNumber="1" sortNumber="1" readOnly="false" valueField="value" displayTemplate="{value} - {longLabel}" clearValueIfNotInStore="true" lov="IprapRiddevLovQueryServiceImpl">
+          <controls>
+            <control id="mandatory" nature="MANDATORY"/>
+          </controls>
+        </field>
+        <field id="adtchgo" nature="date" columnNumber="2" sortNumber="1" readOnly="false">
+          <controls>
+            <control id="mandatory" nature="MANDATORY"/>
+          </controls>
+        </field>
+        <field id="rcepla" nature="lov" columnNumber="2" sortNumber="2" readOnly="false" valueField="value" displayTemplate="{value} - {longLabel}" clearValueIfNotInStore="true" lov="IprapRceplaLovQueryServiceImpl">
+          <controls>
+            <control id="mandatory" nature="MANDATORY"/>
+          </controls>
+        </field>
+        <field id="acetdev" nature="lov" columnNumber="1" sortNumber="2" readOnly="false" valueField="value" displayTemplate="{value} - {longLabel}" clearValueIfNotInStore="true" lov="IprapAcetdevLovQueryServiceImpl">
+          <controls>
+            <control id="mandatory" nature="MANDATORY"/>
+          </controls>
+        </field>
+      </fields>
+    </area>
+  </areas>
+</form>

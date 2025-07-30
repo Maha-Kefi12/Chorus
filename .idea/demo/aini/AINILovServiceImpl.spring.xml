@@ -1,0 +1,46 @@
+<bean id="genericLovQueryService"
+        class="com.linedata.chorus.std.services.commons.service.lov.service.impl.GenericLovQueryServiceImpl">
+    <property name="frameworkJdbcTemplate" ref="chorusDaoTemplate" />
+    <property name="sqlListOfValuesQuery">
+      <map merge="true">
+        
+        <entry key="devsAINI_valuesList_01">
+          <bean class="org.apache.commons.io.IOUtils" factory-method="toString">
+            <constructor-arg type="java.io.InputStream"
+              value="classpath:com/linedata/chorus/std/services/commons/dao/lovvalue/aini_devs_valuesList.sql" />
+          </bean>
+        </entry>
+        
+        <entry key="opt_cptaAINI_valuesList_01">
+          <bean class="org.apache.commons.io.IOUtils" factory-method="toString">
+            <constructor-arg type="java.io.InputStream"
+              value="classpath:com/linedata/chorus/std/services/commons/dao/lovvalue/opt_cpta_tcn_valuesList_01.sql" />
+          </bean>
+        </entry>
+        
+        <entry key="opt_immoAINI_valuesList_01">
+          <bean class="org.apache.commons.io.IOUtils" factory-method="toString">
+            <constructor-arg type="java.io.InputStream"
+              value="classpath:com/linedata/chorus/std/services/commons/dao/lovvalue/opt_immo_valuesList_01.sql" />
+          </bean>
+        </entry>
+        
+      </map>
+    </property>
+  </bean>
+  
+  <bean id="adtinvAINILovQueryService"
+        class="com.linedata.chorus.std.services.commons.service.lov.service.impl.adtinvAINILovQueryServiceImpl">
+    <property name="frameworkJdbcTemplate" ref="chorusDaoTemplate" />
+    <property name="sqlListOfValuesQuery">
+      <map merge="true">
+        <entry key="adtinvAINILovQueryService">
+          <bean class="org.apache.commons.io.IOUtils" factory-method="toString">
+            <constructor-arg type="java.io.InputStream"
+              value="classpath:com/linedata/chorus/std/services/commons/dao/lovvalue/adtinv_valuesList_02.sql" />
+          </bean>
+        </entry>
+      </map>
+    </property>
+  </bean>
+  

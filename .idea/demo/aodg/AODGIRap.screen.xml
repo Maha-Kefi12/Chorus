@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<function xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd"
+          type="create"
+          id="AODGIRap"
+          beanId="AODGScreenService"
+          icon="icons/kate.png">
+
+  <graphic>
+    <headerVisible>true</headerVisible>
+    <borderVisible>true</borderVisible>
+  </graphic>
+
+  <form sortNumber="1"
+        id="aodg"
+        editable="true"
+        fatherId="aodgBlockForm">
+    <graphic>
+      <borderVisible>true</borderVisible>
+      <fieldSetMode>true</fieldSetMode>
+    </graphic>
+  </form>
+
+  <screenActions>
+    <screenAction id="launchAODG" code="launchAODG" icon="edition" evaluateControls="true">
+      <actionResponses>
+        <onSuccess>
+          <refreshScreens>
+            <functionIds>
+              <functionId>AODGIRap</functionId>
+            </functionIds>
+          </refreshScreens>
+        </onSuccess>
+      </actionResponses>
+    </screenAction>
+  </screenActions>
+
+</function>

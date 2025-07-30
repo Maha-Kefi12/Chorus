@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<form xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="aemvBlockForm" xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd" fatherId="LotIntervallePortefeuille" beanId="aemvFormService">
+  <graphic>
+    <headerVisible>false</headerVisible>
+    <collapsible>false</collapsible>
+    <collapsed>false</collapsed>
+  </graphic>
+  <fieldLinks>
+  </fieldLinks>
+  <areas>
+    <area id="area1" sortNumber="1">
+      <graphic>
+        <headerVisible>false</headerVisible>
+      </graphic>
+      <fields>
+        <field id="aidcma4" nature="lov" columnNumber="1" sortNumber="10" readOnly="false" hidden="false" lov="aidcma4LovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" />
+        <field id="aidcmas" nature="checkbox" columnNumber="1" sortNumber="11" readOnly="false" hidden="false" />
+        <field id="aidcma3" nature="lov" columnNumber="1" sortNumber="12" readOnly="false" hidden="false" lov="aidcma3LovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" />
+        <field id="aidcma6" nature="lov" columnNumber="1" sortNumber="13" readOnly="false" hidden="false" lov="aidcma6LovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" />
+        <field id="aidcma5" nature="lov" columnNumber="1" sortNumber="14" readOnly="false" hidden="false" lov="aidcma5LovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" />
+        <field id="valeurc" nature="checkbox" columnNumber="1" sortNumber="15" readOnly="false" hidden="false" />
+        <field id="adtng_f" nature="date" columnNumber="1" sortNumber="16" readOnly="false" hidden="false" />
+        <field id="acetrp" nature="string" columnNumber="1" sortNumber="17" readOnly="false" hidden="false" />
+        <field id="adtcta_fd" nature="date" columnNumber="1" sortNumber="18" readOnly="false" hidden="false" />
+        <field id="ridtins" nature="checkbox" columnNumber="1" sortNumber="19" readOnly="false" hidden="false" />
+        <field id="aidcma2" nature="lov" columnNumber="1" sortNumber="20" readOnly="false" hidden="false" lov="aidcma2LovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" />
+        <field id="aidcma1" nature="lov" columnNumber="1" sortNumber="21" readOnly="false" hidden="false" lov="aidcma1LovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" />
+        <field id="devs" nature="dualfield" columnNumber="1" sortNumber="22" readOnly="false" hidden="false" lov="devsLovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" maxDualFieldValues="4" />
+        <field id="opt_tcn" nature="lov" columnNumber="1" sortNumber="23" readOnly="false" hidden="false" lov="opt_tcnLovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" />
+        <field id="aidgmp" nature="lov" columnNumber="1" sortNumber="24" readOnly="false" hidden="false" lov="aidgmpLovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" />
+        <field id="acetdev" nature="string" columnNumber="1" sortNumber="25" readOnly="false" hidden="false" />
+        <field id="adtcta_dd" nature="date" columnNumber="1" sortNumber="26" readOnly="false" hidden="false" />
+        <field id="adtng_d" nature="date" columnNumber="1" sortNumber="27" readOnly="false" hidden="false" />
+      </fields>
+    </area>
+    <area id="area2" sortNumber="2">
+      <fields>
+        <field id="riddev" nature="lov" lov="IprapRiddevLovQueryServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" columnNumber="1" sortNumber="1" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        </field>
+        <field id="acetdev" nature="lov" lov="IprapAcetdevLovQueryServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" columnNumber="1" sortNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        </field>
+        <field id="adtchgo" nature="date" sortNumber="1" columnNumber="2">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        </field>
+        <field id="rcepla" nature="lov" lov="IprapRceplaLovQueryServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" columnNumber="2" sortNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        </field>
+      </fields>
+    </area>
+    <area id="area3" sortNumber="3">
+      <fields>
+        <field id="reiv_rceval" nature="fk" functionId="FK_instrument" valueField="acecev" fkSearchField="acecev" displayTemplate="{acecev}" sortNumber="1" columnNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        </field>
+        <field id="reiv_ridori" nature="lov" lov="IprapRidoriLovQueryServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" sortNumber="2" columnNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        <filters>
+        <filter id="reiv_rceval" fieldId="reiv_rceval" />
+        <filter id="reiv_xidcev" fieldId="reiv_xidcev" />
+        </filters>
+        </field>
+        <field id="reic_rcepla" nature="lov" lov="IprapRceplaLovQueryServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" sortNumber="3" columnNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        <filters>
+        <filter id="reiv_rceval" fieldId="reiv_rceval" />
+        <filter id="reiv_xidcev" fieldId="reiv_xidcev" />
+        <filter id="reiv_ridori" fieldId="reiv_ridori" />
+        </filters>
+        </field>
+        <field id="iprap_adtvalid" nature="lov" lov="IprapAdtpalLovQueryServiceImpl" valueField="value" displayTemplate="{value}" sortNumber="4" columnNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        <filters>
+        <filter id="reiv_rceval" fieldId="reiv_rceval" />
+        <filter id="reiv_xidcev" fieldId="reiv_xidcev" />
+        <filter id="reiv_ridori" fieldId="reiv_ridori" />
+        <filter id="xetb_xidcec" fieldId="xetb_xidcec" />
+        <filter id="xetb_xidced" fieldId="xetb_xidced" />
+        <filter id="reic_rcepla" fieldId="reic_rcepla" />
+        <filter id="xuti_xidclg" fieldId="xuti_xidclg" />
+        </filters>
+        </field>
+        <field id="rgvlm_rllgvl" nature="string" readOnly="true" hidden="false" sortNumber="5" columnNumber="2" />
+      </fields>
+    </area>
+  </areas>
+</form>

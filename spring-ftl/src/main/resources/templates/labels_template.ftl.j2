@@ -1,0 +1,7 @@
+title={{ title | default('') }}
+
+{% for key, value in properties.items() -%}
+    {% if key.endswith('.label') or key.endswith('.title') -%}
+        {{ key }}={{ value | safe }}
+    {% endif -%}
+{%- endfor %}

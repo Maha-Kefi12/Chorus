@@ -1,0 +1,122 @@
+[
+    {
+        "formId": "aini",
+        "area": "Critères de lancement",
+        "columnNumber": 2,
+        "sortNumber": 20,
+        "label": "Option",
+        "fieldId": "xceopt"
+    },
+    {
+        "formId": "aini",
+        "area": "Critères de lancement",
+        "columnNumber": 2,
+        "sortNumber": 21,
+        "label": "Option stock",
+        "fieldId": "aidtrp"
+    },
+    {
+        "formId": "aini",
+        "area": "Critères de lancement",
+        "columnNumber": 2,
+        "sortNumber": 22,
+        "label": "Date inventaire",
+        "fieldId": "adtinv"
+    },
+    {
+        "formId": "aini",
+        "area": "Critères de lancement",
+        "columnNumber": 2,
+        "sortNumber": 23,
+        "label": "Date calcul du couru",
+        "fieldId": "adtfin"
+    },
+    {
+        "formId": "aini",
+        "area": "Critères de lancement",
+        "columnNumber": 2,
+        "sortNumber": 25,
+        "label": "Date recherche des cours",
+        "fieldId": "adtcou"
+    },
+    {
+        "formId": "aini",
+        "area": "Critères avancés",
+        "columnNumber": 1,
+        "sortNumber": 10,
+        "label": "Intérêts échus décalés",
+        "fieldId": "opt_amti"
+    },
+    {
+        "formId": "aini",
+        "area": "Critères avancés",
+        "columnNumber": 2,
+        "sortNumber": 10,
+        "label": "Filtrer sur le type d'instrument",
+        "fieldId": "ridtins"
+    },
+    {
+        "formId": "aini",
+        "area": "Critères avancés",
+        "columnNumber": 1,
+        "sortNumber": 11,
+        "label": "Option compta TCN précomptes",
+        "fieldId": "opt_cpta"
+    },
+    {
+        "formId": "aini",
+        "area": "Critères avancés",
+        "columnNumber": 2,
+        "sortNumber": 11,
+        "label": "Type(s) d'instrument(s)",
+        "fieldId": "ridtins"
+    },
+    {
+        "formId": "aini",
+        "area": "Critères avancés",
+        "columnNumber": 1,
+        "sortNumber": 12,
+        "label": "Option sur l'immobilier",
+        "fieldId": "opt_immo"
+    },
+    {
+        "formId": "aini",
+        "area": "Critères avancés",
+        "columnNumber": 2,
+        "sortNumber": 12,
+        "label": "Filtrer sur un instrument",
+        "fieldId": "valeurc"
+    },
+    {
+        "formId": "aini",
+        "area": "Critères avancés",
+        "columnNumber": 1,
+        "sortNumber": 13,
+        "label": "Cours moyen",
+        "fieldId": "optcrm"
+    },
+    {
+        "formId": "aini",
+        "area": "Critères avancés",
+        "columnNumber": 1,
+        "sortNumber": 14,
+        "label": "Type de cours",
+        "fieldId": "bidftc"
+    },
+    {
+        "formId": "aini",
+        "area": "Critères avancés",
+        "columnNumber": 1,
+        "sortNumber": 15,
+        "label": "Données rating",
+        "fieldId": "acerat"
+    },
+    {
+        "formId": "aini",
+        "area": "Critères avancés",
+        "columnNumber": 1,
+        "sortNumber": 16,
+        "label": "Type de codification",
+        "fieldId": "xidcev"
+    }
+]

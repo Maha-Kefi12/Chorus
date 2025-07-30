@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<form xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="xfauBlockForm" xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd" fatherId="LotIntervallePortefeuille" beanId="xfauFormService">
+  <graphic>
+    <headerVisible>false</headerVisible>
+    <collapsible>false</collapsible>
+    <collapsed>false</collapsed>
+  </graphic>
+  <fieldLinks>
+  </fieldLinks>
+  <areas>
+    <area id="area1" sortNumber="1">
+      <graphic>
+        <headerVisible>false</headerVisible>
+      </graphic>
+      <fields>
+        <field id="xidfct_w" nature="lov" columnNumber="1" sortNumber="10" readOnly="false" hidden="false" lov="xidfct_wLovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" />
+        <field id="devs" nature="dualfield" columnNumber="1" sortNumber="11" readOnly="false" hidden="false" lov="devsLovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" maxDualFieldValues="4" />
+        <field id="xiddom" nature="lov" columnNumber="1" sortNumber="12" readOnly="false" hidden="false" lov="xiddomLovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" />
+        <field id="datef" nature="date" columnNumber="1" sortNumber="13" readOnly="false" hidden="false" />
+        <field id="xiduse" nature="lov" columnNumber="1" sortNumber="14" readOnly="false" hidden="false" lov="xiduseLovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" />
+        <field id="dated" nature="date" columnNumber="1" sortNumber="15" readOnly="false" hidden="false" />
+      </fields>
+    </area>
+  </areas>
+</form>

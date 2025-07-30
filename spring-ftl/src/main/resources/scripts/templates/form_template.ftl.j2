@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<form xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+      xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      id="${form_id}BlockForm"
+      xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd"
+      fatherId="LotIntervallePortefeuille"
+      beanId="${bean_id}FormService">
+
+    <graphic>
+        <headerVisible>false</headerVisible>
+        <collapsible>false</collapsible>
+        <collapsed>false</collapsed>
+    </graphic>
+
+    <fieldLinks>
+        <#list field_links as link>
+        <fieldLink childFieldId="${link.childFieldId}" id="link_${link.childFieldId}"
+                   methodName="is${link.childFieldId?cap_first}Visible" nature="CONDITIONNALHIDDEN"
+                   disabled="false" beanId="${form_id}FieldLinkService">
+            <#list link.fatherFieldIds as father>
+            <fieldLinkFather fatherFieldId="${father}" />
+        </#list>
+        </fieldLink>
+    </#list>
+    </fieldLinks>
+
+    <areas>
+        <area id="area1" sortNumber="1">
+        <graphic>
+            <headerVisible>false</headerVisible>
+        </graphic>
+        <fields>
+            <#assign sort = 1>
+            <#list fields as field>
+            <#if field.id != "valeurPanel">
+            <field id="${field.id}"
+                   nature="${field.nature!"string"}"
+            columnNumber="1"
+            sortNumber="${sort}"
+            <#if field.maxLength??> maxLength="${field.maxLength}"</#if>
+        <#if field.readOnly??> readOnly="${field.readOnly}"</#if>
+    <#if field.hidden??> hidden="${field.hidden}"</#if>
+<#if field.lov??> lov="${field.lov}"</#if>
+<#if field.valueField??> valueField="${field.valueField}"</#if>
+<#if field.displayTemplate??> displayTemplate="${field.displayTemplate}"</#if>
+/>
+<#assign sort = sort + 1>
+</#if>
+</#list>
+</fields>
+</area>
+
+<#if valeur_panel_found>
+<area id="area2">
+<fields>
+    <field id="reiv_rceval" nature="fk" functionId="FK_instrument" valueField="acecev" fkSearchField="acecev" displayTemplate="{acecev}" sortNumber="1" columnNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+    </field>
+    <field id="reiv_ridori" nature="lov" lov="IprapRidoriLovQueryServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" sortNumber="2" columnNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        <filters>
+            <filter id="reiv_rceval" fieldId="reiv_rceval" />
+            <filter id="reiv_xidcev" fieldId="reiv_xidcev" />
+        </filters>
+    </field>
+    <field id="reic_rcepla" nature="lov" lov="IprapRceplaLovQueryServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" sortNumber="3" columnNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        <filters>
+            <filter id="reiv_rceval" fieldId="reiv_rceval" />
+            <filter id="reiv_xidcev" fieldId="reiv_xidcev" />
+            <filter id="reiv_ridori" fieldId="reiv_ridori" />
+        </filters>
+    </field>
+    <field id="iprap_adtvalid" nature="lov" lov="IprapAdtpalLovQueryServiceImpl" valueField="value" displayTemplate="{value}" sortNumber="4" columnNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        <filters>
+            <filter id="reiv_rceval" fieldId="reiv_rceval" />
+            <filter id="reiv_xidcev" fieldId="reiv_xidcev" />
+            <filter id="reiv_ridori" fieldId="reiv_ridori" />
+            <filter id="xetb_xidcec" fieldId="xetb_xidcec" />
+            <filter id="xetb_xidced" fieldId="xetb_xidced" />
+            <filter id="reic_rcepla" fieldId="reic_rcepla" />
+            <filter id="xuti_xidclg" fieldId="xuti_xidclg" />
+        </filters>
+    </field>
+    <field id="rgvlm_rllgvl" nature="string" readOnly="true" hidden="false" sortNumber="5" columnNumber="2" />
+</fields>
+</area>
+</#if>
+</areas>
+</form>

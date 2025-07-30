@@ -1,0 +1,47 @@
+<#-- Template FTL générique combiné générée par Jinja2 -->
+
+<form id="${form_id}" beanId="${bean_id}">
+    <graphic>
+        <headerVisible>false</headerVisible>
+        <collapsible>false</collapsible>
+        <collapsed>false</collapsed>
+    </graphic>
+    <fieldLinks>
+        <#list fieldLinks as link>
+        <fieldLink childFieldId="${link.childFieldId}" id="link_${link.childFieldId}"
+                   methodName="is${link.childFieldId}Visible" nature="CONDITIONNALHIDDEN" disabled="false"
+                   beanId="${${FonctionName}}FieldLinkService">
+            <#list link.fatherFieldIds as father>
+            <fieldLinkFather fatherFieldId="${father}" />
+        </#list>
+        </fieldLink>
+    </#list>
+    </fieldLinks>
+    <areas>
+        <#list areas as area>
+            <area id="${area.id}" sortNumber="${area.sortNumber!''}">
+            <graphic>
+                <headerVisible>false</headerVisible>
+            </graphic>
+            <fields>
+                <#assign sort = 1>
+                <#list area.fields as field>
+                <field
+                <#if field.id??>id="${field.id}"</#if>
+            <#if field.nature??>nature="${field.nature}"</#if>
+            <#if field.defaultValue??>defaultValue="${field.defaultValue}"</#if>
+            columnNumber="1"
+            sortNumber="${sort}"
+            <#if field.maxLength??>maxLength="${field.maxLength}"</#if>
+            <#if field.readOnly??>readOnly="${field.readOnly}"</#if>
+            <#if field.hidden??>hidden="${field.hidden}"</#if>
+            <#if field.lov??>lov="${field.lov}"</#if>
+            <#if field.valueField??>valueField="${field.valueField}"</#if>
+            />
+            <#assign sort = sort + 1>
+            </#list>
+            </fields>
+            </area>
+        </#list>
+    </areas>
+</form>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<function xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd"
+          type="create"
+          id="AESMIRap"
+          beanId="AESMScreenService"
+          icon="icons/kate.png">
+
+  <graphic>
+    <headerVisible>true</headerVisible>
+    <borderVisible>true</borderVisible>
+  </graphic>
+
+  <form sortNumber="1"
+        id="aesm"
+        editable="true"
+        fatherId="aesmBlockForm">
+    <graphic>
+      <borderVisible>true</borderVisible>
+      <fieldSetMode>true</fieldSetMode>
+    </graphic>
+  </form>
+
+  <screenActions>
+    <screenAction id="launchAESM" code="launchAESM" icon="edition" evaluateControls="true">
+      <actionResponses>
+        <onSuccess>
+          <refreshScreens>
+            <functionIds>
+              <functionId>AESMIRap</functionId>
+            </functionIds>
+          </refreshScreens>
+        </onSuccess>
+      </actionResponses>
+    </screenAction>
+  </screenActions>
+
+</function>

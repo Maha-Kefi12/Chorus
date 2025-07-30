@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<form xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="aespBlockForm" xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd" fatherId="LotIntervallePortefeuille" beanId="aespFormService">
+  <graphic>
+    <headerVisible>false</headerVisible>
+    <collapsible>false</collapsible>
+    <collapsed>false</collapsed>
+  </graphic>
+  <fieldLinks>
+    <fieldLink childFieldId="valeurPanel" id="link_valeurPanel" methodName="isValeurPanelVisible" nature="CONDITIONNALHIDDEN" disabled="false" beanId="acrcFieldLinkServiceFieldLinkService">
+      <fieldLinkFather fatherFieldId="valeurc" />
+    </fieldLink>
+  </fieldLinks>
+  <areas>
+    <area id="area1" sortNumber="1">
+      <graphic>
+        <headerVisible>false</headerVisible>
+      </graphic>
+      <fields>
+        <field id="devs" nature="dualfield" columnNumber="1" sortNumber="10" readOnly="false" hidden="false" lov="devsLovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" maxDualFieldValues="4" />
+        <field id="ridtin" nature="string" columnNumber="1" sortNumber="11" readOnly="false" hidden="false" />
+        <field id="valeurc" nature="checkbox" columnNumber="1" sortNumber="12" readOnly="false" hidden="false" />
+        <field id="optedso" nature="checkbox" columnNumber="1" sortNumber="13" readOnly="false" hidden="false" />
+        <field id="adtarr" nature="date" columnNumber="1" sortNumber="14" readOnly="false" hidden="false" />
+      </fields>
+    </area>
+    <area id="area2" sortNumber="2">
+      <fields>
+        <field id="riddev" nature="lov" lov="IprapRiddevLovQueryServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" columnNumber="1" sortNumber="1" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        </field>
+        <field id="acetdev" nature="lov" lov="IprapAcetdevLovQueryServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" columnNumber="1" sortNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        </field>
+        <field id="adtchgo" nature="date" sortNumber="1" columnNumber="2">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        </field>
+        <field id="rcepla" nature="lov" lov="IprapRceplaLovQueryServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" columnNumber="2" sortNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        </field>
+      </fields>
+    </area>
+    <area id="area3" sortNumber="3">
+      <fields>
+        <field id="reiv_rceval" nature="fk" functionId="FK_instrument" valueField="acecev" fkSearchField="acecev" displayTemplate="{acecev}" sortNumber="1" columnNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        </field>
+        <field id="reiv_ridori" nature="lov" lov="IprapRidoriLovQueryServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" sortNumber="2" columnNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        <filters>
+        <filter id="reiv_rceval" fieldId="reiv_rceval" />
+        <filter id="reiv_xidcev" fieldId="reiv_xidcev" />
+        </filters>
+        </field>
+        <field id="reic_rcepla" nature="lov" lov="IprapRceplaLovQueryServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" sortNumber="3" columnNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        <filters>
+        <filter id="reiv_rceval" fieldId="reiv_rceval" />
+        <filter id="reiv_xidcev" fieldId="reiv_xidcev" />
+        <filter id="reiv_ridori" fieldId="reiv_ridori" />
+        </filters>
+        </field>
+        <field id="iprap_adtvalid" nature="lov" lov="IprapAdtpalLovQueryServiceImpl" valueField="value" displayTemplate="{value}" sortNumber="4" columnNumber="2" clearValueIfNotInStore="true">
+        <controls><control id="mandatory" nature="MANDATORY" /></controls>
+        <filters>
+        <filter id="reiv_rceval" fieldId="reiv_rceval" />
+        <filter id="reiv_xidcev" fieldId="reiv_xidcev" />
+        <filter id="reiv_ridori" fieldId="reiv_ridori" />
+        <filter id="xetb_xidcec" fieldId="xetb_xidcec" />
+        <filter id="xetb_xidced" fieldId="xetb_xidced" />
+        <filter id="reic_rcepla" fieldId="reic_rcepla" />
+        <filter id="xuti_xidclg" fieldId="xuti_xidclg" />
+        </filters>
+        </field>
+        <field id="rgvlm_rllgvl" nature="string" readOnly="true" hidden="false" sortNumber="5" columnNumber="2" />
+      </fields>
+    </area>
+  </areas>
+</form>

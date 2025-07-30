@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<function xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd"
+          type="create"
+          id="{{ function.id }}" beanId="{{ function.beanId }}" icon="{{ function.icon }}">
+
+    <graphic>
+        <headerVisible>{{ function.graphic.headerVisible | lower }}</headerVisible>
+        <borderVisible>{{ function.graphic.borderVisible | lower }}</borderVisible>
+    </graphic>
+
+    {% for form in function.forms %}
+        <form sortNumber="{{ form.sortNumber }}" id="{{ form.id }}" editable="{{ form.editable | lower }}" fatherId="{{ form.fatherId }}">
+            <graphic>
+                <borderVisible>{{ form.graphic.borderVisible | lower }}</borderVisible>
+                <fieldSetMode>{{ form.graphic.fieldSetMode | lower }}</fieldSetMode>
+                {% if form.graphic.headerVisible is defined %}
+                    <headerVisible>{{ form.graphic.headerVisible | lower }}</headerVisible>
+                {% endif %}
+            </graphic>
+        </form>
+    {% endfor %}
+
+    <screenActions>
+        <screenAction id="launch" code="launchAini" icon="edition" evaluateControls="true">
+            <actionResponses>
+                <onSuccess>
+                    <refreshScreens>
+                        <functionIds>
+                            <functionId>{{ function.id }}</functionId>
+                        </functionIds>
+                    </refreshScreens>
+                </onSuccess>
+            </actionResponses>
+        </screenAction>
+    </screenActions>
+
+</function>

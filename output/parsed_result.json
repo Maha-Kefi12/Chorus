@@ -1,0 +1,29 @@
+[ {
+  "champ" : "devs",
+  "methode" : "aini_devs_valuesList",
+  "parametres" : [ ],
+  "type" : "lov",
+  "filters" : [ ],
+  "withParams" : true
+}, {
+  "champ" : "opt_cpta",
+  "methode" : "opt_cpta_tcn_valuesList_01",
+  "parametres" : [ "'AINI'", "'ATCN'", "'1'", "''" ],
+  "type" : "lov",
+  "filters" : [ ],
+  "withParams" : true
+}, {
+  "champ" : "adtinv",
+  "methode" : "adtinv_valuesList_02",
+  "parametres" : [ "acealia", "aidprt", "lot_aidlot", "aidprt_d", "aidprt_f", "xceopt" ],
+  "type" : "lov",
+  "filters" : [ ],
+  "withParams" : false
+}, {
+  "champ" : "opt_immo",
+  "methode" : "opt_immo_valuesList_01",
+  "parametres" : [ "'AINI'", "'AIMM'", "'1'", "''" ],
+  "type" : "lov",
+  "filters" : [ ],
+  "withParams" : true
+} ]

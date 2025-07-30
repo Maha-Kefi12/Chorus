@@ -1,0 +1,86 @@
+{
+  "success" : true,
+  "outputPath" : "C:\\Users\\USER\\Downloads\\spring-ftl\\output\\fieldlink.json",
+  "links" : [ {
+    "disabled" : false,
+    "id" : "link_adtech",
+    "childFieldId" : "adtech",
+    "methodName" : "isAdtechVisible",
+    "nature" : "CONDITIONNALHIDDEN",
+    "beanId" : "ainiFieldLinkService",
+    "fatherFieldIds" : [ "xceopt" ]
+  }, {
+    "disabled" : false,
+    "id" : "link_devs",
+    "childFieldId" : "devs",
+    "methodName" : "isDevsVisible",
+    "nature" : "CONDITIONNALHIDDEN",
+    "beanId" : "ainiFieldLinkService",
+    "fatherFieldIds" : [ "xceopt" ]
+  }, {
+    "disabled" : false,
+    "id" : "link_ridori",
+    "childFieldId" : "ridori",
+    "methodName" : "isRidoriVisible",
+    "nature" : "CONDITIONNALHIDDEN",
+    "beanId" : "ainiFieldLinkService",
+    "fatherFieldIds" : [ "xceopt" ]
+  }, {
+    "disabled" : false,
+    "id" : "link_adtfin",
+    "childFieldId" : "adtfin",
+    "methodName" : "isAdtfinVisible",
+    "nature" : "CONDITIONNALHIDDEN",
+    "beanId" : "ainiFieldLinkService",
+    "fatherFieldIds" : [ "xceopt" ]
+  }, {
+    "disabled" : false,
+    "id" : "link_opt_cpta",
+    "childFieldId" : "opt_cpta",
+    "methodName" : "isOpt_cptaVisible",
+    "nature" : "CONDITIONNALHIDDEN",
+    "beanId" : "ainiFieldLinkService",
+    "fatherFieldIds" : [ "xceopt" ]
+  }, {
+    "disabled" : false,
+    "id" : "link_opt_libcpta",
+    "childFieldId" : "opt_libcpta",
+    "methodName" : "isOpt_libcptaVisible",
+    "nature" : "CONDITIONNALHIDDEN",
+    "beanId" : "ainiFieldLinkService",
+    "fatherFieldIds" : [ "xceopt" ]
+  }, {
+    "disabled" : false,
+    "id" : "link_bidftc",
+    "childFieldId" : "bidftc",
+    "methodName" : "isBidftcVisible",
+    "nature" : "CONDITIONNALHIDDEN",
+    "beanId" : "ainiFieldLinkService",
+    "fatherFieldIds" : [ "xceopt", "optcrm" ]
+  }, {
+    "disabled" : false,
+    "id" : "link_opt_immo",
+    "childFieldId" : "opt_immo",
+    "methodName" : "isOpt_immoVisible",
+    "nature" : "CONDITIONNALHIDDEN",
+    "beanId" : "ainiFieldLinkService",
+    "fatherFieldIds" : [ "xceopt" ]
+  }, {
+    "disabled" : false,
+    "id" : "link_opt_libimmo",
+    "childFieldId" : "opt_libimmo",
+    "methodName" : "isOpt_libimmoVisible",
+    "nature" : "CONDITIONNALHIDDEN",
+    "beanId" : "ainiFieldLinkService",
+    "fatherFieldIds" : [ "xceopt" ]
+  }, {
+    "disabled" : false,
+    "id" : "link_optcrm",
+    "childFieldId" : "optcrm",
+    "methodName" : "isOptcrmVisible",
+    "nature" : "CONDITIONNALHIDDEN",
+    "beanId" : "ainiFieldLinkService",
+    "fatherFieldIds" : [ "xceopt" ]
+  } ],
+  "linksCount" : 10
+}

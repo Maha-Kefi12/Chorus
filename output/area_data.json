@@ -1,0 +1,162 @@
+[
+  {
+    "area": "Critères de lancement",
+    "fields": [
+      {
+        "name": "Option",
+        "sort_number": 20,
+        "columnNumber": 2,
+        "area": "area1"
+      },
+      {
+        "name": "Lot de portefeuilles",
+        "sort_number": 20,
+        "columnNumber": 1,
+        "area": "area1"
+      },
+      {
+        "name": "Portefeuille",
+        "sort_number": 21,
+        "columnNumber": 1,
+        "area": "area1"
+      },
+      {
+        "name": "Option stock",
+        "sort_number": 21,
+        "columnNumber": 2,
+        "area": "area1"
+      },
+      {
+        "name": "Intervalle de portefeuilles",
+        "sort_number": 22,
+        "columnNumber": 1,
+        "area": "area1"
+      },
+      {
+        "name": "Date inventaire",
+        "sort_number": 22,
+        "columnNumber": 2,
+        "area": "area1"
+      },
+      {
+        "name": "Alias",
+        "sort_number": 23,
+        "columnNumber": 1,
+        "area": "area1"
+      },
+      {
+        "name": "Date calculdu couru",
+        "sort_number": 23,
+        "columnNumber": 2,
+        "area": "area1"
+      },
+      {
+        "name": "Code portefeuille",
+        "sort_number": 24,
+        "columnNumber": 1,
+        "area": "area1"
+      },
+      {
+        "name": "Date rechercheces cours",
+        "sort_number": 25,
+        "columnNumber": 2,
+        "area": "area1"
+      }
+    ]
+  },
+  {
+    "area": "Critères avancés",
+    "fields": [
+      {
+        "name": "Intérêts échus décalés",
+        "sort_number": 10,
+        "columnNumber": 1,
+        "area": "area2"
+      },
+      {
+        "name": "Filtrer surle type d'instrument",
+        "sort_number": 10,
+        "columnNumber": 2,
+        "area": "area2"
+      },
+      {
+        "name": "Option compta TCNprécomptes",
+        "sort_number": 11,
+        "columnNumber": 1,
+        "area": "area2"
+      },
+      {
+        "name": "Typels) d'instrumentls)",
+        "sort_number": 11,
+        "columnNumber": 2,
+        "area": "area2"
+      },
+      {
+        "name": "Option sur ('immobilier",
+        "sort_number": 12,
+        "columnNumber": 1,
+        "area": "area2"
+      },
+      {
+        "name": "Filtrer surun instrument",
+        "sort_number": 12,
+        "columnNumber": 2,
+        "area": "area2"
+      },
+      {
+        "name": "Cours moyen",
+        "sort_number": 13,
+        "columnNumber": 1,
+        "area": "area2"
+      },
+      {
+        "name": "Code Instrument",
+        "sort_number": 13,
+        "columnNumber": 2,
+        "area": "area2"
+      },
+      {
+        "name": "Type de cours",
+        "sort_number": 14,
+        "columnNumber": 1,
+        "area": "area2"
+      },
+      {
+        "name": "Origine",
+        "sort_number": 14,
+        "columnNumber": 2,
+        "area": "area2"
+      },
+      {
+        "name": "Données rating",
+        "sort_number": 15,
+        "columnNumber": 1,
+        "area": "area2"
+      },
+      {
+        "name": "Place de cotation",
+        "sort_number": 15,
+        "columnNumber": 2,
+        "area": "area2"
+      },
+      {
+        "name": "Type de codification",
+        "sort_number": 16,
+        "columnNumber": 1,
+        "area": "area2"
+      },
+      {
+        "name": "Date paller",
+        "sort_number": 16,
+        "columnNumber": 2,
+        "area": "area2"
+      },
+      {
+        "name": "Libellé instrument",
+        "sort_number": 17,
+        "columnNumber": 2,
+        "area": "area2"
+      }
+    ]
+  }
+]

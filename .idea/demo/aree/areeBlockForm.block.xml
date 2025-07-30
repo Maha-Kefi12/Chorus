@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<form xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="areeBlockForm" xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd" fatherId="LotIntervallePortefeuille" beanId="areeFormService">
+  <graphic>
+    <headerVisible>false</headerVisible>
+    <collapsible>false</collapsible>
+    <collapsed>false</collapsed>
+  </graphic>
+  <fieldLinks>
+    <fieldLink childFieldId="aidtcp" id="link_aidtcp" methodName="isAidtcpVisible" nature="CONDITIONNALHIDDEN" disabled="false" beanId="acrcFieldLinkServiceFieldLinkService">
+      <fieldLinkFather fatherFieldId="isnull" />
+    </fieldLink>
+    <fieldLink childFieldId="alctcp" id="link_alctcp" methodName="isAlctcpVisible" nature="CONDITIONNALHIDDEN" disabled="false" beanId="acrcFieldLinkServiceFieldLinkService">
+      <fieldLinkFather fatherFieldId="isnull" />
+    </fieldLink>
+  </fieldLinks>
+  <areas>
+    <area id="area1" sortNumber="1">
+      <graphic>
+        <headerVisible>false</headerVisible>
+      </graphic>
+      <fields>
+        <field id="azdcma" nature="string" columnNumber="1" sortNumber="10" readOnly="false" hidden="false" />
+        <field id="adtcto" nature="date" columnNumber="1" sortNumber="11" readOnly="false" hidden="false" />
+        <field id="devs" nature="dualfield" columnNumber="1" sortNumber="12" readOnly="false" hidden="false" lov="devsLovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" maxDualFieldValues="4" />
+        <field id="adtrfdReportDatePanel" nature="date" columnNumber="1" sortNumber="13" readOnly="false" hidden="false" />
+        <field id="adtcta" nature="date" columnNumber="1" sortNumber="14" readOnly="false" hidden="false" />
+        <field id="adtneg" nature="date" columnNumber="1" sortNumber="15" readOnly="false" hidden="false" />
+        <field id="adtrffReportDatePanel" nature="date" columnNumber="1" sortNumber="16" readOnly="false" hidden="false" />
+        <field id="aidtcp" nature="lov" columnNumber="1" sortNumber="17" readOnly="false" hidden="true" lov="aidtcpLovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" />
+        <field id="xidcev" nature="lov" columnNumber="1" sortNumber="18" readOnly="false" hidden="true" lov="xidcevLovServiceImpl" valueField="value" displayTemplate="{value} - {longLabel}" />
+        <field id="alctcp" nature="string" columnNumber="1" sortNumber="19" readOnly="false" hidden="false" />
+      </fields>
+    </area>
+  </areas>
+</form>
