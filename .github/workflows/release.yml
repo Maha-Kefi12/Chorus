@@ -29,9 +29,9 @@ jobs:
             executable_name: xml-generator
             archive_name: macos-x64
             spring_jar_name: spring-ftl.jar
-    
+
     runs-on: ${{ matrix.os }}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -68,7 +68,8 @@ jobs:
       - name: Fix main.spec path for current OS
         run: |
           if [ "$RUNNER_OS" != "Windows" ]; then
-            sed -i "s|\\\\|/|g" main.spec
+            # Use a portable sed for both Linux and macOS
+            sed -i.bak "s|\\\\|/|g" main.spec
           fi
 
       - name: Check for main.py
@@ -165,7 +166,7 @@ jobs:
     needs: build-multi-platform
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-    
+
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
