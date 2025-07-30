@@ -97,36 +97,38 @@ jobs:
           # Check if XML generator script exists, if not create a basic one
           if (-not (Test-Path "xml_generator.py") -and -not (Test-Path "spring-ftl/xml_generator.py")) {
             echo "Creating basic XML generator..."
-            @"
-            import os
-            from pathlib import Path
-            import xml.etree.ElementTree as ET
-            from xml.dom import minidom
             
-            def main():
-                print('🎯 XML Generator Starting...')
-                demo_path = Path('.idea/demo')
-                demo_path.mkdir(parents=True, exist_ok=True)
-                
-                # Create basic aini.xml
-                root = ET.Element('configuration')
-                root.set('type', 'SpringFTL')
-                metadata = ET.SubElement(root, 'metadata')
-                ET.SubElement(metadata, 'generated-by').text = 'Spring FTL XML Generator'
-                
-                rough_string = ET.tostring(root, 'utf-8')
-                reparsed = minidom.parseString(rough_string)
-                pretty_xml = reparsed.toprettyxml(indent='  ')
-                
-                with open(demo_path / 'aini.xml', 'w') as f:
-                    f.write(pretty_xml)
-                
-                print('✅ XML files generated successfully!')
-                return 0
-            
-            if __name__ == '__main__':
-                exit(main())
-            "@ | Out-File -FilePath "xml_generator.py" -Encoding UTF8
+            $content = @'
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          from xml.dom import minidom
+
+          def main():
+              print('🎯 XML Generator Starting...')
+              demo_path = Path('.idea/demo')
+              demo_path.mkdir(parents=True, exist_ok=True)
+              
+              # Create basic aini.xml
+              root = ET.Element('configuration')
+              root.set('type', 'SpringFTL')
+              metadata = ET.SubElement(root, 'metadata')
+              ET.SubElement(metadata, 'generated-by').text = 'Spring FTL XML Generator'
+              
+              rough_string = ET.tostring(root, 'utf-8')
+              reparsed = minidom.parseString(rough_string)
+              pretty_xml = reparsed.toprettyxml(indent='  ')
+              
+              with open(demo_path / 'aini.xml', 'w') as f:
+                  f.write(pretty_xml)
+              
+              print('✅ XML files generated successfully!')
+              return 0
+
+          if __name__ == '__main__':
+              exit(main())
+          '@
+            $content | Out-File -FilePath "xml_generator.py" -Encoding UTF8
           }
 
       - name: 🔨 Build XML generator executable
@@ -149,6 +151,7 @@ jobs:
           name: xml-generator
           path: dist/xml-generator.exe
           retention-days: 30
+
   generate-http-tests:
     runs-on: ubuntu-latest
     steps:
