@@ -1,0 +1,84 @@
+name: 🔁 HTTP Endpoint Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test-api-endpoints:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: pass
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🧰 Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: 🧪 Build Spring Boot app
+        run: |
+          ./mvnw clean install -DskipTests
+
+      - name: 🚀 Run Spring Boot app in background
+        run: |
+          nohup ./mvnw spring-boot:run > spring.log 2>&1 &
+          sleep 30
+
+      - name: ⏳ Wait for app to become ready
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:8080/api/analyze; then
+              echo "✅ App is up!"
+              break
+            fi
+            echo "⏳ Waiting for app..."
+            sleep 5
+          done
+
+      - name: 🧪 Run GET and POST endpoint tests
+        run: |
+          echo "📡 Testing GET endpoints"
+          curl -i http://localhost:8080/api/analyze
+          curl -i http://localhost:8080/api/extract-function
+          curl -i http://localhost:8080/api/extract-function-name
+          curl -i http://localhost:8080/api/extract-function-name-1
+          curl -i http://localhost:8080/api/api
+          curl -i http://localhost:8080/transform/transform
+          curl -i http://localhost:8080/api/visibility-analyzer/api/visibility-analyzer
+          curl -i http://localhost:8080/api/parser/api/parser
+
+          echo "📤 Testing POST endpoints"
+          curl -i -X POST http://localhost:8080/transform/updateFieldOrder -H "Content-Type: application/json" -d '{}'
+          curl -i -X POST http://localhost:8080/transform/save-transformation -H "Content-Type: application/json" -d '{}'
+          curl -i -X POST http://localhost:8080/transform/field-mapping-table -H "Content-Type: application/json" -d '{}'
+          curl -i -X POST http://localhost:8080/api/visibility-analyzer/analyze/file -H "Content-Type: application/json" -d '{}'
+
+      - name: 📄 Upload Spring log on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: spring-boot-log
+          path: spring.log
