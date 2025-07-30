@@ -17,7 +17,7 @@ jobs:
       mysql:
         image: mysql:8
         env:
-          MYSQL_ROOT_PASSWORD: ''
+          MYSQL_ROOT_PASSWORD: chorus_password
           MYSQL_DATABASE: chorus
         ports:
           - 3306:3306
