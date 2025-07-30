@@ -2,10 +2,18 @@
 
 
 a = Analysis(
-    ['spring-ftl\\src\\main\\resources\\scripts\\main.py'],
+    ['spring-ftl/src/main/resources/scripts/main.py'],
     pathex=[],
     binaries=[],
-    datas=[('output', 'output'), ('spring-ftl\\src\\main\\java\\com\\example\\spring_ftl\\controller', 'controller'), ('spring-ftl\\src\\main\\java\\com\\example\\spring_ftl\\dto', 'dto'), ('spring-ftl\\src\\main\\java\\com\\example\\spring_ftl\\service', 'service'), ('spring-ftl\\src\\main\\resources\\templates', 'templates'), ('*.properties', '.')],
+    datas=[
+        ('output', 'output'), 
+        ('spring-ftl/src/main/java/com/example/spring_ftl/controller', 'controller'), 
+        ('spring-ftl/src/main/java/com/example/spring_ftl/dto', 'dto'), 
+        ('spring-ftl/src/main/java/com/example/spring_ftl/service', 'service'), 
+        ('spring-ftl/src/main/resources/templates', 'templates'),
+        ('spring-ftl/src/main/resources/scripts', 'scripts'),
+        ('*.properties', '.')
+    ],
     hiddenimports=['scripts'],
     hookspath=[],
     hooksconfig={},
