@@ -1421,31 +1421,12 @@ jobs:
           cd ..
 
       - name: 📤 Upload Windows release package
+        if: github.event_name == 'release'
         uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./spring-ftl-windows-x64.zip
-          asset_name: spring-ftl-windows-x64.zip
-          asset_content_type: application/zip
 
       - name: 📤 Upload comprehensive API tests
+        if: github.event_name == 'release'
         uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./release/comprehensive-api-tests.http
-          asset_name: comprehensive-api-tests.http
-          asset_content_type: text/plain
-
       - name: 📤 Upload README
+        if: github.event_name == 'release'
         uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./release/README.md
-          asset_name: README.md
-          asset_content_type: text/markdown 
