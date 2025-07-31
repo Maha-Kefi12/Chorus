@@ -200,10 +200,14 @@ jobs:
           cd ../../../../
 
       - name: 🛡️ Check EXE architecture
+        shell: pwsh
         run: |
           $exe = 'spring-ftl/src/main/resources/scripts/dist/xml-generator.exe'
           if (Test-Path $exe) {
-            $bytes = Get-Content $exe -Encoding Byte -ReadCount 64
+            $stream = [System.IO.File]::OpenRead($exe)
+            $bytes = New-Object byte[] 4096
+            $read = $stream.Read($bytes, 0, 4096)
+            $stream.Close()
             $peOffset = [BitConverter]::ToInt32($bytes[60..63], 0)
             $machine = [BitConverter]::ToUInt16($bytes[$peOffset+4..$peOffset+5], 0)
             if ($machine -eq 0x8664) {
