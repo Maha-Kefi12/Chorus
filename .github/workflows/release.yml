@@ -441,18 +441,16 @@ jobs:
           echo "✅ Built api_gui_runner.exe in root directory"
           echo "Current directory: $(pwd)"
           echo "Files in current directory:"
-          Get-ChildItem *.exe
+          Get-ChildItem *.exe -ErrorAction SilentlyContinue
           echo "Files in dist directory:"
-          if (Test-Path "dist") { Get-ChildItem dist\*.exe }
+          if (Test-Path "dist") { Get-ChildItem dist\*.exe -ErrorAction SilentlyContinue }
           echo "Files in build directory:"
-          if (Test-Path "build") { Get-ChildItem build\ -Recurse -Name "*.exe" }
+          if (Test-Path "build") { Get-ChildItem build\ -Recurse -Name "*.exe" -ErrorAction SilentlyContinue }
           if (Test-Path "api_gui_runner.exe") {
             echo "✅ api_gui_runner.exe found in root directory"
             Get-ChildItem api_gui_runner.exe
           } else {
             echo "❌ api_gui_runner.exe not found in root directory"
-            echo "Searching for api_gui_runner.exe in subdirectories..."
-            Get-ChildItem -Recurse -Name "api_gui_runner.exe"
             echo "Checking if it was built in dist directory..."
             if (Test-Path "dist\api_gui_runner.exe") {
               echo "✅ Found in dist directory, moving to root..."
