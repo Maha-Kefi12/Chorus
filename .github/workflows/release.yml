@@ -569,6 +569,44 @@ jobs:
           pause
           api_gui_runner.exe
           EOF
+          
+          # Database setup script
+          cat > release/setup-database.bat << 'EOF'
+          @echo off
+          echo ========================================
+          echo MySQL Database Setup
+          echo ========================================
+          echo.
+          echo This script will help you set up the MySQL database for Spring FTL
+          echo.
+          echo Requirements:
+          echo - MySQL 8.0 or later installed
+          echo - MySQL service running
+          echo - Administrative access to MySQL
+          echo.
+          echo Database Configuration:
+          echo - Database name: chorus
+          echo - Username: root
+          echo - Password: chorus_password
+          echo - Host: localhost
+          echo - Port: 3306
+          echo.
+          echo Press any key to continue...
+          pause
+          
+          echo.
+          echo Creating database and user...
+          mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS chorus;"
+          mysql -u root -p -e "CREATE USER IF NOT EXISTS 'root'@'localhost' IDENTIFIED BY 'chorus_password';"
+          mysql -u root -p -e "GRANT ALL PRIVILEGES ON chorus.* TO 'root'@'localhost';"
+          mysql -u root -p -e "FLUSH PRIVILEGES;"
+          
+          echo.
+          echo Database setup complete!
+          echo You can now start the Spring Boot application.
+          echo.
+          pause
+          EOF
 
       - name: 📝 Create README
         run: |
@@ -614,6 +652,8 @@ jobs:
           - Data transformation
           - Field mapping and ordering
           
+          **Database:** Uses MySQL 8.0 with database `chorus` and automatic table creation
+          
           **Available Endpoints:**
           - `GET /api/analyze` - Analyze code structure
           - `GET /api/extract-function?path=<file>` - Extract functions from file
@@ -647,6 +687,7 @@ jobs:
           ## Requirements
           
           - **Java 17 or later** (for Spring Boot application)
+          - **MySQL 8.0 or later** (database server)
           - **Windows OS** (for batch scripts and XML generator)
           - **Internet connection** (for downloading dependencies on first run)
           - **Write permissions** in the application directory
@@ -679,6 +720,13 @@ jobs:
           2. Check that the server is running on http://localhost:8080
           3. Try accessing http://localhost:8080/api/analyze in a browser
           4. Check firewall settings
+          
+          ### Database Setup (MySQL):
+          1. Install MySQL 8.0 or later
+          2. Create a database named `chorus` (or update application.properties)
+          3. Set up a user with username `root` and password `chorus_password`
+          4. Ensure MySQL is running on localhost:3306
+          5. The application will automatically create tables on first run
           
           ## Usage Examples
           
