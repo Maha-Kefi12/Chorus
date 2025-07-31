@@ -372,8 +372,19 @@ jobs:
           echo "" >> api_gui_runner.py
           echo "def run_requests(java_file_path):" >> api_gui_runner.py
           echo "    os.makedirs('output', exist_ok=True)" >> api_gui_runner.py
-          echo "    with open(java_file_path, 'r', encoding='utf-8') as f:" >> api_gui_runner.py
-          echo "        java_code = f.read()" >> api_gui_runner.py
+          echo "    # Try different encodings to handle various file formats" >> api_gui_runner.py
+          echo "    encodings = ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']" >> api_gui_runner.py
+          echo "    java_code = None" >> api_gui_runner.py
+          echo "    for encoding in encodings:" >> api_gui_runner.py
+          echo "        try:" >> api_gui_runner.py
+          echo "            with open(java_file_path, 'r', encoding=encoding) as f:" >> api_gui_runner.py
+          echo "                java_code = f.read()" >> api_gui_runner.py
+          echo "            break" >> api_gui_runner.py
+          echo "        except UnicodeDecodeError:" >> api_gui_runner.py
+          echo "            continue" >> api_gui_runner.py
+          echo "    if java_code is None:" >> api_gui_runner.py
+          echo "        messagebox.showerror('Error', 'Could not read Java file with any supported encoding')" >> api_gui_runner.py
+          echo "        return" >> api_gui_runner.py
           echo "    for ep in ENDPOINTS:" >> api_gui_runner.py
           echo "        try:" >> api_gui_runner.py
           echo "            if ep['method'] == 'GET':" >> api_gui_runner.py
