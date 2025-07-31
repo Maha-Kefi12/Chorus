@@ -76,7 +76,7 @@ jobs:
           path: spring-ftl/spring.log
           retention-days: 7
 
- - name: 🔧 Prepare XML generator scripts
+      - name: 🔧 Prepare XML generator scripts
         run: |
           echo "🔍 Preparing XML generator scripts..."
           echo "Current directory: $(pwd)"
