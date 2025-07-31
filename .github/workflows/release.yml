@@ -895,6 +895,17 @@ jobs:
               echo "No xml-generator.exe found in release directory or subdirectories!"
             fi
           fi
+          
+          # Find the API GUI Runner if not already in release/
+          if [ ! -f release/api_gui_runner.exe ]; then
+            found_api_exe=$(find release -name 'api_gui_runner.exe' | head -n 1)
+            if [ -n "$found_api_exe" ]; then
+              echo "Found API GUI Runner at $found_api_exe, moving to release/api_gui_runner.exe"
+              mv "$found_api_exe" release/api_gui_runner.exe
+            else
+              echo "No api_gui_runner.exe found in release directory or subdirectories!"
+            fi
+          fi
           ls -l release/
 
   create-github-release:
