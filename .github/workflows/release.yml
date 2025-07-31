@@ -245,7 +245,7 @@ jobs:
             } elseif ($machine -eq 0x014c) {
               Write-Host '❌ EXE is 32-bit (x86)'
               exit 1
-            } else {
+          } else {
               Write-Host "❌ Unknown EXE architecture: $machine"
               exit 1
             }
@@ -368,6 +368,102 @@ jobs:
           echo "        'url': 'http://localhost:8080/api/extract-function-name?path=test.java'," >> api_gui_runner.py
           echo "        'output': 'output/extract_function_name_response.json'" >> api_gui_runner.py
           echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'transform_save'," >> api_gui_runner.py
+          echo "        'method': 'POST'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/transform/save-transformation'," >> api_gui_runner.py
+          echo "        'output': 'output/transformed_result.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'area_map'," >> api_gui_runner.py
+          echo "        'method': 'GET'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/area-map'," >> api_gui_runner.py
+          echo "        'output': 'output/area_map.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'fieldlink'," >> api_gui_runner.py
+          echo "        'method': 'GET'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/fieldlink'," >> api_gui_runner.py
+          echo "        'output': 'output/fieldlink.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'update_field_order'," >> api_gui_runner.py
+          echo "        'method': 'POST'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/transform/updateFieldOrder'," >> api_gui_runner.py
+          echo "        'output': 'output/field_order.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'parsed_result'," >> api_gui_runner.py
+          echo "        'method': 'GET'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/parsed-result'," >> api_gui_runner.py
+          echo "        'output': 'output/parsed_result.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'response_filters'," >> api_gui_runner.py
+          echo "        'method': 'GET'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/response-filters'," >> api_gui_runner.py
+          echo "        'output': 'output/response_filters.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'fields_by_area'," >> api_gui_runner.py
+          echo "        'method': 'GET'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/fields-by-area'," >> api_gui_runner.py
+          echo "        'output': 'output/fields_by_area.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'area_data'," >> api_gui_runner.py
+          echo "        'method': 'GET'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/area-data'," >> api_gui_runner.py
+          echo "        'output': 'output/area_data.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'all_lov'," >> api_gui_runner.py
+          echo "        'method': 'GET'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/all-lov'," >> api_gui_runner.py
+          echo "        'output': 'output/all_lov.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'form_config'," >> api_gui_runner.py
+          echo "        'method': 'GET'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/form-config'," >> api_gui_runner.py
+          echo "        'output': 'output/form_config.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'field_mappings'," >> api_gui_runner.py
+          echo "        'method': 'GET'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/field-mappings'," >> api_gui_runner.py
+          echo "        'output': 'output/field_mappings.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'validation_rules'," >> api_gui_runner.py
+          echo "        'method': 'GET'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/validation-rules'," >> api_gui_runner.py
+          echo "        'output': 'output/validation_rules.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'screen_layout'," >> api_gui_runner.py
+          echo "        'method': 'GET'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/screen-layout'," >> api_gui_runner.py
+          echo "        'output': 'output/screen_layout.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'business_rules'," >> api_gui_runner.py
+          echo "        'method': 'GET'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/business-rules'," >> api_gui_runner.py
+          echo "        'output': 'output/business_rules.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'data_sources'," >> api_gui_runner.py
+          echo "        'method': 'GET'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/data-sources'," >> api_gui_runner.py
+          echo "        'output': 'output/data_sources.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
+          echo "    {" >> api_gui_runner.py
+          echo "        'name': 'workflow_steps'," >> api_gui_runner.py
+          echo "        'method': 'GET'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/workflow-steps'," >> api_gui_runner.py
+          echo "        'output': 'output/workflow_steps.json'" >> api_gui_runner.py
+          echo "    }," >> api_gui_runner.py
           echo "]" >> api_gui_runner.py
           echo "" >> api_gui_runner.py
           echo "def run_requests(java_file_path):" >> api_gui_runner.py
@@ -398,8 +494,174 @@ jobs:
           echo "        except Exception as e:" >> api_gui_runner.py
           echo "            messagebox.showerror('Error', f'Failed on endpoint: {e}')" >> api_gui_runner.py
           echo "" >> api_gui_runner.py
+          echo "def create_sample_data():" >> api_gui_runner.py
+          echo "    # Create sample data files if they don't exist" >> api_gui_runner.py
+          echo "    import json" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
+          echo "    # Sample transformed_result.json with multiple forms" >> api_gui_runner.py
+          echo "    if not os.path.exists('output/transformed_result.json'):" >> api_gui_runner.py
+          echo "        sample_transformed = {" >> api_gui_runner.py
+          echo "            'originalJson': {" >> api_gui_runner.py
+          echo "                'aini': {'fields': ['field1', 'field2'], 'type': 'form'}," >> api_gui_runner.py
+          echo "                'user': {'fields': ['userField1', 'userField2'], 'type': 'form'}," >> api_gui_runner.py
+          echo "                'product': {'fields': ['prodField1', 'prodField2'], 'type': 'form'}" >> api_gui_runner.py
+          echo "            }," >> api_gui_runner.py
+          echo "            'metadata': {'version': '1.0', 'generated': True}" >> api_gui_runner.py
+          echo "        }" >> api_gui_runner.py
+          echo "        with open('output/transformed_result.json', 'w') as f:" >> api_gui_runner.py
+          echo "            json.dump(sample_transformed, f, indent=2)" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
+          echo "    # Sample area_map.json" >> api_gui_runner.py
+          echo "    if not os.path.exists('output/area_map.json'):" >> api_gui_runner.py
+          echo "        sample_area_map = {" >> api_gui_runner.py
+          echo "            'aini': {'areas': ['main', 'sidebar'], 'mappings': {}}," >> api_gui_runner.py
+          echo "            'user': {'areas': ['header', 'content'], 'mappings': {}}," >> api_gui_runner.py
+          echo "            'product': {'areas': ['form', 'list'], 'mappings': {}}" >> api_gui_runner.py
+          echo "        }" >> api_gui_runner.py
+          echo "        with open('output/area_map.json', 'w') as f:" >> api_gui_runner.py
+          echo "            json.dump(sample_area_map, f, indent=2)" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
+          echo "    # Sample fieldlink.json" >> api_gui_runner.py
+          echo "    if not os.path.exists('output/fieldlink.json'):" >> api_gui_runner.py
+          echo "        sample_fieldlink = {" >> api_gui_runner.py
+          echo "            'aini': {'links': [{'source': 'field1', 'target': 'field2'}]}," >> api_gui_runner.py
+          echo "            'user': {'links': [{'source': 'userField1', 'target': 'userField2'}]}," >> api_gui_runner.py
+          echo "            'product': {'links': [{'source': 'prodField1', 'target': 'prodField2'}]}" >> api_gui_runner.py
+          echo "        }" >> api_gui_runner.py
+          echo "        with open('output/fieldlink.json', 'w') as f:" >> api_gui_runner.py
+          echo "            json.dump(sample_fieldlink, f, indent=2)" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
+          echo "    # Sample parsed_result.json" >> api_gui_runner.py
+          echo "    if not os.path.exists('output/parsed_result.json'):" >> api_gui_runner.py
+          echo "        sample_parsed = {" >> api_gui_runner.py
+          echo "            'parsedData': {" >> api_gui_runner.py
+          echo "                'aini': {'classes': ['AiniForm'], 'methods': ['save', 'load']}," >> api_gui_runner.py
+          echo "                'user': {'classes': ['UserForm'], 'methods': ['create', 'update']}," >> api_gui_runner.py
+          echo "                'product': {'classes': ['ProductForm'], 'methods': ['add', 'remove']}" >> api_gui_runner.py
+          echo "            }," >> api_gui_runner.py
+          echo "            'metadata': {'parser': 'java', 'version': '1.0'}" >> api_gui_runner.py
+          echo "        }" >> api_gui_runner.py
+          echo "        with open('output/parsed_result.json', 'w') as f:" >> api_gui_runner.py
+          echo "            json.dump(sample_parsed, f, indent=2)" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
+          echo "    # Sample response_filters.json" >> api_gui_runner.py
+          echo "    if not os.path.exists('output/response_filters.json'):" >> api_gui_runner.py
+          echo "        sample_filters = {" >> api_gui_runner.py
+          echo "            'filters': {" >> api_gui_runner.py
+          echo "                'aini': ['status', 'date']," >> api_gui_runner.py
+          echo "                'user': ['role', 'active']," >> api_gui_runner.py
+          echo "                'product': ['category', 'price']" >> api_gui_runner.py
+          echo "            }," >> api_gui_runner.py
+          echo "            'defaults': {'sortBy': 'id', 'order': 'asc'}" >> api_gui_runner.py
+          echo "        }" >> api_gui_runner.py
+          echo "        with open('output/response_filters.json', 'w') as f:" >> api_gui_runner.py
+          echo "            json.dump(sample_filters, f, indent=2)" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
+          echo "    # Sample fields_by_area.json" >> api_gui_runner.py
+          echo "    if not os.path.exists('output/fields_by_area.json'):" >> api_gui_runner.py
+          echo "        sample_fields_area = {" >> api_gui_runner.py
+          echo "            'aini': {'main': ['field1', 'field2'], 'sidebar': ['field3']}," >> api_gui_runner.py
+          echo "            'user': {'header': ['userField1'], 'content': ['userField2']}," >> api_gui_runner.py
+          echo "            'product': {'form': ['prodField1'], 'list': ['prodField2']}" >> api_gui_runner.py
+          echo "        }" >> api_gui_runner.py
+          echo "        with open('output/fields_by_area.json', 'w') as f:" >> api_gui_runner.py
+          echo "            json.dump(sample_fields_area, f, indent=2)" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
+          echo "    # Sample area_data.json" >> api_gui_runner.py
+          echo "    if not os.path.exists('output/area_data.json'):" >> api_gui_runner.py
+          echo "        sample_area_data = {" >> api_gui_runner.py
+          echo "            'aini': {'main': {'width': '70%', 'height': '100%'}, 'sidebar': {'width': '30%', 'height': '100%'}}," >> api_gui_runner.py
+          echo "            'user': {'header': {'width': '100%', 'height': '60px'}, 'content': {'width': '100%', 'height': 'calc(100% - 60px)'}}," >> api_gui_runner.py
+          echo "            'product': {'form': {'width': '50%', 'height': '100%'}, 'list': {'width': '50%', 'height': '100%'}}" >> api_gui_runner.py
+          echo "        }" >> api_gui_runner.py
+          echo "        with open('output/area_data.json', 'w') as f:" >> api_gui_runner.py
+          echo "            json.dump(sample_area_data, f, indent=2)" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
+          echo "    # Sample all_lov.json" >> api_gui_runner.py
+          echo "    if not os.path.exists('output/all_lov.json'):" >> api_gui_runner.py
+          echo "        sample_lov = {" >> api_gui_runner.py
+          echo "            'aini': {'status': ['active', 'inactive'], 'type': ['form', 'report']}," >> api_gui_runner.py
+          echo "            'user': {'role': ['admin', 'user', 'guest'], 'status': ['active', 'suspended']}," >> api_gui_runner.py
+          echo "            'product': {'category': ['electronics', 'clothing', 'books'], 'status': ['available', 'out_of_stock']}" >> api_gui_runner.py
+          echo "        }" >> api_gui_runner.py
+          echo "        with open('output/all_lov.json', 'w') as f:" >> api_gui_runner.py
+          echo "            json.dump(sample_lov, f, indent=2)" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
+          echo "    # Sample form_config.json" >> api_gui_runner.py
+          echo "    if not os.path.exists('output/form_config.json'):" >> api_gui_runner.py
+          echo "        sample_form_config = {" >> api_gui_runner.py
+          echo "            'aini': {'title': 'Aini Form', 'version': '1.0', 'theme': 'default'}," >> api_gui_runner.py
+          echo "            'user': {'title': 'User Management', 'version': '2.0', 'theme': 'modern'}," >> api_gui_runner.py
+          echo "            'product': {'title': 'Product Catalog', 'version': '1.5', 'theme': 'business'}" >> api_gui_runner.py
+          echo "        }" >> api_gui_runner.py
+          echo "        with open('output/form_config.json', 'w') as f:" >> api_gui_runner.py
+          echo "            json.dump(sample_form_config, f, indent=2)" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
+          echo "    # Sample field_mappings.json" >> api_gui_runner.py
+          echo "    if not os.path.exists('output/field_mappings.json'):" >> api_gui_runner.py
+          echo "        sample_field_mappings = {" >> api_gui_runner.py
+          echo "            'aini': {'field1': 'database_column1', 'field2': 'database_column2'}," >> api_gui_runner.py
+          echo "            'user': {'userField1': 'user_name', 'userField2': 'user_email'}," >> api_gui_runner.py
+          echo "            'product': {'prodField1': 'product_name', 'prodField2': 'product_price'}" >> api_gui_runner.py
+          echo "        }" >> api_gui_runner.py
+          echo "        with open('output/field_mappings.json', 'w') as f:" >> api_gui_runner.py
+          echo "            json.dump(sample_field_mappings, f, indent=2)" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
+          echo "    # Sample validation_rules.json" >> api_gui_runner.py
+          echo "    if not os.path.exists('output/validation_rules.json'):" >> api_gui_runner.py
+          echo "        sample_validation = {" >> api_gui_runner.py
+          echo "            'aini': {'field1': {'required': True, 'maxLength': 50}, 'field2': {'required': False, 'type': 'email'}}," >> api_gui_runner.py
+          echo "            'user': {'userField1': {'required': True, 'minLength': 3}, 'userField2': {'required': True, 'type': 'email'}}," >> api_gui_runner.py
+          echo "            'product': {'prodField1': {'required': True, 'maxLength': 100}, 'prodField2': {'required': True, 'type': 'number'}}" >> api_gui_runner.py
+          echo "        }" >> api_gui_runner.py
+          echo "        with open('output/validation_rules.json', 'w') as f:" >> api_gui_runner.py
+          echo "            json.dump(sample_validation, f, indent=2)" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
+          echo "    # Sample screen_layout.json" >> api_gui_runner.py
+          echo "    if not os.path.exists('output/screen_layout.json'):" >> api_gui_runner.py
+          echo "        sample_layout = {" >> api_gui_runner.py
+          echo "            'aini': {'layout': 'two-column', 'responsive': True, 'breakpoints': ['sm', 'md', 'lg']}," >> api_gui_runner.py
+          echo "            'user': {'layout': 'single-column', 'responsive': True, 'breakpoints': ['xs', 'sm', 'md']}," >> api_gui_runner.py
+          echo "            'product': {'layout': 'grid', 'responsive': True, 'breakpoints': ['md', 'lg', 'xl']}" >> api_gui_runner.py
+          echo "        }" >> api_gui_runner.py
+          echo "        with open('output/screen_layout.json', 'w') as f:" >> api_gui_runner.py
+          echo "            json.dump(sample_layout, f, indent=2)" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
+          echo "    # Sample business_rules.json" >> api_gui_runner.py
+          echo "    if not os.path.exists('output/business_rules.json'):" >> api_gui_runner.py
+          echo "        sample_business_rules = {" >> api_gui_runner.py
+          echo "            'aini': {'rules': ['auto_save', 'validation_on_change'], 'triggers': ['before_save', 'after_load']}," >> api_gui_runner.py
+          echo "            'user': {'rules': ['password_strength', 'email_verification'], 'triggers': ['before_create', 'after_update']}," >> api_gui_runner.py
+          echo "            'product': {'rules': ['price_validation', 'stock_check'], 'triggers': ['before_save', 'after_delete']}" >> api_gui_runner.py
+          echo "        }" >> api_gui_runner.py
+          echo "        with open('output/business_rules.json', 'w') as f:" >> api_gui_runner.py
+          echo "            json.dump(sample_business_rules, f, indent=2)" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
+          echo "    # Sample data_sources.json" >> api_gui_runner.py
+          echo "    if not os.path.exists('output/data_sources.json'):" >> api_gui_runner.py
+          echo "        sample_data_sources = {" >> api_gui_runner.py
+          echo "            'aini': {'primary': 'mysql://localhost/chorus', 'cache': 'redis://localhost:6379'}," >> api_gui_runner.py
+          echo "            'user': {'primary': 'mysql://localhost/chorus', 'backup': 'postgres://localhost/backup'}," >> api_gui_runner.py
+          echo "            'product': {'primary': 'mysql://localhost/chorus', 'search': 'elasticsearch://localhost:9200'}" >> api_gui_runner.py
+          echo "        }" >> api_gui_runner.py
+          echo "        with open('output/data_sources.json', 'w') as f:" >> api_gui_runner.py
+          echo "            json.dump(sample_data_sources, f, indent=2)" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
+          echo "    # Sample workflow_steps.json" >> api_gui_runner.py
+          echo "    if not os.path.exists('output/workflow_steps.json'):" >> api_gui_runner.py
+          echo "        sample_workflow = {" >> api_gui_runner.py
+          echo "            'aini': {'steps': ['input', 'validate', 'save', 'confirm'], 'current': 'input'}," >> api_gui_runner.py
+          echo "            'user': {'steps': ['create', 'verify', 'activate', 'notify'], 'current': 'create'}," >> api_gui_runner.py
+          echo "            'product': {'steps': ['add', 'categorize', 'price', 'publish'], 'current': 'add'}" >> api_gui_runner.py
+          echo "        }" >> api_gui_runner.py
+          echo "        with open('output/workflow_steps.json', 'w') as f:" >> api_gui_runner.py
+          echo "            json.dump(sample_workflow, f, indent=2)" >> api_gui_runner.py
+          echo "" >> api_gui_runner.py
           echo "def run_xml_generator():" >> api_gui_runner.py
           echo "    try:" >> api_gui_runner.py
+          echo "        # Create sample data if needed" >> api_gui_runner.py
+          echo "        create_sample_data()" >> api_gui_runner.py
+          echo "        " >> api_gui_runner.py
           echo "        if os.path.exists('xml-generator.exe'):" >> api_gui_runner.py
           echo "            result = subprocess.run(['xml-generator.exe'], capture_output=True, text=True)" >> api_gui_runner.py
           echo "            if result.returncode == 0:" >> api_gui_runner.py
@@ -589,12 +851,12 @@ jobs:
           echo ========================================
           echo.
           echo This script will help you set up the MySQL database for Spring FTL
-          echo.
+              echo.
           echo Requirements:
           echo - MySQL 8.0 or later installed
           echo - MySQL service running
           echo - Administrative access to MySQL
-          echo.
+              echo.
           echo Database Configuration:
           echo - Database name: chorus
           echo - Username: root
@@ -603,9 +865,9 @@ jobs:
           echo - Port: 3306
           echo.
           echo Press any key to continue...
-          pause
+              pause
           
-          echo.
+                  echo.
           echo Creating database and user...
           mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS chorus;"
           mysql -u root -p -e "CREATE USER IF NOT EXISTS 'root'@'localhost' IDENTIFIED BY 'chorus_password';"
@@ -616,7 +878,7 @@ jobs:
           echo Database setup complete!
           echo You can now start the Spring Boot application.
           echo.
-          pause
+              pause
           EOF
 
       - name: 📝 Create README
