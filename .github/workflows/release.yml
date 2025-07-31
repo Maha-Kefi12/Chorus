@@ -418,45 +418,28 @@ jobs:
           cd spring-ftl/src/main/resources/scripts
           pyinstaller --onefile --noconsole --name api_gui_runner api_gui_runner.py
           cd ../../../../../
-          echo "Checking if executable was created in scripts directory..."
+          
+          # Move executable to root directory
           if (Test-Path "spring-ftl\src\main\resources\scripts\dist\api_gui_runner.exe") {
-            echo "✅ Found in scripts/dist, moving to root..."
             Move-Item "spring-ftl\src\main\resources\scripts\dist\api_gui_runner.exe" "api_gui_runner.exe"
-            echo "✅ Moved to root directory"
+            echo "✅ Moved from scripts/dist to root"
           } elseif (Test-Path "dist\main.exe") {
-            echo "✅ Found main.exe in dist directory, renaming to api_gui_runner.exe..."
             Copy-Item "dist\main.exe" "api_gui_runner.exe"
-            echo "✅ Copied and renamed to api_gui_runner.exe"
+            echo "✅ Copied main.exe to api_gui_runner.exe"
           } elseif (Test-Path "dist\api_gui_runner.exe") {
-            echo "✅ Found api_gui_runner.exe in dist directory, moving to root..."
             Move-Item "dist\api_gui_runner.exe" "api_gui_runner.exe"
-            echo "✅ Moved to root directory"
+            echo "✅ Moved from dist to root"
           } else {
-            echo "❌ No executable found in expected locations"
-            echo "Available files in dist directory:"
-            if (Test-Path "dist") { Get-ChildItem dist\*.exe }
-            echo "Available files in scripts/dist directory:"
-            if (Test-Path "spring-ftl\src\main\resources\scripts\dist") { Get-ChildItem "spring-ftl\src\main\resources\scripts\dist\*.exe" }
+            echo "❌ No executable found"
+            exit 1
           }
-          echo "✅ Built api_gui_runner.exe in root directory"
-          echo "Current directory: $(pwd)"
-          echo "Files in current directory:"
-          Get-ChildItem *.exe -ErrorAction SilentlyContinue
-          echo "Files in dist directory:"
-          if (Test-Path "dist") { Get-ChildItem dist\*.exe -ErrorAction SilentlyContinue }
-          echo "Files in build directory:"
-          if (Test-Path "build") { Get-ChildItem build\ -Recurse -Name "*.exe" -ErrorAction SilentlyContinue }
+          
+          # Verify the executable exists
           if (Test-Path "api_gui_runner.exe") {
-            echo "✅ api_gui_runner.exe found in root directory"
-            Get-ChildItem api_gui_runner.exe
+            echo "✅ api_gui_runner.exe successfully created"
           } else {
-            echo "❌ api_gui_runner.exe not found in root directory"
-            echo "Checking if it was built in dist directory..."
-            if (Test-Path "dist\api_gui_runner.exe") {
-              echo "✅ Found in dist directory, moving to root..."
-              Move-Item "dist\api_gui_runner.exe" "api_gui_runner.exe"
-              echo "✅ Moved to root directory"
-            }
+            echo "❌ api_gui_runner.exe not found"
+            exit 1
           }
 
       - name: 📦 Upload API GUI Runner
