@@ -345,28 +345,28 @@ jobs:
           echo "" >> api_gui_runner.py
           echo "ENDPOINTS = [" >> api_gui_runner.py
           echo "    {" >> api_gui_runner.py
-          echo "        'name': 'analyze'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/analyze'," >> api_gui_runner.py
-          echo "        'output': 'output/analyze_response.json'" >> api_gui_runner.py
+          echo "        \"name\": \"analyze\"," >> api_gui_runner.py
+          echo "        \"method\": \"GET\"," >> api_gui_runner.py
+          echo "        \"url\": \"http://localhost:8080/api/analyze\"," >> api_gui_runner.py
+          echo "        \"output\": \"output/analyze_response.json\"" >> api_gui_runner.py
           echo "    }," >> api_gui_runner.py
           echo "    {" >> api_gui_runner.py
-          echo "        'name': 'parser_fromcode'," >> api_gui_runner.py
-          echo "        'method': 'POST'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/parser/fromCode'," >> api_gui_runner.py
-          echo "        'output': 'output/parser_fromcode_response.json'" >> api_gui_runner.py
+          echo "        \"name\": \"parser_fromcode\"," >> api_gui_runner.py
+          echo "        \"method\": \"POST\"," >> api_gui_runner.py
+          echo "        \"url\": \"http://localhost:8080/api/parser/fromCode\"," >> api_gui_runner.py
+          echo "        \"output\": \"output/parser_fromcode_response.json\"" >> api_gui_runner.py
           echo "    }," >> api_gui_runner.py
           echo "    {" >> api_gui_runner.py
-          echo "        'name': 'extract_function'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/extract-function?path=test.java'," >> api_gui_runner.py
-          echo "        'output': 'output/extract_function_response.json'" >> api_gui_runner.py
+          echo "        \"name\": \"extract_function\"," >> api_gui_runner.py
+          echo "        \"method\": \"GET\"," >> api_gui_runner.py
+          echo "        \"url\": \"http://localhost:8080/api/extract-function?path=test.java\"," >> api_gui_runner.py
+          echo "        \"output\": \"output/extract_function_response.json\"" >> api_gui_runner.py
           echo "    }," >> api_gui_runner.py
           echo "    {" >> api_gui_runner.py
-          echo "        'name': 'extract_function_name'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/extract-function-name?path=test.java'," >> api_gui_runner.py
-          echo "        'output': 'output/extract_function_name_response.json'" >> api_gui_runner.py
+          echo "        \"name\": \"extract_function_name\"," >> api_gui_runner.py
+          echo "        \"method\": \"GET\"," >> api_gui_runner.py
+          echo "        \"url\": \"http://localhost:8080/api/extract-function-name?path=test.java\"," >> api_gui_runner.py
+          echo "        \"output\": \"output/extract_function_name_response.json\"" >> api_gui_runner.py
           echo "    }," >> api_gui_runner.py
           echo "]" >> api_gui_runner.py
           echo "" >> api_gui_runner.py
@@ -376,16 +376,16 @@ jobs:
           echo "        java_code = f.read()" >> api_gui_runner.py
           echo "    for ep in ENDPOINTS:" >> api_gui_runner.py
           echo "        try:" >> api_gui_runner.py
-          echo "            if ep['method'] == 'GET':" >> api_gui_runner.py
-          echo "                resp = requests.get(ep['url'])" >> api_gui_runner.py
-          echo "            elif ep['method'] == 'POST':" >> api_gui_runner.py
-          echo "                resp = requests.post(ep['url'], data=java_code, headers={'Content-Type': 'text/plain'})" >> api_gui_runner.py
+          echo "            if ep[\"method\"] == 'GET':" >> api_gui_runner.py
+          echo "                resp = requests.get(ep[\"url\"])" >> api_gui_runner.py
+          echo "            elif ep[\"method\"] == 'POST':" >> api_gui_runner.py
+          echo "                resp = requests.post(ep[\"url\"], data=java_code, headers={'Content-Type': 'text/plain'})" >> api_gui_runner.py
           echo "            else:" >> api_gui_runner.py
           echo "                continue" >> api_gui_runner.py
-          echo "            with open(ep['output'], 'w', encoding='utf-8') as out_f:" >> api_gui_runner.py
+          echo "            with open(ep[\"output\"], 'w', encoding='utf-8') as out_f:" >> api_gui_runner.py
           echo "                out_f.write(resp.text)" >> api_gui_runner.py
           echo "        except Exception as e:" >> api_gui_runner.py
-          echo "            messagebox.showerror('Error', f'Failed on {ep['name']}: {e}')" >> api_gui_runner.py
+          echo "            messagebox.showerror('Error', f'Failed on {ep[\"name\"]}: {e}')" >> api_gui_runner.py
           echo "" >> api_gui_runner.py
           echo "def run_xml_generator():" >> api_gui_runner.py
           echo "    try:" >> api_gui_runner.py
