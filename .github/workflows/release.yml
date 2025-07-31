@@ -431,9 +431,9 @@ jobs:
           echo "            # Save response to file" >> api_gui_runner.py
           echo "            with open(ep['output'], 'w', encoding='utf-8') as out_f:" >> api_gui_runner.py
           echo "                out_f.write(resp.text)" >> api_gui_runner.py
-          echo "            print(f'Successfully called {ep[\"name\"]} endpoint')" >> api_gui_runner.py
+          echo "            print('Successfully called ' + ep['name'] + ' endpoint')" >> api_gui_runner.py
           echo "        except Exception as e:" >> api_gui_runner.py
-          echo "            print(f'Failed on {ep[\"name\"]}: {e}')" >> api_gui_runner.py
+          echo "            print('Failed on ' + ep['name'] + ': ' + str(e))" >> api_gui_runner.py
           echo "            # Create empty file to avoid missing file errors" >> api_gui_runner.py
           echo "            with open(ep['output'], 'w', encoding='utf-8') as out_f:" >> api_gui_runner.py
           echo "                out_f.write('{}')" >> api_gui_runner.py
