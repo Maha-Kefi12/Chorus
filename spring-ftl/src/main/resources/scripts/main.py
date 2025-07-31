@@ -10,6 +10,7 @@ import os
 import sys
 import locale
 import time
+import json
 from pathlib import Path
 
 def setup_environment():
@@ -49,9 +50,73 @@ def check_script_exists(script_name):
     
     return True, "OK"
 
-def run_script(script_name):
+def detect_available_forms():
+    """Detect available form types from the data files"""
+    forms = []
+    
+    # Check output directory for transformed data
+    output_dir = Path("output")
+    if output_dir.exists():
+        transformed_path = output_dir / "transformed_result.json"
+        if transformed_path.exists():
+            try:
+                with open(transformed_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                # Look for forms in the data structure
+                if 'originalJson' in data:
+                    forms = list(data['originalJson'].keys())
+                elif isinstance(data, dict):
+                    # If it's a direct form structure
+                    forms = list(data.keys())
+                
+                safe_print(f"🔍 Detected forms: {forms}")
+            except Exception as e:
+                safe_print(f"⚠️ Error reading transformed data: {e}")
+    
+    # If no forms detected, fall back to default
+    if not forms:
+        forms = ['aini']  # Default fallback
+        safe_print(f"⚠️ No forms detected, using default: {forms}")
+    
+    return forms
+
+def create_output_directories(forms):
+    """Create necessary output directories for all detected forms"""
+    base_dirs = [
+        '.idea',
+        '.idea/demo',
+        'output',
+        'output/demo'
+    ]
+    
+    # Create base directories
+    for directory in base_dirs:
+        try:
+            os.makedirs(directory, exist_ok=True)
+            safe_print(f"📁 Created directory: {directory}")
+        except Exception as e:
+            safe_print(f"⚠️ Could not create directory {directory}: {e}")
+    
+    # Create form-specific directories
+    for form_id in forms:
+        directories = [
+            f'.idea/demo/{form_id}',
+            f'output/demo/{form_id}'
+        ]
+        
+        for directory in directories:
+            try:
+                os.makedirs(directory, exist_ok=True)
+                safe_print(f"📁 Created directory: {directory}")
+            except Exception as e:
+                safe_print(f"⚠️ Could not create directory {directory}: {e}")
+
+def run_script(script_name, form_id=None):
     """Run a Python script with proper error handling"""
     safe_print(f"\n=== Running {script_name} ===")
+    if form_id:
+        safe_print(f"📋 Processing form: {form_id}")
     
     # Check if script exists
     exists, message = check_script_exists(script_name)
@@ -64,6 +129,10 @@ def run_script(script_name):
         env = os.environ.copy()
         env['PYTHONIOENCODING'] = 'utf-8'
         env['PYTHONUNBUFFERED'] = '1'
+        
+        # Add form_id to environment if provided
+        if form_id:
+            env['FORM_ID'] = form_id
         
         # Get current working directory
         cwd = os.getcwd()
@@ -98,65 +167,25 @@ def run_script(script_name):
         else:
             safe_print(f"❌ {script_name} failed with return code: {result.returncode}")
             return False
-            
     except subprocess.TimeoutExpired:
         safe_print(f"⏰ {script_name} timed out after 5 minutes")
-        return False
-    except FileNotFoundError:
-        safe_print(f"❌ Python executable not found")
         return False
     except Exception as e:
         safe_print(f"❌ Error running {script_name}: {e}")
         return False
-    
-    safe_print(f"=== Finished {script_name} ===\n")
 
 def print_all_xmls(output_base_dir):
-    """Print all XML files in the output directory"""
+    """Print all generated XML files"""
     try:
-        xml_files = glob.glob(os.path.join(output_base_dir, '**', '*.xml'), recursive=True)
-        
-        if not xml_files:
-            safe_print("📄 No XML files found in output directory")
-            return
-        
-        safe_print(f"📄 Found {len(xml_files)} XML file(s):")
-        
-        for xml_path in xml_files:
-            safe_print(f"\n--- Content of {xml_path} ---")
-            try:
-                with open(xml_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                    if content.strip():
-                        safe_print(content)
-                    else:
-                        safe_print("(Empty file)")
-            except UnicodeDecodeError:
-                safe_print(f"⚠️ Could not read {xml_path} - encoding issue")
-            except Exception as e:
-                safe_print(f"❌ Error reading {xml_path}: {e}")
-            safe_print(f"--- End of {xml_path} ---\n")
-            
+        safe_print(f"\n📄 XML files in {output_base_dir}:")
+        xml_files = glob.glob(f"{output_base_dir}/**/*.xml", recursive=True)
+        if xml_files:
+            for xml_file in sorted(xml_files):
+                safe_print(f"  📄 {xml_file}")
+        else:
+            safe_print(f"  ⚠️ No XML files found in {output_base_dir}")
     except Exception as e:
         safe_print(f"❌ Error scanning XML files: {e}")
-
-def create_output_directories():
-    """Create necessary output directories"""
-    directories = [
-        '.idea',
-        '.idea/demo',
-        '.idea/demo/aini',
-        'output',
-        'output/demo',
-        'output/demo/aini'
-    ]
-    
-    for directory in directories:
-        try:
-            os.makedirs(directory, exist_ok=True)
-            safe_print(f"📁 Created directory: {directory}")
-        except Exception as e:
-            safe_print(f"⚠️ Could not create directory {directory}: {e}")
 
 def main():
     """Main function"""
@@ -168,8 +197,12 @@ def main():
         safe_print(f"🐍 Python version: {sys.version}")
         safe_print(f"📁 Current directory: {os.getcwd()}")
         
-        # Create output directories
-        create_output_directories()
+        # Detect available forms
+        forms = detect_available_forms()
+        safe_print(f"📋 Forms to process: {forms}")
+        
+        # Create output directories for all forms
+        create_output_directories(forms)
         
         output_dir = os.path.join('.idea', 'demo')
         safe_print(f"📁 Output directory: {output_dir}")
@@ -196,26 +229,30 @@ def main():
         if not all_scripts_exist:
             safe_print("\n⚠️ Some scripts are missing. Continuing with available scripts...")
         
-        # Run scripts
-        successful_scripts = 0
-        total_scripts = len(scripts)
+        # Run scripts for each form
+        total_successful = 0
+        total_attempts = len(scripts) * len(forms)
         
-        for script in scripts:
-            if run_script(script):
-                successful_scripts += 1
-                # Print XML files after each successful script
-                print_all_xmls(output_dir)
-            else:
-                safe_print(f"⚠️ Skipping XML output for {script} due to failure")
+        for form_id in forms:
+            safe_print(f"\n🎯 Processing form: {form_id}")
+            
+            for script in scripts:
+                if run_script(script, form_id):
+                    total_successful += 1
+                    # Print XML files after each successful script
+                    print_all_xmls(output_dir)
+                else:
+                    safe_print(f"⚠️ Skipping XML output for {script} (form: {form_id}) due to failure")
         
         # Final summary
         safe_print("\n" + "="*50)
         safe_print("📊 WORKFLOW SUMMARY")
         safe_print("="*50)
-        safe_print(f"✅ Successful scripts: {successful_scripts}/{total_scripts}")
+        safe_print(f"✅ Successful script executions: {total_successful}/{total_attempts}")
+        safe_print(f"📋 Forms processed: {forms}")
         safe_print(f"📁 Output directory: {output_dir}")
         
-        if successful_scripts > 0:
+        if total_successful > 0:
             safe_print("✅ XML generation workflow completed!")
             safe_print("📄 Check the .idea/demo directory for generated XML files")
         else:

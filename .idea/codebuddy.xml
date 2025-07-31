@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CodebuddyPersistentProjectState">
+    <option name="promptHistory">
+      <list>
+        <option value="COULD YOU EXPLAIN ME THE CODE BACKEND JAVA FIRST THE USE CASE WHY HOW ANED EVERYTHING THE CONTROLLERS SERVICES DTOS AND OVERALL ARCHITECTURE" />
+        <option value="START WITH THE DTOS EXPLAIN THEIR FUNTIONNALITY HOW THEY MANAGE TO GET FIELDS OF THE DATA GIVE ME EBVERYTHING A VERY LONG RESPONSE" />
+        <option value="NOW THE SAME FOR THE SERVICES VERY LONG RESPONSE" />
+        <option value="NOW DO IT FOR THE CONTROLLER AND EXPLAIN THE LOGIC BEHIND EVERY IMPORTANT ENDPOINT " />
+        <option value="DONT CHANGE ANYTHING JUST EXPLAIN ME THE CONTROLLERS STRUCTURE" />
+        <option value="could you analyze me now the ressources , the scripts the integrated templates and everything very very very long answer" />
+        <option value="lets start by the combined.py " />
+        <option value="i want now for you to analyze every template and tell me about it in mappingpy the combined.py and aoll the other scripts lovimpl.py " />
+      </list>
+    </option>
+    <option name="selectedModel" value="codebuddy:CLAUDE_3_HAIKU_V7" />
+  </component>
+</project>
