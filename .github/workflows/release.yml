@@ -359,32 +359,14 @@ jobs:
           echo "    {" >> api_gui_runner.py
           echo "        'name': 'extract_function'," >> api_gui_runner.py
           echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/extract-function?path=test.java'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/extract-function'," >> api_gui_runner.py
           echo "        'output': 'output/extract_function_response.json'" >> api_gui_runner.py
           echo "    }," >> api_gui_runner.py
           echo "    {" >> api_gui_runner.py
           echo "        'name': 'extract_function_name'," >> api_gui_runner.py
           echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/extract-function-name?path=test.java'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/extract-function-name'," >> api_gui_runner.py
           echo "        'output': 'output/extract_function_name_response.json'" >> api_gui_runner.py
-          echo "    }," >> api_gui_runner.py
-          echo "    {" >> api_gui_runner.py
-          echo "        'name': 'transform_save'," >> api_gui_runner.py
-          echo "        'method': 'POST'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/transform/save-transformation'," >> api_gui_runner.py
-          echo "        'output': 'output/transformed_result.json'" >> api_gui_runner.py
-          echo "    }," >> api_gui_runner.py
-          echo "    {" >> api_gui_runner.py
-          echo "        'name': 'area_map'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/area-map'," >> api_gui_runner.py
-          echo "        'output': 'output/area_map.json'" >> api_gui_runner.py
-          echo "    }," >> api_gui_runner.py
-          echo "    {" >> api_gui_runner.py
-          echo "        'name': 'fieldlink'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/fieldlink'," >> api_gui_runner.py
-          echo "        'output': 'output/fieldlink.json'" >> api_gui_runner.py
           echo "    }," >> api_gui_runner.py
           echo "    {" >> api_gui_runner.py
           echo "        'name': 'update_field_order'," >> api_gui_runner.py
@@ -393,76 +375,22 @@ jobs:
           echo "        'output': 'output/field_order.json'" >> api_gui_runner.py
           echo "    }," >> api_gui_runner.py
           echo "    {" >> api_gui_runner.py
-          echo "        'name': 'parsed_result'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/parsed-result'," >> api_gui_runner.py
-          echo "        'output': 'output/parsed_result.json'" >> api_gui_runner.py
+          echo "        'name': 'save_transformation'," >> api_gui_runner.py
+          echo "        'method': 'POST'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/transform/save-transformation'," >> api_gui_runner.py
+          echo "        'output': 'output/transformed_result.json'" >> api_gui_runner.py
           echo "    }," >> api_gui_runner.py
           echo "    {" >> api_gui_runner.py
-          echo "        'name': 'response_filters'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/response-filters'," >> api_gui_runner.py
-          echo "        'output': 'output/response_filters.json'" >> api_gui_runner.py
+          echo "        'name': 'field_mapping_table'," >> api_gui_runner.py
+          echo "        'method': 'POST'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/transform/field-mapping-table'," >> api_gui_runner.py
+          echo "        'output': 'output/field_mapping_table.json'" >> api_gui_runner.py
           echo "    }," >> api_gui_runner.py
           echo "    {" >> api_gui_runner.py
-          echo "        'name': 'fields_by_area'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/fields-by-area'," >> api_gui_runner.py
-          echo "        'output': 'output/fields_by_area.json'" >> api_gui_runner.py
-          echo "    }," >> api_gui_runner.py
-          echo "    {" >> api_gui_runner.py
-          echo "        'name': 'area_data'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/area-data'," >> api_gui_runner.py
-          echo "        'output': 'output/area_data.json'" >> api_gui_runner.py
-          echo "    }," >> api_gui_runner.py
-          echo "    {" >> api_gui_runner.py
-          echo "        'name': 'all_lov'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/all-lov'," >> api_gui_runner.py
-          echo "        'output': 'output/all_lov.json'" >> api_gui_runner.py
-          echo "    }," >> api_gui_runner.py
-          echo "    {" >> api_gui_runner.py
-          echo "        'name': 'form_config'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/form-config'," >> api_gui_runner.py
-          echo "        'output': 'output/form_config.json'" >> api_gui_runner.py
-          echo "    }," >> api_gui_runner.py
-          echo "    {" >> api_gui_runner.py
-          echo "        'name': 'field_mappings'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/field-mappings'," >> api_gui_runner.py
-          echo "        'output': 'output/field_mappings.json'" >> api_gui_runner.py
-          echo "    }," >> api_gui_runner.py
-          echo "    {" >> api_gui_runner.py
-          echo "        'name': 'validation_rules'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/validation-rules'," >> api_gui_runner.py
-          echo "        'output': 'output/validation_rules.json'" >> api_gui_runner.py
-          echo "    }," >> api_gui_runner.py
-          echo "    {" >> api_gui_runner.py
-          echo "        'name': 'screen_layout'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/screen-layout'," >> api_gui_runner.py
-          echo "        'output': 'output/screen_layout.json'" >> api_gui_runner.py
-          echo "    }," >> api_gui_runner.py
-          echo "    {" >> api_gui_runner.py
-          echo "        'name': 'business_rules'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/business-rules'," >> api_gui_runner.py
-          echo "        'output': 'output/business_rules.json'" >> api_gui_runner.py
-          echo "    }," >> api_gui_runner.py
-          echo "    {" >> api_gui_runner.py
-          echo "        'name': 'data_sources'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/data-sources'," >> api_gui_runner.py
-          echo "        'output': 'output/data_sources.json'" >> api_gui_runner.py
-          echo "    }," >> api_gui_runner.py
-          echo "    {" >> api_gui_runner.py
-          echo "        'name': 'workflow_steps'," >> api_gui_runner.py
-          echo "        'method': 'GET'," >> api_gui_runner.py
-          echo "        'url': 'http://localhost:8080/api/workflow-steps'," >> api_gui_runner.py
-          echo "        'output': 'output/workflow_steps.json'" >> api_gui_runner.py
+          echo "        'name': 'visibility_analyzer'," >> api_gui_runner.py
+          echo "        'method': 'POST'," >> api_gui_runner.py
+          echo "        'url': 'http://localhost:8080/api/visibility-analyzer/analyze/file'," >> api_gui_runner.py
+          echo "        'output': 'output/visibility_analyzer.json'" >> api_gui_runner.py
           echo "    }," >> api_gui_runner.py
           echo "]" >> api_gui_runner.py
           echo "" >> api_gui_runner.py
@@ -486,13 +414,29 @@ jobs:
           echo "            if ep['method'] == 'GET':" >> api_gui_runner.py
           echo "                resp = requests.get(ep['url'])" >> api_gui_runner.py
           echo "            elif ep['method'] == 'POST':" >> api_gui_runner.py
-          echo "                resp = requests.post(ep['url'], data=java_code, headers={'Content-Type': 'text/plain'})" >> api_gui_runner.py
+          echo "                if ep['name'] == 'parser_fromcode':" >> api_gui_runner.py
+          echo "                    # Send Java code as plain text" >> api_gui_runner.py
+          echo "                    resp = requests.post(ep['url'], data=java_code, headers={'Content-Type': 'text/plain'})" >> api_gui_runner.py
+          echo "                elif ep['name'] == 'visibility_analyzer':" >> api_gui_runner.py
+          echo "                    # Send sample JSON data" >> api_gui_runner.py
+          echo "                    sample_data = {'sampleField': 'value', 'anotherField': 123}" >> api_gui_runner.py
+          echo "                    resp = requests.post(ep['url'], json=sample_data, headers={'Content-Type': 'application/json'})" >> api_gui_runner.py
+          echo "                else:" >> api_gui_runner.py
+          echo "                    # Send sample JSON data for other POST endpoints" >> api_gui_runner.py
+          echo "                    sample_data = {'sampleField': 'value', 'anotherField': 123}" >> api_gui_runner.py
+          echo "                    resp = requests.post(ep['url'], json=sample_data, headers={'Content-Type': 'application/json'})" >> api_gui_runner.py
           echo "            else:" >> api_gui_runner.py
           echo "                continue" >> api_gui_runner.py
+          echo "            " >> api_gui_runner.py
+          echo "            # Save response to file" >> api_gui_runner.py
           echo "            with open(ep['output'], 'w', encoding='utf-8') as out_f:" >> api_gui_runner.py
           echo "                out_f.write(resp.text)" >> api_gui_runner.py
+          echo "            print(f'Successfully called {ep[\"name\"]} endpoint')" >> api_gui_runner.py
           echo "        except Exception as e:" >> api_gui_runner.py
-          echo "            messagebox.showerror('Error', f'Failed on endpoint: {e}')" >> api_gui_runner.py
+          echo "            print(f'Failed on {ep[\"name\"]}: {e}')" >> api_gui_runner.py
+          echo "            # Create empty file to avoid missing file errors" >> api_gui_runner.py
+          echo "            with open(ep['output'], 'w', encoding='utf-8') as out_f:" >> api_gui_runner.py
+          echo "                out_f.write('{\"error\": \"Endpoint not available or failed\"}')" >> api_gui_runner.py
           echo "" >> api_gui_runner.py
           echo "def create_sample_data():" >> api_gui_runner.py
           echo "    # Create sample data files if they don't exist" >> api_gui_runner.py
