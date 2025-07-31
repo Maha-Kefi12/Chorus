@@ -208,8 +208,8 @@ jobs:
             $bytes = New-Object byte[] 4096
             $read = $stream.Read($bytes, 0, 4096)
             $stream.Close()
-            $peOffset = [BitConverter]::ToInt32($bytes[60..63], 0)
-            $machine = [BitConverter]::ToUInt16($bytes[$peOffset+4..$peOffset+5], 0)
+            $peOffset = [BitConverter]::ToInt32($bytes, 60)
+            $machine = [BitConverter]::ToUInt16($bytes, $peOffset + 4)
             if ($machine -eq 0x8664) {
               Write-Host '✅ EXE is 64-bit (x86_64)'
             } elseif ($machine -eq 0x014c) {
