@@ -116,15 +116,15 @@ jobs:
               echo "sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))" >> xml_generator.py
               echo "" >> xml_generator.py
               echo "def main():" >> xml_generator.py
-              echo "    print('🎯 XML Generator Starting...')" >> xml_generator.py
+              echo "    print('XML Generator Starting...')" >> xml_generator.py
               echo "    try:" >> xml_generator.py
               echo "        from main import main as run_main" >> xml_generator.py
               echo "        return run_main()" >> xml_generator.py
               echo "    except ImportError as e:" >> xml_generator.py
-              echo "        print(f'❌ Error importing main script: {e}')" >> xml_generator.py
+              echo "        print(f'Error importing main script: {e}')" >> xml_generator.py
               echo "        return 1" >> xml_generator.py
               echo "    except Exception as e:" >> xml_generator.py
-              echo "        print(f'❌ Error running XML generator: {e}')" >> xml_generator.py
+              echo "        print(f'Error running XML generator: {e}')" >> xml_generator.py
               echo "        return 1" >> xml_generator.py
               echo "" >> xml_generator.py
               echo "if __name__ == '__main__':" >> xml_generator.py
@@ -149,7 +149,7 @@ jobs:
             echo "from xml.dom import minidom" >> xml_generator.py
             echo "" >> xml_generator.py
             echo "def main():" >> xml_generator.py
-            echo "    print('🎯 XML Generator Starting...')" >> xml_generator.py
+            echo "    print('XML Generator Starting...')" >> xml_generator.py
             echo "    demo_path = Path('.idea/demo')" >> xml_generator.py
             echo "    demo_path.mkdir(parents=True, exist_ok=True)" >> xml_generator.py
             echo "    # Create basic aini.xml" >> xml_generator.py
@@ -162,7 +162,7 @@ jobs:
             echo "    pretty_xml = reparsed.toprettyxml(indent='  ')" >> xml_generator.py
             echo "    with open(demo_path / 'aini.xml', 'w') as f:" >> xml_generator.py
             echo "        f.write(pretty_xml)" >> xml_generator.py
-            echo "    print('✅ XML files generated successfully!')" >> xml_generator.py
+            echo "    print('XML files generated successfully!')" >> xml_generator.py
             echo "    return 0" >> xml_generator.py
             echo "" >> xml_generator.py
             echo "if __name__ == '__main__':" >> xml_generator.py
