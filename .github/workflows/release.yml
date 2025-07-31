@@ -103,7 +103,7 @@ jobs:
             cd spring-ftl/src/main/resources/scripts
             echo "Changed to scripts directory: $(pwd)"
             echo "Files in scripts directory:"
-            ls -la
+            Get-ChildItem
             
             # Create a main entry point if it doesn't exist
             if (-not (Test-Path "xml_generator.py")) {
@@ -136,11 +136,11 @@ jobs:
               $content | Out-File -FilePath "xml_generator.py" -Encoding UTF8
               echo "✅ Created xml_generator.py entry point"
               echo "Verifying file was created:"
-              ls -la xml_generator.py
+              Get-ChildItem xml_generator.py
             } else {
               echo "✅ xml_generator.py already exists"
               echo "File details:"
-              ls -la xml_generator.py
+              Get-ChildItem xml_generator.py
             }
             
             cd ../../
@@ -198,7 +198,7 @@ jobs:
           cd spring-ftl/src/main/resources/scripts
           echo "Changed to scripts directory: $(pwd)"
           echo "Files in scripts directory:"
-          ls -la
+          Get-ChildItem
           
           # Check if xml_generator.py exists
           if (Test-Path "xml_generator.py") {
@@ -206,11 +206,11 @@ jobs:
             pyinstaller --onefile --name xml-generator xml_generator.py
             echo "✅ Build completed"
             echo "Generated files:"
-            ls -la dist/
+            Get-ChildItem dist/
           } else {
             echo "❌ xml_generator.py not found in scripts directory"
             echo "Available files:"
-            ls -la *.py
+            Get-ChildItem *.py
             throw "xml_generator.py not found"
           }
           
