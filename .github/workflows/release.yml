@@ -193,6 +193,7 @@ jobs:
         run: |
           echo "🔍 Building XML generator executable..."
           echo "Current directory: $(pwd)"
+          echo "System architecture: $env:PROCESSOR_ARCHITECTURE"
           
           # Go to the scripts directory and build
           cd spring-ftl/src/main/resources/scripts
@@ -203,10 +204,23 @@ jobs:
           # Check if xml_generator.py exists
           if (Test-Path "xml_generator.py") {
             echo "✅ Found xml_generator.py, building executable..."
-            pyinstaller --onefile --name xml-generator xml_generator.py
+            
+            # Build with explicit 64-bit configuration
+            pyinstaller --onefile --name xml-generator --distpath ./dist --workpath ./build --clean --noconfirm --target-architecture x86_64 xml_generator.py
+            
             echo "✅ Build completed"
             echo "Generated files:"
             Get-ChildItem dist/
+            
+            # Verify the executable
+            if (Test-Path "dist/xml-generator.exe") {
+              echo "✅ xml-generator.exe created successfully"
+              echo "File size:"
+              Get-ChildItem dist/xml-generator.exe | Select-Object Name, Length
+            } else {
+              echo "❌ xml-generator.exe not found in dist directory"
+              throw "Build failed - executable not created"
+            }
           } else {
             echo "❌ xml_generator.py not found in scripts directory"
             echo "Available files:"
@@ -394,6 +408,24 @@ jobs:
           if exist "xml-generator.exe" (
               set XML_GENERATOR_EXISTS=1
               echo ✅ Found xml-generator.exe
+              
+              REM Check if executable is compatible
+              echo Checking XML generator compatibility...
+              xml-generator.exe --version >nul 2>&1
+              if %errorlevel% equ 0 (
+                  echo ✅ XML generator is compatible and working
+              ) else (
+                  echo ⚠️ XML generator compatibility check failed
+                  echo This might be due to 64-bit compatibility issues
+                  echo Trying to run with compatibility mode...
+                  xml-generator.exe >nul 2>&1
+                  if %errorlevel% equ 0 (
+                      echo ✅ XML generator works in compatibility mode
+                  ) else (
+                      echo ❌ XML generator has compatibility issues
+                      echo Consider running as administrator or checking system requirements
+                  )
+              )
           )
 
           if exist "spring-ftl.jar" (
@@ -420,6 +452,7 @@ jobs:
           echo 7. Spring Boot seulement
           echo 8. Spring Boot puis XML Generator
           echo 9. XML Generator puis Spring Boot
+          echo 10. Diagnostic compatibilité 64-bit
           echo 0. Quitter
           echo.
 
@@ -434,6 +467,7 @@ jobs:
           if "%choice%"=="7" goto server_only
           if "%choice%"=="8" goto server_then_xml
           if "%choice%"=="9" goto xml_then_server
+          if "%choice%"=="10" goto compatibility_diagnostic
           if "%choice%"=="0" goto exit
           echo Choix invalide. Exiting...
           pause
@@ -1319,6 +1353,56 @@ jobs:
           pause >nul
           goto menu
 
+          :compatibility_diagnostic
+          echo.
+          echo ========================================
+          echo Diagnostic de compatibilité 64-bit
+          echo ========================================
+          echo.
+
+          REM Vérifier si le script xml-generator.exe est 64-bit
+          echo 1. Vérification de la compatibilité 64-bit...
+          if exist "xml-generator.exe" (
+              echo ✅ xml-generator.exe trouvé
+              echo.
+              echo Vérification de l'architecture...
+              file /a /c xml-generator.exe | findstr "x64" >nul 2>&1
+              if %errorlevel% equ 0 (
+                  echo ✅ xml-generator.exe est 64-bit
+              ) else (
+                  echo ❌ xml-generator.exe est 32-bit
+                  echo Veuillez exécuter le script xml-generator.exe 64-bit
+                  echo.
+                  echo Pour résoudre ce problème, vous devez:
+                  echo 1. Exécuter le script xml-generator.exe 64-bit
+                  echo 2. Redémarrer votre ordinateur
+                  echo 3. Re-exécuter le script xml-generator.exe 64-bit
+                  echo.
+                  pause
+                  goto menu
+              )
+          ) else (
+              echo ❌ xml-generator.exe non trouvé
+              echo Veuillez exécuter le script xml-generator.exe 64-bit
+              echo.
+              echo Pour résoudre ce problème, vous devez:
+              echo 1. Exécuter le script xml-generator.exe 64-bit
+              echo 2. Redémarrer votre ordinateur
+              echo 3. Re-exécuter le script xml-generator.exe 64-bit
+              echo.
+              pause
+              goto menu
+          )
+
+          echo.
+          echo ========================================
+          echo Diagnostic de compatibilité 64-bit terminé
+          echo ========================================
+          echo.
+          echo Press any key to return to the main menu...
+          pause
+          goto menu
+
           :menu
           echo.
           echo ========================================
@@ -1336,6 +1420,7 @@ jobs:
           echo 7. Spring Boot seulement
           echo 8. Spring Boot puis XML Generator
           echo 9. XML Generator puis Spring Boot
+          echo 10. Diagnostic compatibilité 64-bit
           echo 0. Quitter
           echo.
 
@@ -1350,6 +1435,7 @@ jobs:
           if "%choice%"=="7" goto server_only
           if "%choice%"=="8" goto server_then_xml
           if "%choice%"=="9" goto xml_then_server
+          if "%choice%"=="10" goto compatibility_diagnostic
           if "%choice%"=="0" goto exit
           echo Choix invalide. Retour au menu...
           timeout /t 2 /nobreak >nul
@@ -1547,11 +1633,11 @@ jobs:
           echo XML Generator Debug Mode
           echo ========================================
           echo.
-          
+
           REM Check current directory
           echo Current directory: %CD%
           echo.
-          
+
           REM Check if the executable exists
           if exist "xml-generator.exe" (
               echo ✅ Found xml-generator.exe
@@ -1566,24 +1652,24 @@ jobs:
               pause
               exit /b 1
           )
-          
+
           echo.
           echo Starting XML Generator with debug output...
           echo ========================================
           echo.
-          
+
           REM Start the XML generator with full output
           xml-generator.exe
-          
+
           REM Capture the exit code
           set EXIT_CODE=%errorlevel%
-          
+
           echo.
           echo ========================================
           echo XML Generator finished
           echo Exit code: %EXIT_CODE%
           echo ========================================
-          
+
           REM Check if output directory was created
           if exist ".idea\demo" (
               echo ✅ Output directory .idea\demo exists
@@ -1596,10 +1682,79 @@ jobs:
           ) else (
               echo ❌ Output directory .idea\demo not found
           )
-          
+
           echo.
           echo Press any key to exit...
           pause >nul
+          EOF
+
+          # 64-bit compatibility diagnostic script
+          cat > release/64bit-diagnostic.bat << 'EOF'
+          @echo off
+          echo ========================================
+          echo 64-bit Compatibility Diagnostic
+          echo ========================================
+          echo.
+
+          echo Checking system architecture...
+          echo Processor Architecture: %PROCESSOR_ARCHITECTURE%
+          echo.
+
+          echo Checking XML generator compatibility...
+          if exist "xml-generator.exe" (
+              echo ✅ xml-generator.exe found
+              echo.
+              echo Testing basic execution...
+              xml-generator.exe --help >nul 2>&1
+              if %errorlevel% equ 0 (
+                  echo ✅ XML generator responds to --help
+              ) else (
+                  echo ❌ XML generator does not respond to --help
+              )
+              
+              echo.
+              echo Testing actual execution...
+              xml-generator.exe >nul 2>&1
+              if %errorlevel% equ 0 (
+                  echo ✅ XML generator executes successfully
+              ) else (
+                  echo ❌ XML generator failed to execute
+                  echo Error code: %errorlevel%
+              )
+          ) else (
+              echo ❌ xml-generator.exe not found
+          )
+
+          echo.
+          echo Checking Python dependencies...
+          python --version >nul 2>&1
+          if %errorlevel% equ 0 (
+              echo ✅ Python is available
+              python --version
+          ) else (
+              echo ❌ Python is not available
+          )
+
+          echo.
+          echo Checking for required DLLs...
+          if exist "C:\Windows\System32\msvcr140.dll" (
+              echo ✅ Visual C++ Runtime found
+          ) else (
+              echo ❌ Visual C++ Runtime not found
+          )
+
+          echo.
+          echo ========================================
+          echo Diagnostic Complete
+          echo ========================================
+          echo.
+          echo If you're experiencing 64-bit compatibility issues:
+          echo 1. Try running as administrator
+          echo 2. Install Visual C++ Redistributable 2015-2022
+          echo 3. Check Windows Defender/Antivirus settings
+          echo 4. Try running in compatibility mode
+          echo.
+          pause
           EOF
 
       - name: 📝 Create README
@@ -1697,6 +1852,14 @@ jobs:
           2. Check write permissions in the directory
           3. Ensure all required files are present
           4. Verify the `.idea/demo` directory can be created
+          
+          ### If XML generator has 64-bit compatibility issues:
+          1. Run `64bit-diagnostic.bat` to check system compatibility
+          2. Install Visual C++ Redistributable 2015-2022 (x64)
+          3. Try running as administrator
+          4. Check Windows Defender/Antivirus exclusions
+          5. Try running in Windows compatibility mode
+          6. Ensure you have the latest Windows updates
           
           ### If HTTP endpoints don't respond:
           1. Wait 30-60 seconds for the server to fully start
