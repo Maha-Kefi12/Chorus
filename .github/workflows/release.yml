@@ -76,7 +76,7 @@ jobs:
           path: spring-ftl/spring.log
           retention-days: 7
 
- build-xml-generator:
+  build-xml-generator:
     runs-on: windows-latest
     steps:
       - name: 📥 Checkout repository
@@ -108,32 +108,27 @@ jobs:
             # Create a main entry point if it doesn't exist
             if (-not (Test-Path "xml_generator.py")) {
               echo "Creating main XML generator entry point..."
-              $content = @'
-import os
-import sys
-from pathlib import Path
-
-# Add current directory to Python path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-def main():
-    print('🎯 XML Generator Starting...')
-    
-    # Import and run the main script
-    try:
-        from main import main as run_main
-        return run_main()
-    except ImportError as e:
-        print(f'❌ Error importing main script: {e}')
-        return 1
-    except Exception as e:
-        print(f'❌ Error running XML generator: {e}')
-        return 1
-
-if __name__ == '__main__':
-    sys.exit(main())
-'@
-              $content | Out-File -FilePath "xml_generator.py" -Encoding UTF8
+              echo "import os" > xml_generator.py
+              echo "import sys" >> xml_generator.py
+              echo "from pathlib import Path" >> xml_generator.py
+              echo "" >> xml_generator.py
+              echo "# Add current directory to Python path" >> xml_generator.py
+              echo "sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))" >> xml_generator.py
+              echo "" >> xml_generator.py
+              echo "def main():" >> xml_generator.py
+              echo "    print('🎯 XML Generator Starting...')" >> xml_generator.py
+              echo "    try:" >> xml_generator.py
+              echo "        from main import main as run_main" >> xml_generator.py
+              echo "        return run_main()" >> xml_generator.py
+              echo "    except ImportError as e:" >> xml_generator.py
+              echo "        print(f'❌ Error importing main script: {e}')" >> xml_generator.py
+              echo "        return 1" >> xml_generator.py
+              echo "    except Exception as e:" >> xml_generator.py
+              echo "        print(f'❌ Error running XML generator: {e}')" >> xml_generator.py
+              echo "        return 1" >> xml_generator.py
+              echo "" >> xml_generator.py
+              echo "if __name__ == '__main__':" >> xml_generator.py
+              echo "    sys.exit(main())" >> xml_generator.py
               echo "✅ Created xml_generator.py entry point"
               echo "Verifying file was created:"
               Get-ChildItem xml_generator.py
@@ -142,44 +137,36 @@ if __name__ == '__main__':
               echo "File details:"
               Get-ChildItem xml_generator.py
             }
-            
             cd ../../../..
           } else {
             echo "❌ Scripts directory not found, creating basic XML generator..."
             New-Item -ItemType Directory -Force -Path "spring-ftl/src/main/resources/scripts"
             cd spring-ftl/src/main/resources/scripts
-            $content = @'
-import os
-import sys
-from pathlib import Path
-import xml.etree.ElementTree as ET
-from xml.dom import minidom
-
-def main():
-    print('🎯 XML Generator Starting...')
-    demo_path = Path('.idea/demo')
-    demo_path.mkdir(parents=True, exist_ok=True)
-    
-    # Create basic aini.xml
-    root = ET.Element('configuration')
-    root.set('type', 'SpringFTL')
-    metadata = ET.SubElement(root, 'metadata')
-    ET.SubElement(metadata, 'generated-by').text = 'Spring FTL XML Generator'
-    
-    rough_string = ET.tostring(root, 'utf-8')
-    reparsed = minidom.parseString(rough_string)
-    pretty_xml = reparsed.toprettyxml(indent='  ')
-    
-    with open(demo_path / 'aini.xml', 'w') as f:
-        f.write(pretty_xml)
-    
-    print('✅ XML files generated successfully!')
-    return 0
-
-if __name__ == '__main__':
-    sys.exit(main())
-'@
-            $content | Out-File -FilePath "xml_generator.py" -Encoding UTF8
+            echo "import os" > xml_generator.py
+            echo "import sys" >> xml_generator.py
+            echo "from pathlib import Path" >> xml_generator.py
+            echo "import xml.etree.ElementTree as ET" >> xml_generator.py
+            echo "from xml.dom import minidom" >> xml_generator.py
+            echo "" >> xml_generator.py
+            echo "def main():" >> xml_generator.py
+            echo "    print('🎯 XML Generator Starting...')" >> xml_generator.py
+            echo "    demo_path = Path('.idea/demo')" >> xml_generator.py
+            echo "    demo_path.mkdir(parents=True, exist_ok=True)" >> xml_generator.py
+            echo "    # Create basic aini.xml" >> xml_generator.py
+            echo "    root = ET.Element('configuration')" >> xml_generator.py
+            echo "    root.set('type', 'SpringFTL')" >> xml_generator.py
+            echo "    metadata = ET.SubElement(root, 'metadata')" >> xml_generator.py
+            echo "    ET.SubElement(metadata, 'generated-by').text = 'Spring FTL XML Generator'" >> xml_generator.py
+            echo "    rough_string = ET.tostring(root, 'utf-8')" >> xml_generator.py
+            echo "    reparsed = minidom.parseString(rough_string)" >> xml_generator.py
+            echo "    pretty_xml = reparsed.toprettyxml(indent='  ')" >> xml_generator.py
+            echo "    with open(demo_path / 'aini.xml', 'w') as f:" >> xml_generator.py
+            echo "        f.write(pretty_xml)" >> xml_generator.py
+            echo "    print('✅ XML files generated successfully!')" >> xml_generator.py
+            echo "    return 0" >> xml_generator.py
+            echo "" >> xml_generator.py
+            echo "if __name__ == '__main__':" >> xml_generator.py
+            echo "    sys.exit(main())" >> xml_generator.py
             echo "✅ Created basic xml_generator.py"
             cd ../../../..
           }
@@ -201,7 +188,6 @@ if __name__ == '__main__':
           pyinstaller --onefile --distpath ../../../../../ --name xml-generator xml_generator.py
           cd ../../../../../
           echo "✅ Built xml-generator.exe in root directory"
-          
           # Verify the executable was created in the right place
           if (Test-Path "xml-generator.exe") {
             echo "✅ xml-generator.exe found in root directory"
@@ -243,7 +229,6 @@ if __name__ == '__main__':
           name: xml-generator
           path: xml-generator.exe
           retention-days: 30
-
 
   generate-http-tests:
     runs-on: ubuntu-latest
@@ -1639,11 +1624,11 @@ if __name__ == '__main__':
           echo XML Generator Debug Mode
           echo ========================================
           echo.
-
+          
           REM Check current directory
           echo Current directory: %CD%
           echo.
-
+          
           REM Check if the executable exists
           if exist "xml-generator.exe" (
               echo ✅ Found xml-generator.exe
@@ -1658,24 +1643,24 @@ if __name__ == '__main__':
               pause
               exit /b 1
           )
-
+          
           echo.
           echo Starting XML Generator with debug output...
           echo ========================================
           echo.
-
+          
           REM Start the XML generator with full output
           xml-generator.exe
-
+          
           REM Capture the exit code
           set EXIT_CODE=%errorlevel%
-
+          
           echo.
           echo ========================================
           echo XML Generator finished
           echo Exit code: %EXIT_CODE%
           echo ========================================
-
+          
           REM Check if output directory was created
           if exist ".idea\demo" (
               echo ✅ Output directory .idea\demo exists
@@ -1688,7 +1673,7 @@ if __name__ == '__main__':
           ) else (
               echo ❌ Output directory .idea\demo not found
           )
-
+          
           echo.
           echo Press any key to exit...
           pause >nul
