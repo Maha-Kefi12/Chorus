@@ -436,8 +436,7 @@ jobs:
           echo "            print(f'Failed on {ep[\"name\"]}: {e}')" >> api_gui_runner.py
           echo "            # Create empty file to avoid missing file errors" >> api_gui_runner.py
           echo "            with open(ep['output'], 'w', encoding='utf-8') as out_f:" >> api_gui_runner.py
-          echo "                error_json = '{\"error\": \"Endpoint not available or failed\"}'" >> api_gui_runner.py
-          echo "                out_f.write(error_json)" >> api_gui_runner.py
+          echo "                out_f.write('{\"error\": \"Endpoint failed\"}')" >> api_gui_runner.py
           echo "" >> api_gui_runner.py
           echo "def create_sample_data():" >> api_gui_runner.py
           echo "    # Create sample data files if they don't exist" >> api_gui_runner.py
