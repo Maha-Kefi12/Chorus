@@ -423,6 +423,20 @@ jobs:
             echo "✅ Found in scripts/dist, moving to root..."
             Move-Item "spring-ftl\src\main\resources\scripts\dist\api_gui_runner.exe" "api_gui_runner.exe"
             echo "✅ Moved to root directory"
+          } elseif (Test-Path "dist\main.exe") {
+            echo "✅ Found main.exe in dist directory, renaming to api_gui_runner.exe..."
+            Copy-Item "dist\main.exe" "api_gui_runner.exe"
+            echo "✅ Copied and renamed to api_gui_runner.exe"
+          } elseif (Test-Path "dist\api_gui_runner.exe") {
+            echo "✅ Found api_gui_runner.exe in dist directory, moving to root..."
+            Move-Item "dist\api_gui_runner.exe" "api_gui_runner.exe"
+            echo "✅ Moved to root directory"
+          } else {
+            echo "❌ No executable found in expected locations"
+            echo "Available files in dist directory:"
+            if (Test-Path "dist") { Get-ChildItem dist\*.exe }
+            echo "Available files in scripts/dist directory:"
+            if (Test-Path "spring-ftl\src\main\resources\scripts\dist") { Get-ChildItem "spring-ftl\src\main\resources\scripts\dist\*.exe" }
           }
           echo "✅ Built api_gui_runner.exe in root directory"
           echo "Current directory: $(pwd)"
