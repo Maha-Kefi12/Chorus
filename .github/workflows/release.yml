@@ -2020,6 +2020,31 @@ jobs:
           asset_name: README.md
           asset_content_type: text/markdown
 
+      - name: 🛠️ Ensure JAR and EXE are in the same directory
+        run: |
+          echo "Ensuring spring-ftl.jar and xml-generator.exe are in the release directory..."
+          # Find the JAR if not already in release/
+          if [ ! -f release/spring-ftl.jar ]; then
+            found_jar=$(find release -name 'spring-ftl*.jar' | head -n 1)
+            if [ -n "$found_jar" ]; then
+              echo "Found JAR at $found_jar, moving to release/spring-ftl.jar"
+              mv "$found_jar" release/spring-ftl.jar
+            else
+              echo "No JAR file found in release directory or subdirectories!"
+            fi
+          fi
+          # Find the EXE if not already in release/
+          if [ ! -f release/xml-generator.exe ]; then
+            found_exe=$(find release -name 'xml-generator.exe' | head -n 1)
+            if [ -n "$found_exe" ]; then
+              echo "Found EXE at $found_exe, moving to release/xml-generator.exe"
+              mv "$found_exe" release/xml-generator.exe
+            else
+              echo "No xml-generator.exe found in release directory or subdirectories!"
+            fi
+          fi
+          ls -l release/
+
   create-github-release:
     runs-on: ubuntu-latest
     needs: [create-release-package]
