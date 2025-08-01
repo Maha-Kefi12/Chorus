@@ -185,150 +185,342 @@ jobs:
         run: |
           cd spring-ftl/src/main/resources/scripts
           
-          # Create the enhanced XML generator using PowerShell-compatible method
+          # Create the enhanced XML generator using combined.py logic
           $xmlContent = @'
+          #!/usr/bin/env python3
+          """
+          XML Generation Script - Combined (Workflow Version)
+          Based on combined.py with workflow path adjustments
+          """
+          
+          import json
           import os
           import sys
-          import json
-          import requests
+          import traceback
           from pathlib import Path
-          import xml.etree.ElementTree as ET
-          from xml.dom import minidom
+          from typing import Dict, Any, List
           
-          def test_server_connection():
-              """Test if Spring Boot server is accessible"""
-              try:
-                  # Try multiple endpoints
-                  endpoints = ['/', '/actuator/health', '/error']
-                  for endpoint in endpoints:
-                      try:
-                          response = requests.get(f'http://localhost:8080{endpoint}', timeout=5)
-                          if response.status_code < 500:
-                              print(f'✅ Server accessible via {endpoint} (status: {response.status_code})')
-                              return True
-                      except Exception as e:
-                          print(f'❌ {endpoint} failed: {e}')
-                  return False
-              except Exception as e:
-                  print(f'❌ Server connection test failed: {e}')
-                  return False
+          def escape_attr(value):
+              """Escape XML attribute values"""
+              if value is None:
+                  return ""
+              return str(value).replace('"', '&quot;').replace('<', '&lt;').replace('>', '&gt;')
           
-          def detect_forms():
-              """Detect forms from available data - matching combined.py logic"""
-              forms = ['aini']  # Default fallback
-              output_dir = Path('output')
+          def get_form_id_from_data():
+              """Get form_id from data files"""
+              # Try to detect from data files
+              output_dir = Path("output")
               if output_dir.exists():
-                  # Check for transformed_result.json first (like combined.py)
                   transformed_path = output_dir / "transformed_result.json"
                   if transformed_path.exists():
                       try:
                           with open(transformed_path, 'r', encoding='utf-8') as f:
                               data = json.load(f)
-                          if isinstance(data, dict) and data:
-                              if 'originalJson' in data:
-                                  # Use the first form ID from originalJson (like combined.py)
-                                  form_ids = list(data['originalJson'].keys())
-                                  if form_ids:
-                                      forms = form_ids
-                              else:
-                                  # Use the first key as form ID (like combined.py fallback)
-                                  form_ids = list(data.keys())
-                                  if form_ids:
-                                      forms = form_ids
+                          
+                          # Look for forms in the data structure
+                          if 'originalJson' in data:
+                              forms = list(data['originalJson'].keys())
+                              if forms:
+                                  return forms[0]  # Use first form found
+                          elif isinstance(data, dict):
+                              forms = list(data.keys())
+                              if forms:
+                                  return forms[0]  # Use first form found
                       except Exception as e:
-                          print(f'Warning: Error reading {transformed_path}: {e}')
+                          print(f"⚠️ Error reading transformed data: {e}")
+              
+              # Default fallback
+              return "aini"
+          
+          def build_field_mapping_from_area_map(area_map, form_fields):
+              """Build field mapping from area map and form fields"""
+              mapped_fields = {}
+              
+              for field_id, field_data in form_fields.items():
+                  if field_id in area_map:
+                      mapped_fields[field_id] = {
+                          **field_data,
+                          'area': area_map[field_id]['area'],
+                          'sortNumber': area_map[field_id]['sortNumber'],
+                          'columnNumber': area_map[field_id]['columnNumber']
+                      }
+                  else:
+                      # Default to area1 if not mapped
+                      mapped_fields[field_id] = {
+                          **field_data,
+                          'area': 'area1',
+                          'sortNumber': '1',
+                          'columnNumber': '1'
+                      }
+              
+              return mapped_fields
+          
+          def group_fields_by_area(mapped_fields):
+              """Group fields by their assigned areas"""
+              area_fields = {
+                  'area1': [],
+                  'area2': [],
+                  'area3': []
+              }
+              
+              for field_id, field_data in mapped_fields.items():
+                  area = field_data.get('area', 'area1')
+                  if area in area_fields:
+                      area_fields[area].append(field_data)
+              
+              return area_fields
+          
+          def generate_field_xml(field_id: str, field_data: dict) -> str:
+              """Generate XML for a single field"""
+              lines = [f'<field id="{escape_attr(field_id)}"']
+              
+              # Add required attributes
+              nature = field_data.get('nature', 'string')
+              lines.append(f' nature="{escape_attr(nature)}"')
+              
+              # Add optional attributes
+              optional_attrs = [
+                  ('columnNumber', 'columnNumber'),
+                  ('sortNumber', 'sortNumber'),
+                  ('readOnly', 'readOnly'),
+                  ('hidden', 'hidden'),
+                  ('label', 'label'),
+                  ('maxLength', 'maxLength'),
+                  ('defaultValue', 'defaultValue')
+              ]
+              
+              for attr_name, xml_attr in optional_attrs:
+                  if attr_name in field_data:
+                      lines.append(f' {xml_attr}="{escape_attr(field_data[attr_name])}"')
+              
+              # Add LOV-specific attributes
+              if nature == 'lov' and 'lov' in field_data:
+                  lines.append(f' lov="{escape_attr(field_data["lov"])}"')
+                  if 'valueField' in field_data:
+                      lines.append(f' valueField="{escape_attr(field_data["valueField"])}"')
+                  if 'displayTemplate' in field_data:
+                      lines.append(f' displayTemplate="{escape_attr(field_data["displayTemplate"])}"')
+              
+              lines.append(' />')
+              
+              return ''.join(lines)
+          
+          def generate_fieldlinks_xml(fieldlinks_data: dict, form_id: str) -> str:
+              """Generate XML for field links"""
+              if not fieldlinks_data or 'links' not in fieldlinks_data:
+                  return '<fieldLinks />'
+              
+              lines = ['<fieldLinks>']
+              
+              for link in fieldlinks_data['links']:
+                  if not isinstance(link, dict):
+                      continue
+                      
+                  lines.append('<fieldLink')
+                  lines.append(f' childFieldId="{escape_attr(link.get("childFieldId", ""))}"')
+                  lines.append(f' id="{escape_attr(link.get("id", ""))}"')
+                  lines.append(f' methodName="{escape_attr(link.get("methodName", ""))}"')
+                  lines.append(f' nature="{escape_attr(link.get("nature", "CONDITIONNALHIDDEN"))}"')
+                  lines.append(f' disabled="{escape_attr(link.get("disabled", "false"))}"')
                   
-                  # If no transformed_result.json, check other files
-                  if forms == ['aini']:
-                      for json_file in output_dir.glob('*.json'):
-                          if json_file.name == 'transformed_result.json':
-                              continue  # Already checked
-                          try:
-                              with open(json_file, 'r', encoding='utf-8') as f:
-                                  data = json.load(f)
-                              if isinstance(data, dict) and data:
-                                  # Look for form-like structures
-                                  if 'originalJson' in data:
-                                      forms.extend(list(data['originalJson'].keys()))
-                                  elif 'formId' in data:
-                                      forms.append(data['formId'])
-                                  elif 'forms' in data:
-                                      forms.extend(data['forms'])
-                                  else:
-                                      # Only add keys that look like form IDs (not metadata)
-                                      metadata_keys = ['success', 'message', 'fileName', 'linksCount', 'links', 'formId', 'timestamp', 'status', 'error', 'rawFunctionName', 'filePath']
-                                      for key in data.keys():
-                                          if key not in metadata_keys and not key.startswith('_'):
-                                              forms.append(key)
-                          except Exception as e:
-                              print(f'Warning: Error reading {json_file}: {e}')
+                  # Get form_id for dynamic bean ID
+                  bean_id = f"{form_id}FieldLinkServiceFieldLinkService"
+                  lines.append(f' beanId="{bean_id}">')
+                  
+                  # Add father fields
+                  father_field_ids = link.get('fatherFieldIds', [])
+                  for father_id in father_field_ids:
+                      lines.append(f'<fieldLinkFather fatherFieldId="{escape_attr(father_id)}" />')
+                  
+                  lines.append('</fieldLink>')
               
-              # Remove duplicates and filter out metadata keys
-              metadata_keys = ['success', 'message', 'fileName', 'linksCount', 'links', 'formId', 'timestamp', 'status', 'error', 'rawFunctionName', 'filePath', 'path']
-              filtered_forms = []
-              for form in forms:
-                  if form not in metadata_keys and not form.startswith('_'):
-                      filtered_forms.append(form)
+              lines.append('</fieldLinks>')
+              return '\n'.join(lines)
+          
+          def generate_properties_file(area_map, form_fields, output_path):
+              """Generate properties file for the form"""
+              properties = []
               
-              return filtered_forms if filtered_forms else ['aini']
+              for field_id, field_data in form_fields.items():
+                  if field_id in area_map:
+                      area = area_map[field_id]['area']
+                      sort_number = area_map[field_id]['sortNumber']
+                      column_number = area_map[field_id]['columnNumber']
+                      
+                      properties.append(f"{field_id}.area={area}")
+                      properties.append(f"{field_id}.sortNumber={sort_number}")
+                      properties.append(f"{field_id}.columnNumber={column_number}")
+              
+              output_path.write_text('\n'.join(properties), encoding='utf-8')
+              print(f"✅ Properties file generated at: {output_path}")
+          
+          def generate_xml(area_map, form_fields, fieldlinks_data, form_id):
+              """Generate complete XML form in compact format"""
+              # Build mapping for ALL fields
+              mapped_fields = build_field_mapping_from_area_map(area_map, form_fields)
+              area_fields = group_fields_by_area(mapped_fields)
+          
+              # Get form_id for dynamic IDs
+              bean_id = f"{form_id}FormService"
+          
+              # Generate XML
+              lines = [
+                  '<?xml version="1.0" encoding="UTF-8" standalone="no"?>',
+                  f'<form xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="{form_id}BlockForm" xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd" fatherId="LotIntervallePortefeuille" beanId="{bean_id}">',
+                  '<graphic>',
+                  '<headerVisible>false</headerVisible>',
+                  '<collapsible>false</collapsible>',
+                  '<collapsed>false</collapsed>',
+                  '</graphic>'
+              ]
+          
+              # Add fieldLinks
+              fieldlinks_xml = generate_fieldlinks_xml(fieldlinks_data, form_id)
+              lines.append(fieldlinks_xml)
+          
+              # Areas
+              lines.append('<areas>')
+          
+              # Process areas in order
+              for area_id in ['area1', 'area2', 'area3']:
+                  if area_id not in area_fields or not area_fields[area_id]:
+                      continue
+          
+                  sort_number = '1' if area_id == 'area1' else '3' if area_id == 'area2' else '2'
+                  lines.append(f'<area id="{area_id}" sortNumber="{sort_number}">')
+          
+                  # Add graphic only for area1
+                  if area_id == 'area1':
+                      lines.append('<graphic>')
+                      lines.append('<headerVisible>false</headerVisible>')
+                      lines.append('</graphic>')
+          
+                  lines.append('<fields>')
+          
+                  # Add fields
+                  for field in area_fields[area_id]:
+                      field_xml = generate_field_xml(field['id'], field)
+                      lines.append(field_xml)
+          
+                  lines.append('</fields>')
+                  lines.append('</area>')
+          
+              lines.append('</areas>')
+              lines.append('</form>')
+          
+              return '\n'.join(lines)
           
           def main():
-              print('🎯 Enhanced XML Generator Starting...')
+              """Main entry point"""
+              print('🎯 Enhanced XML Generator Starting (combined.py logic)...')
               
-              # Test server connection first
-              if test_server_connection():
-                  print('✅ Server is accessible')
-              else:
-                  print('⚠️ Server not accessible, proceeding with offline data')
-              
-              forms = detect_forms()
-              print(f'📋 Detected forms: {forms}')
-              
-              # Create output directory
-              demo_base = Path('.idea/demo')
-              demo_base.mkdir(parents=True, exist_ok=True)
-              
-              for form_id in forms:
-                  form_dir = demo_base / form_id
-                  form_dir.mkdir(parents=True, exist_ok=True)
+              # Set up paths for workflow
+              base_path = Path("output")
+              area_map_path = base_path / "area_map.json"
+              transformed_path = base_path / "transformed_result.json"
+              fieldlinks_path = base_path / "fieldlink.json"
+          
+              try:
+                  # Check if required files exist
+                  if not transformed_path.exists():
+                      print(f"⚠️ {transformed_path} not found, creating basic XML...")
+                      # Create basic XML structure
+                      demo_base = Path('.idea/demo')
+                      demo_base.mkdir(parents=True, exist_ok=True)
+                      
+                      form_id = "aini"
+                      form_dir = demo_base / form_id
+                      form_dir.mkdir(parents=True, exist_ok=True)
+                      
+                      # Create basic XML
+                      xml_content = f'''<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+          <form xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="{form_id}BlockForm" xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd" fatherId="LotIntervallePortefeuille" beanId="{form_id}FormService">
+          <graphic>
+          <headerVisible>false</headerVisible>
+          <collapsible>false</collapsible>
+          <collapsed>false</collapsed>
+          </graphic>
+          <fieldLinks />
+          <areas>
+          <area id="area1" sortNumber="1">
+          <graphic>
+          <headerVisible>false</headerVisible>
+          </graphic>
+          <fields>
+          <field id="defaultField" nature="string" columnNumber="1" sortNumber="1" label="Default Field" />
+          </fields>
+          </area>
+          </areas>
+          </form>'''
+                      
+                      xml_path = form_dir / f"{form_id}.block.xml"
+                      xml_path.write_text(xml_content, encoding='utf-8')
+                      print(f"✅ Basic XML generated at: {xml_path}")
+                      
+                      # Generate properties file
+                      properties_path = form_dir / f"{form_id}.block.properties"
+                      properties_content = f"""# Properties for {form_id}
+          form.id={form_id}
+          form.name={form_id}
+          generated.timestamp={int(__import__('time').time())}
+          defaultField.area=area1
+          defaultField.sortNumber=1
+          defaultField.columnNumber=1"""
+                      properties_path.write_text(properties_content, encoding='utf-8')
+                      print(f"✅ Properties file generated at: {properties_path}")
+                      
+                      return 0
                   
-                  # Create enhanced XML with metadata
-                  root = ET.Element('configuration')
-                  root.set('type', 'SpringFTL')
-                  root.set('formId', form_id)
-                  root.set('version', '1.0')
+                  # Load data
+                  area_map = {}
+                  if area_map_path.exists():
+                      area_map = json.load(open(area_map_path, encoding="utf-8"))
                   
-                  metadata = ET.SubElement(root, 'metadata')
-                  ET.SubElement(metadata, 'generated-by').text = 'Spring FTL Enhanced XML Generator'
-                  ET.SubElement(metadata, 'form-id').text = form_id
-                  ET.SubElement(metadata, 'timestamp').text = str(int(__import__('time').time()))
+                  transformed_data = json.load(open(transformed_path, encoding="utf-8"))
+          
+                  # Get form data
+                  if 'originalJson' in transformed_data:
+                      form_id = next(iter(transformed_data['originalJson']))
+                      form_fields = transformed_data['originalJson'][form_id]
+                  else:
+                      form_id = next(iter(transformed_data))
+                      form_fields = transformed_data[form_id]
+          
+                  # Load field links
+                  fieldlinks_data = {"links": []}
+                  if fieldlinks_path.exists():
+                      fieldlinks_data = json.load(open(fieldlinks_path, encoding="utf-8"))
+          
+                  # Generate XML
+                  xml_content = generate_xml(area_map, form_fields, fieldlinks_data, form_id)
+          
+                  # Create output directory
+                  output_dir = base_path / "demo" / form_id
+                  output_dir.mkdir(parents=True, exist_ok=True)
+          
+                  # Save XML
+                  xml_path = output_dir / f"{form_id}.block.xml"
+                  xml_path.write_text(xml_content, encoding='utf-8')
+                  print(f"✅ XML generated at: {xml_path}")
+          
+                  # Generate properties file
+                  properties_path = output_dir / f"{form_id}.block.properties"
+                  generate_properties_file(area_map, form_fields, properties_path)
+          
+                  # Print summary
+                  mapped_fields = build_field_mapping_from_area_map(area_map, form_fields)
+                  area_fields = group_fields_by_area(mapped_fields)
+                  print(f"\n📊 Summary:")
+                  for area_id, fields in area_fields.items():
+                      print(f"{area_id}: {len(fields)} fields")
+                  print(f"Total fields: {len(mapped_fields)}")
                   
-                  # Add data sources section
-                  sources = ET.SubElement(root, 'data-sources')
-                  ET.SubElement(sources, 'server-accessible').text = str(test_server_connection()).lower()
-                  
-                  # Format and save
-                  rough_string = ET.tostring(root, 'utf-8')
-                  reparsed = minidom.parseString(rough_string)
-                  pretty_xml = reparsed.toprettyxml(indent='  ')
-                  
-                  # Use .block.xml extension like combined.py
-                  xml_file = form_dir / f'{form_id}.block.xml'
-                  with open(xml_file, 'w', encoding='utf-8') as f:
-                      f.write(pretty_xml)
-                  print(f'✅ Generated {xml_file}')
-                  
-                  # Also create .block.properties file like combined.py
-                  properties_file = form_dir / f'{form_id}.block.properties'
-                  with open(properties_file, 'w', encoding='utf-8') as f:
-                      f.write(f'# Properties for {form_id}\n')
-                      f.write(f'form.id={form_id}\n')
-                      f.write(f'form.name={form_id}\n')
-                      f.write(f'generated.timestamp={int(__import__("time").time())}\n')
-                  print(f'✅ Generated {properties_file}')
-              
-              print(f'🎉 XML generation complete! Generated {len(forms)} files.')
-              return 0
+                  return 0
+          
+              except Exception as e:
+                  print(f"❌ Error generating files: {e}")
+                  traceback.print_exc()
+                  return 1
           
           if __name__ == '__main__':
               sys.exit(main())
