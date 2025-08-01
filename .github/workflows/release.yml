@@ -206,31 +206,54 @@ jobs:
                   return ""
               return str(value).replace('"', '&quot;').replace('<', '&lt;').replace('>', '&gt;')
           
-          def get_form_id_from_data():
-              """Get form_id from data files"""
-              # Try to detect from data files
-              output_dir = Path("output")
-              if output_dir.exists():
-                  transformed_path = output_dir / "transformed_result.json"
-                  if transformed_path.exists():
-                      try:
-                          with open(transformed_path, 'r', encoding='utf-8') as f:
-                              data = json.load(f)
-                          
-                          # Look for forms in the data structure
-                          if 'originalJson' in data:
-                              forms = list(data['originalJson'].keys())
-                              if forms:
-                                  return forms[0]  # Use first form found
-                          elif isinstance(data, dict):
-                              forms = list(data.keys())
-                              if forms:
-                                  return forms[0]  # Use first form found
-                      except Exception as e:
-                          print(f"⚠️ Error reading transformed data: {e}")
-              
-              # Default fallback
-              return "aini"
+                        def get_all_form_ids_from_data():
+                  """Get all form_ids from data files"""
+                  form_ids = []
+                  output_dir = Path("output")
+                  if output_dir.exists():
+                      transformed_path = output_dir / "transformed_result.json"
+                      if transformed_path.exists():
+                          try:
+                              with open(transformed_path, 'r', encoding='utf-8') as f:
+                                  data = json.load(f)
+                              
+                              # Look for forms in the data structure
+                              if 'originalJson' in data:
+                                  form_ids.extend(list(data['originalJson'].keys()))
+                              elif isinstance(data, dict):
+                                  # Filter out metadata keys
+                                  metadata_keys = ['success', 'message', 'fileName', 'linksCount', 'links', 'formId', 'timestamp', 'status', 'error', 'rawFunctionName', 'filePath', 'path']
+                                  for key in data.keys():
+                                      if key not in metadata_keys and not key.startswith('_'):
+                                          form_ids.append(key)
+                          except Exception as e:
+                              print(f"⚠️ Error reading transformed data: {e}")
+                      
+                      # Also check other JSON files for form IDs
+                      for json_file in output_dir.glob('*.json'):
+                          if json_file.name == 'transformed_result.json':
+                              continue  # Already checked
+                          try:
+                              with open(json_file, 'r', encoding='utf-8') as f:
+                                  data = json.load(f)
+                              if isinstance(data, dict) and data:
+                                  if 'originalJson' in data:
+                                      form_ids.extend(list(data['originalJson'].keys()))
+                                  elif 'formId' in data:
+                                      form_ids.append(data['formId'])
+                                  elif 'forms' in data:
+                                      form_ids.extend(data['forms'])
+                                  else:
+                                      # Only add keys that look like form IDs (not metadata)
+                                      metadata_keys = ['success', 'message', 'fileName', 'linksCount', 'links', 'formId', 'timestamp', 'status', 'error', 'rawFunctionName', 'filePath']
+                                      for key in data.keys():
+                                          if key not in metadata_keys and not key.startswith('_'):
+                                              form_ids.append(key)
+                          except Exception as e:
+                              print(f'Warning: Error reading {json_file}: {e}')
+                  
+                  # Remove duplicates and return
+                  return list(set(form_ids)) if form_ids else ["default"]
           
           def build_field_mapping_from_area_map(area_map, form_fields):
               """Build field mapping from area map and form fields"""
@@ -410,117 +433,103 @@ jobs:
           
               return '\n'.join(lines)
           
-          def main():
-              """Main entry point"""
-              print('🎯 Enhanced XML Generator Starting (combined.py logic)...')
+                        def main():
+                  """Main entry point"""
+                  print('🎯 Enhanced XML Generator Starting (combined.py logic)...')
+                  
+                  # Set up paths for workflow
+                  base_path = Path("output")
+                  area_map_path = base_path / "area_map.json"
+                  transformed_path = base_path / "transformed_result.json"
+                  fieldlinks_path = base_path / "fieldlink.json"
               
-              # Set up paths for workflow
-              base_path = Path("output")
-              area_map_path = base_path / "area_map.json"
-              transformed_path = base_path / "transformed_result.json"
-              fieldlinks_path = base_path / "fieldlink.json"
-          
-              try:
-                  # Check if required files exist
-                  if not transformed_path.exists():
-                      print(f"⚠️ {transformed_path} not found, creating basic XML...")
-                      # Create basic XML structure
+                  try:
+                      # Get all form IDs from data
+                      form_ids = get_all_form_ids_from_data()
+                      print(f"📋 Detected form IDs: {form_ids}")
+                      
+                      # Load data
+                      area_map = {}
+                      if area_map_path.exists():
+                          area_map = json.load(open(area_map_path, encoding="utf-8"))
+                      
+                      transformed_data = {}
+                      if transformed_path.exists():
+                          transformed_data = json.load(open(transformed_path, encoding="utf-8"))
+                      
+                      # Load field links
+                      fieldlinks_data = {"links": []}
+                      if fieldlinks_path.exists():
+                          fieldlinks_data = json.load(open(fieldlinks_path, encoding="utf-8"))
+                      
+                      # Create demo base directory
                       demo_base = Path('.idea/demo')
                       demo_base.mkdir(parents=True, exist_ok=True)
                       
-                      form_id = "aini"
-                      form_dir = demo_base / form_id
-                      form_dir.mkdir(parents=True, exist_ok=True)
+                      total_generated = 0
                       
-                      # Create basic XML
-                      xml_content = f'''<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-          <form xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="{form_id}BlockForm" xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd" fatherId="LotIntervallePortefeuille" beanId="{form_id}FormService">
-          <graphic>
-          <headerVisible>false</headerVisible>
-          <collapsible>false</collapsible>
-          <collapsed>false</collapsed>
-          </graphic>
-          <fieldLinks />
-          <areas>
-          <area id="area1" sortNumber="1">
-          <graphic>
-          <headerVisible>false</headerVisible>
-          </graphic>
-          <fields>
-          <field id="defaultField" nature="string" columnNumber="1" sortNumber="1" label="Default Field" />
-          </fields>
-          </area>
-          </areas>
-          </form>'''
+                      # Process each form ID
+                      for form_id in form_ids:
+                          print(f"\n🔄 Processing form ID: {form_id}")
+                          
+                          try:
+                              # Get form fields for this form ID
+                              form_fields = {}
+                              if 'originalJson' in transformed_data and form_id in transformed_data['originalJson']:
+                                  form_fields = transformed_data['originalJson'][form_id]
+                              elif form_id in transformed_data:
+                                  form_fields = transformed_data[form_id]
+                              else:
+                                  # Create basic form fields if not found
+                                  form_fields = {
+                                      'defaultField': {
+                                          'id': 'defaultField',
+                                          'label': f'Default Field for {form_id}',
+                                          'nature': 'string',
+                                          'readOnly': 'false'
+                                      }
+                                  }
+                              
+                              # Generate XML
+                              xml_content = generate_xml(area_map, form_fields, fieldlinks_data, form_id)
+                              
+                              # Create output directory
+                              form_dir = demo_base / form_id
+                              form_dir.mkdir(parents=True, exist_ok=True)
+                              
+                              # Save XML
+                              xml_path = form_dir / f"{form_id}.block.xml"
+                              xml_path.write_text(xml_content, encoding='utf-8')
+                              print(f"✅ XML generated at: {xml_path}")
+                              
+                              # Generate properties file
+                              properties_path = form_dir / f"{form_id}.block.properties"
+                              generate_properties_file(area_map, form_fields, properties_path)
+                              
+                              # Print summary for this form
+                              mapped_fields = build_field_mapping_from_area_map(area_map, form_fields)
+                              area_fields = group_fields_by_area(mapped_fields)
+                              print(f"📊 {form_id} summary:")
+                              for area_id, fields in area_fields.items():
+                                  if fields:  # Only show areas with fields
+                                      print(f"  {area_id}: {len(fields)} fields")
+                              print(f"  Total fields: {len(mapped_fields)}")
+                              
+                              total_generated += 1
+                              
+                          except Exception as e:
+                              print(f"❌ Error processing form {form_id}: {e}")
+                              continue
                       
-                      xml_path = form_dir / f"{form_id}.block.xml"
-                      xml_path.write_text(xml_content, encoding='utf-8')
-                      print(f"✅ Basic XML generated at: {xml_path}")
-                      
-                      # Generate properties file
-                      properties_path = form_dir / f"{form_id}.block.properties"
-                      properties_content = f"""# Properties for {form_id}
-          form.id={form_id}
-          form.name={form_id}
-          generated.timestamp={int(__import__('time').time())}
-          defaultField.area=area1
-          defaultField.sortNumber=1
-          defaultField.columnNumber=1"""
-                      properties_path.write_text(properties_content, encoding='utf-8')
-                      print(f"✅ Properties file generated at: {properties_path}")
+                      print(f"\n🎉 XML generation complete! Generated {total_generated} form(s).")
+                      print(f"📁 Check the .idea/demo/ directory for generated files.")
                       
                       return 0
-                  
-                  # Load data
-                  area_map = {}
-                  if area_map_path.exists():
-                      area_map = json.load(open(area_map_path, encoding="utf-8"))
-                  
-                  transformed_data = json.load(open(transformed_path, encoding="utf-8"))
-          
-                  # Get form data
-                  if 'originalJson' in transformed_data:
-                      form_id = next(iter(transformed_data['originalJson']))
-                      form_fields = transformed_data['originalJson'][form_id]
-                  else:
-                      form_id = next(iter(transformed_data))
-                      form_fields = transformed_data[form_id]
-          
-                  # Load field links
-                  fieldlinks_data = {"links": []}
-                  if fieldlinks_path.exists():
-                      fieldlinks_data = json.load(open(fieldlinks_path, encoding="utf-8"))
-          
-                  # Generate XML
-                  xml_content = generate_xml(area_map, form_fields, fieldlinks_data, form_id)
-          
-                  # Create output directory
-                  output_dir = base_path / "demo" / form_id
-                  output_dir.mkdir(parents=True, exist_ok=True)
-          
-                  # Save XML
-                  xml_path = output_dir / f"{form_id}.block.xml"
-                  xml_path.write_text(xml_content, encoding='utf-8')
-                  print(f"✅ XML generated at: {xml_path}")
-          
-                  # Generate properties file
-                  properties_path = output_dir / f"{form_id}.block.properties"
-                  generate_properties_file(area_map, form_fields, properties_path)
-          
-                  # Print summary
-                  mapped_fields = build_field_mapping_from_area_map(area_map, form_fields)
-                  area_fields = group_fields_by_area(mapped_fields)
-                  print(f"\n📊 Summary:")
-                  for area_id, fields in area_fields.items():
-                      print(f"{area_id}: {len(fields)} fields")
-                  print(f"Total fields: {len(mapped_fields)}")
-                  
-                  return 0
-          
-              except Exception as e:
-                  print(f"❌ Error generating files: {e}")
-                  traceback.print_exc()
-                  return 1
+              
+                  except Exception as e:
+                      print(f"❌ Error generating files: {e}")
+                      traceback.print_exc()
+                      return 1
           
           if __name__ == '__main__':
               sys.exit(main())
@@ -684,48 +693,7 @@ jobs:
           
           ###
           
-          ### Test 10: Transform - update field order
-          POST http://localhost:8080/transform/updateFieldOrder
-          Content-Type: application/json
-          Accept: application/json
-          
-          {
-            "originalJson": {
-              "default": {
-                "testField": {
-                  "id": "testField",
-                  "label": "Test Field",
-                  "type": "string",
-                  "nature": "input",
-                  "lovService": null,
-                  "label1": "Test Field",
-                  "label2": null
-                }
-              }
-            },
-            "labelMappings": [
-              {
-                "ancien": "Test Field",
-                "nouveau": "Test Field Updated"
-              }
-            ],
-            "areaConfigs": [
-              {
-                "area": "main",
-                "fields": [
-                  {
-                    "name": "Test Field",
-                    "sort_number": 1,
-                    "columnNumber": 1
-                  }
-                ]
-              }
-            ]
-          }
-          
-          ###
-          
-          ### Test 11: Transform - save transformation
+          ### Test 10: Transform - save transformation
           POST http://localhost:8080/transform/save-transformation
           Content-Type: application/json
           Accept: application/json
@@ -733,32 +701,21 @@ jobs:
           {
             "originalJson": {
               "default": {
-                "testField": {
-                  "id": "testField",
-                  "label": "Test Field",
-                  "type": "string",
-                  "nature": "input",
-                  "lovService": null,
-                  "label1": "Test Field",
-                  "label2": null
-                }
+                "field1": {"id": "field1", "label": "Field 1", "nature": "string", "readOnly": "false"},
+                "field2": {"id": "field2", "label": "Field 2", "nature": "date", "readOnly": "false"},
+                "field3": {"id": "field3", "label": "Field 3", "nature": "lov", "readOnly": "false"},
+                "field4": {"id": "field4", "label": "Field 4", "nature": "dualfield", "readOnly": "false"}
               }
             },
-            "labelMappings": [
-              {
-                "ancien": "Test Field",
-                "nouveau": "Test Field Updated"
-              }
-            ],
+            "labelMappings": [],
             "areaConfigs": [
               {
-                "area": "main",
+                "area": "area1",
                 "fields": [
-                  {
-                    "name": "Test Field",
-                    "sort_number": 1,
-                    "columnNumber": 1
-                  }
+                  {"name": "field1", "sort_number": 10, "columnNumber": 1},
+                  {"name": "field2", "sort_number": 20, "columnNumber": 2},
+                  {"name": "field3", "sort_number": 30, "columnNumber": 1},
+                  {"name": "field4", "sort_number": 40, "columnNumber": 2}
                 ]
               }
             ]
@@ -766,7 +723,7 @@ jobs:
           
           ###
           
-          ### Test 12: Transform - field mapping table
+          ### Test 11: Transform - field mapping table
           POST http://localhost:8080/transform/field-mapping-table
           Content-Type: application/json
           Accept: application/json
@@ -774,32 +731,21 @@ jobs:
           {
             "originalJson": {
               "default": {
-                "testField": {
-                  "id": "testField",
-                  "label": "Test Field",
-                  "type": "string",
-                  "nature": "input",
-                  "lovService": null,
-                  "label1": "Test Field",
-                  "label2": null
-                }
+                "field1": {"id": "field1", "label": "Field 1", "nature": "string", "readOnly": "false"},
+                "field2": {"id": "field2", "label": "Field 2", "nature": "date", "readOnly": "false"},
+                "field3": {"id": "field3", "label": "Field 3", "nature": "lov", "readOnly": "false"},
+                "field4": {"id": "field4", "label": "Field 4", "nature": "dualfield", "readOnly": "false"}
               }
             },
-            "labelMappings": [
-              {
-                "ancien": "Test Field",
-                "nouveau": "Test Field Updated"
-              }
-            ],
+            "labelMappings": [],
             "areaConfigs": [
               {
-                "area": "main",
+                "area": "area1",
                 "fields": [
-                  {
-                    "name": "Test Field",
-                    "sort_number": 1,
-                    "columnNumber": 1
-                  }
+                  {"name": "field1", "sort_number": 10, "columnNumber": 1},
+                  {"name": "field2", "sort_number": 20, "columnNumber": 2},
+                  {"name": "field3", "sort_number": 30, "columnNumber": 1},
+                  {"name": "field4", "sort_number": 40, "columnNumber": 2}
                 ]
               }
             ]
@@ -871,35 +817,13 @@ jobs:
           {
             "originalJson": {
               "default": {
-                "testField": {
-                  "id": "testField",
-                  "label": "Test Field",
-                  "type": "string",
-                  "nature": "input",
-                  "lovService": null,
-                  "label1": "Test Field",
-                  "label2": null
-                }
+                "field1": {"id": "field1", "label": "Field 1", "nature": "string", "readOnly": "false"},
+                "field2": {"id": "field2", "label": "Field 2", "nature": "date", "readOnly": "false"},
+                "field3": {"id": "field3", "label": "Field 3", "nature": "lov", "readOnly": "false"}
               }
             },
-            "labelMappings": [
-              {
-                "ancien": "Test Field",
-                "nouveau": "Test Field Updated"
-              }
-            ],
-            "areaConfigs": [
-              {
-                "area": "main",
-                "fields": [
-                  {
-                    "name": "Test Field",
-                    "sort_number": 1,
-                    "columnNumber": 1
-                  }
-                ]
-              }
-            ]
+            "labelMappings": [],
+            "areaConfigs": []
           }
           
           ###
@@ -992,31 +916,30 @@ jobs:
                   self.results = {}
           
               def discover_endpoints(self):
-                  """Discover available endpoints with exact method signatures"""
+                  """Discover available endpoints - simplified for data generation"""
                   test_endpoints = [
                       # AnalyzerController endpoints - all require @RequestParam String path
-                      {'path': '/api/analyze', 'method': 'GET', 'name': 'analyze', 'params': {'path': 'Test.java'}, 'signature': 'analyze(@RequestParam String path)'},
-                      {'path': '/api/extract-function', 'method': 'GET', 'name': 'extract_function', 'params': {'path': 'Test.java'}, 'signature': 'extractFunction(@RequestParam String path)'},
-                      {'path': '/api/extract-function-name', 'method': 'GET', 'name': 'extract_function_name', 'params': {'path': 'Test.java'}, 'signature': 'extractFunctionNameFromFile(@RequestParam String path)'},
-                      {'path': '/api/extract-function-name-1', 'method': 'GET', 'name': 'extract_function_name_1', 'params': {'path': 'Test.java'}, 'signature': 'extractFunctionNameFromFileF(@RequestParam String path)'},
+                      {'path': '/api/analyze', 'method': 'GET', 'name': 'analyze', 'params': {'path': 'Test.java'}},
+                      {'path': '/api/extract-function', 'method': 'GET', 'name': 'extract_function', 'params': {'path': 'Test.java'}},
+                      {'path': '/api/extract-function-name', 'method': 'GET', 'name': 'extract_function_name', 'params': {'path': 'Test.java'}},
+                      {'path': '/api/extract-function-name-1', 'method': 'GET', 'name': 'extract_function_name_1', 'params': {'path': 'Test.java'}},
                       
                       # ValuesListParserController endpoints
-                      {'path': '/api/parser/fromCode', 'method': 'POST', 'name': 'parser_fromcode', 'content_type': 'text/plain', 'signature': 'parseFromCode(@RequestBody String javaCode)'},
-                      {'path': '/api/parser/fromFile', 'method': 'POST', 'name': 'parser_fromfile', 'content_type': 'multipart/form-data', 'param_name': 'file', 'signature': 'parseFromFile(@RequestParam("file") MultipartFile file)'},
-                      {'path': '/api/parser/lov-fields', 'method': 'POST', 'name': 'parser_lov_fields', 'content_type': 'multipart/form-data', 'param_name': 'file', 'signature': 'extractLovFieldsFromJavaFile(@RequestParam("file") MultipartFile file)'},
+                      {'path': '/api/parser/fromCode', 'method': 'POST', 'name': 'parser_fromcode', 'content_type': 'text/plain'},
+                      {'path': '/api/parser/fromFile', 'method': 'POST', 'name': 'parser_fromfile', 'content_type': 'multipart/form-data', 'param_name': 'file'},
+                      {'path': '/api/parser/lov-fields', 'method': 'POST', 'name': 'parser_lov_fields', 'content_type': 'multipart/form-data', 'param_name': 'file'},
                       
-                      # JsonTransformerController endpoints - all require @RequestBody TransformationRequest
-                      {'path': '/transform/updateFieldOrder', 'method': 'POST', 'name': 'transform_update_field_order', 'content_type': 'application/json', 'signature': 'updateFieldOrder(@RequestBody TransformationRequest request)'},
-                      {'path': '/transform/save-transformation', 'method': 'POST', 'name': 'transform_save_transformation', 'content_type': 'application/json', 'signature': 'saveTransformationRequest(@RequestBody TransformationRequest request)'},
-                      {'path': '/transform/field-mapping-table', 'method': 'POST', 'name': 'transform_field_mapping_table', 'content_type': 'application/json', 'signature': 'getFieldMappingTable(@RequestBody TransformationRequest request)'},
+                      # JsonTransformerController endpoints - simplified for data generation
+                      {'path': '/transform/save-transformation', 'method': 'POST', 'name': 'transform_save_transformation', 'content_type': 'application/json'},
+                      {'path': '/transform/field-mapping-table', 'method': 'POST', 'name': 'transform_field_mapping_table', 'content_type': 'application/json'},
                       
                       # VisibiltyAnalyzerController endpoints
-                      {'path': '/api/visibility-analyzer/analyze/file', 'method': 'POST', 'name': 'visibility_analyzer_analyze_file', 'content_type': 'multipart/form-data', 'param_name': 'file', 'signature': 'analyzeFile(@RequestParam("file") MultipartFile file)'},
+                      {'path': '/api/visibility-analyzer/analyze/file', 'method': 'POST', 'name': 'visibility_analyzer_analyze_file', 'content_type': 'multipart/form-data', 'param_name': 'file'},
                       
                       # Health check endpoints
-                      {'path': '/actuator/health', 'method': 'GET', 'name': 'actuator_health', 'signature': 'No parameters'},
-                      {'path': '/actuator/info', 'method': 'GET', 'name': 'actuator_info', 'signature': 'No parameters'},
-                      {'path': '/error', 'method': 'GET', 'name': 'error', 'signature': 'No parameters'}
+                      {'path': '/actuator/health', 'method': 'GET', 'name': 'actuator_health'},
+                      {'path': '/actuator/info', 'method': 'GET', 'name': 'actuator_info'},
+                      {'path': '/error', 'method': 'GET', 'name': 'error'}
                   ]
                   
                   self.discovered_endpoints = []
@@ -1040,45 +963,23 @@ jobs:
                                   param_name = endpoint.get('param_name', 'file')
                                   files = {param_name: ('test.java', 'public class Test {}', 'text/plain')}
                                   response = requests.post(url, files=files, timeout=5)
-                              elif content_type == 'application/json':
-                                  # Test with proper TransformationRequest structure for transform endpoints
-                                  if 'transform' in endpoint['path']:
-                                      test_data = {
-                                          'originalJson': {
-                                              'default': {
-                                                  'testField': {
-                                                      'id': 'testField',
-                                                      'label': 'Test Field',
-                                                      'type': 'string',
-                                                      'nature': 'input',
-                                                      'lovService': None,
-                                                      'label1': 'Test Field',
-                                                      'label2': None
+                                                                elif content_type == 'application/json':
+                                      # Test with basic data for transform endpoints
+                                      if 'transform' in endpoint['path']:
+                                          test_data = {
+                                              'originalJson': {
+                                                  'default': {
+                                                      'field1': {'id': 'field1', 'label': 'Field 1', 'nature': 'string'},
+                                                      'field2': {'id': 'field2', 'label': 'Field 2', 'nature': 'date'},
+                                                      'field3': {'id': 'field3', 'label': 'Field 3', 'nature': 'lov'}
                                                   }
-                                              }
-                                          },
-                                          'labelMappings': [
-                                              {
-                                                  'ancien': 'Test Field',
-                                                  'nouveau': 'Test Field Updated'
-                                              }
-                                          ],
-                                          'areaConfigs': [
-                                              {
-                                                  'area': 'main',
-                                                  'fields': [
-                                                      {
-                                                          'name': 'Test Field',
-                                                          'sort_number': 1,
-                                                          'columnNumber': 1
-                                                      }
-                                                  ]
-                                              }
-                                          ]
-                                      }
-                                  else:
-                                      test_data = {'test': 'data'}
-                                  response = requests.post(url, json=test_data, timeout=5)
+                                              },
+                                              'labelMappings': [],
+                                              'areaConfigs': []
+                                          }
+                                      else:
+                                          test_data = {'test': 'data'}
+                                      response = requests.post(url, json=test_data, timeout=5)
                               else:
                                   response = requests.post(url, data='test', timeout=5)
                           
@@ -1137,47 +1038,40 @@ jobs:
                                   with open(java_file_path, 'rb') as f:
                                       files = {param_name: (os.path.basename(java_file_path), f, 'text/plain')}
                                       response = requests.post(url, files=files, timeout=10)
-                              elif content_type == 'application/json':
-                                  # For JSON endpoints, create proper TransformationRequest payload
-                                  if 'transform' in endpoint['path']:
-                                      # Create proper TransformationRequest structure
-                                      payload = {
-                                          'originalJson': {
-                                              'default': {
-                                                  'testField': {
-                                                      'id': 'testField',
-                                                      'label': 'Test Field',
-                                                      'type': 'string',
-                                                      'nature': 'input',
-                                                      'lovService': None,
-                                                      'label1': 'Test Field',
-                                                      'label2': None
+                                                                elif content_type == 'application/json':
+                                      # For JSON endpoints, create proper TransformationRequest payload
+                                      if 'transform' in endpoint['path']:
+                                          # Create proper TransformationRequest structure with aini form data
+                                          payload = {
+                                              'originalJson': {
+                                                  'aini': {
+                                                      'adtcou': {'id': 'adtcou', 'label': 'Date Couverture', 'nature': 'date', 'readOnly': 'true'},
+                                                      'adtech': {'id': 'adtech', 'label': 'Date Technique', 'nature': 'date', 'readOnly': 'true'},
+                                                      'adtfin': {'id': 'adtfin', 'label': 'Date Fin', 'nature': 'date', 'readOnly': 'true'},
+                                                      'devs': {'id': 'devs', 'label': 'Devises', 'nature': 'dualfield', 'readOnly': 'true'},
+                                                      'ridori': {'id': 'ridori', 'label': 'RID ORI', 'nature': 'lov', 'readOnly': 'true'},
+                                                      'xceopt': {'id': 'xceopt', 'label': 'XCE OPT', 'nature': 'lov', 'readOnly': 'true'}
                                                   }
-                                              }
-                                          },
-                                          'labelMappings': [
-                                              {
-                                                  'ancien': 'Test Field',
-                                                  'nouveau': 'Test Field Updated'
-                                              }
-                                          ],
-                                          'areaConfigs': [
-                                              {
-                                                  'area': 'main',
-                                                  'fields': [
-                                                      {
-                                                          'name': 'Test Field',
-                                                          'sort_number': 1,
-                                                          'columnNumber': 1
-                                                      }
-                                                  ]
-                                              }
-                                          ]
-                                      }
-                                  else:
-                                      # Default JSON payload
-                                      payload = {'code': java_code}
-                                  response = requests.post(url, json=payload, timeout=10)
+                                              },
+                                              'labelMappings': [],
+                                              'areaConfigs': [
+                                                  {
+                                                      'area': 'area1',
+                                                      'fields': [
+                                                          {'name': 'adtcou', 'sort_number': 10, 'columnNumber': 2},
+                                                          {'name': 'adtech', 'sort_number': 20, 'columnNumber': 1},
+                                                          {'name': 'adtfin', 'sort_number': 30, 'columnNumber': 2},
+                                                          {'name': 'devs', 'sort_number': 60, 'columnNumber': 1},
+                                                          {'name': 'ridori', 'sort_number': 70, 'columnNumber': 1},
+                                                          {'name': 'xceopt', 'sort_number': 90, 'columnNumber': 2}
+                                                      ]
+                                                  }
+                                              ]
+                                          }
+                                      else:
+                                          # Default JSON payload
+                                          payload = {'code': java_code}
+                                      response = requests.post(url, json=payload, timeout=10)
                               else:
                                   response = requests.post(url, data=java_code, timeout=10)
                           
