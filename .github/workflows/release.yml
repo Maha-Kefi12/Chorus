@@ -274,7 +274,7 @@ jobs:
           echo '                print(f"✅ XML generated at: {xml_path}")' >> xml_generator.py
           echo '                # Generate properties file' >> xml_generator.py
           echo '                properties_path = form_dir / f"{form_id}.block.properties"' >> xml_generator.py
-          echo '                properties_content = f"# Properties for {form_id}\nform.id={form_id}\nform.name={form_id}\ngenerated.timestamp={int(__import__(\"time\").time())}\ndefaultField.area=area1\ndefaultField.sortNumber=1\ndefaultField.columnNumber=1"' >> xml_generator.py
+          echo '                properties_content = "# Properties for " + form_id + "\nform.id=" + form_id + "\nform.name=" + form_id + "\ngenerated.timestamp=" + str(int(__import__("time").time())) + "\ndefaultField.area=area1\ndefaultField.sortNumber=1\ndefaultField.columnNumber=1"' >> xml_generator.py
           echo '                properties_path.write_text(properties_content, encoding="utf-8")' >> xml_generator.py
           echo '                print(f"✅ Properties file generated at: {properties_path}")' >> xml_generator.py
           echo '                total_generated += 1' >> xml_generator.py
@@ -700,7 +700,7 @@ jobs:
           echo '        endpoints = self.discover_endpoints()' >> api_gui_runner.py
           echo '        for endpoint in endpoints:' >> api_gui_runner.py
           echo '            if progress_callback:' >> api_gui_runner.py
-          echo '                progress_callback(f"Testing {endpoint[\"name\"]}...")' >> api_gui_runner.py
+          echo '                progress_callback("Testing " + endpoint["name"] + "...")' >> api_gui_runner.py
           echo '            try:' >> api_gui_runner.py
           echo '                url = f"{self.base_url}{endpoint[\"path\"]}"' >> api_gui_runner.py
           echo '                if endpoint["method"] == "GET":' >> api_gui_runner.py
@@ -764,9 +764,9 @@ jobs:
           echo '            log_message("\\n📋 Results Summary:")' >> api_gui_runner.py
           echo '            for name, result in results.items():' >> api_gui_runner.py
           echo '                status = "✅" if result.get("success") else "❌"' >> api_gui_runner.py
-          echo '                log_message(f"  {status} {name}: {result.get(\"status\", \"Unknown\")}")' >> api_gui_runner.py
+          echo '                log_message("  " + status + " " + name + ": " + str(result.get("status", "Unknown")))' >> api_gui_runner.py
           echo '                if "output_file" in result:' >> api_gui_runner.py
-          echo '                    log_message(f"    📄 Saved to: {result[\"output_file\"]}")' >> api_gui_runner.py
+          echo '                    log_message("    📄 Saved to: " + result["output_file"])' >> api_gui_runner.py
           echo '            log_message("\\n🎉 Testing complete!")' >> api_gui_runner.py
           echo '        threading.Thread(target=run_tests, daemon=True).start()' >> api_gui_runner.py
           echo '    test_btn = tk.Button(button_frame, text="🧪 Test with Java File", command=test_with_file)' >> api_gui_runner.py
@@ -774,8 +774,8 @@ jobs:
           echo '    clear_btn = tk.Button(button_frame, text="🗑️ Clear Output", command=lambda: output_text.delete(1.0, tk.END))' >> api_gui_runner.py
           echo '    clear_btn.pack(side=tk.LEFT)' >> api_gui_runner.py
           echo '    log_message("🚀 Spring FTL API Tester Ready!")' >> api_gui_runner.py
-          echo '    log_message("1. Click \"Test with Java File\" to run tests")' >> api_gui_runner.py
-          echo '    log_message("2. Check the \"output/\" directory for results")' >> api_gui_runner.py
+          echo '    log_message("1. Click \\"Test with Java File\\" to run tests")' >> api_gui_runner.py
+          echo '    log_message("2. Check the \\"output/\\" directory for results")' >> api_gui_runner.py
           echo '    log_message("\\nMake sure Spring Boot server is running on http://localhost:8080")' >> api_gui_runner.py
           echo '    return root' >> api_gui_runner.py
           echo '' >> api_gui_runner.py
