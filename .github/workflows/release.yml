@@ -214,24 +214,63 @@ jobs:
                   return False
           
           def detect_forms():
-              """Detect forms from available data"""
+              """Detect forms from available data - matching combined.py logic"""
               forms = ['aini']  # Default fallback
               output_dir = Path('output')
               if output_dir.exists():
-                  for json_file in output_dir.glob('*.json'):
+                  # Check for transformed_result.json first (like combined.py)
+                  transformed_path = output_dir / "transformed_result.json"
+                  if transformed_path.exists():
                       try:
-                          with open(json_file, 'r', encoding='utf-8') as f:
+                          with open(transformed_path, 'r', encoding='utf-8') as f:
                               data = json.load(f)
                           if isinstance(data, dict) and data:
                               if 'originalJson' in data:
-                                  forms.extend(list(data['originalJson'].keys()))
-                              elif 'forms' in data:
-                                  forms.extend(data['forms'])
+                                  # Use the first form ID from originalJson (like combined.py)
+                                  form_ids = list(data['originalJson'].keys())
+                                  if form_ids:
+                                      forms = form_ids
                               else:
-                                  forms.extend(list(data.keys()))
+                                  # Use the first key as form ID (like combined.py fallback)
+                                  form_ids = list(data.keys())
+                                  if form_ids:
+                                      forms = form_ids
                       except Exception as e:
-                          print(f'Warning: Error reading {json_file}: {e}')
-              return list(set(forms))  # Remove duplicates
+                          print(f'Warning: Error reading {transformed_path}: {e}')
+                  
+                  # If no transformed_result.json, check other files
+                  if forms == ['aini']:
+                      for json_file in output_dir.glob('*.json'):
+                          if json_file.name == 'transformed_result.json':
+                              continue  # Already checked
+                          try:
+                              with open(json_file, 'r', encoding='utf-8') as f:
+                                  data = json.load(f)
+                              if isinstance(data, dict) and data:
+                                  # Look for form-like structures
+                                  if 'originalJson' in data:
+                                      forms.extend(list(data['originalJson'].keys()))
+                                  elif 'formId' in data:
+                                      forms.append(data['formId'])
+                                  elif 'forms' in data:
+                                      forms.extend(data['forms'])
+                                  else:
+                                      # Only add keys that look like form IDs (not metadata)
+                                      metadata_keys = ['success', 'message', 'fileName', 'linksCount', 'links', 'formId', 'timestamp', 'status', 'error', 'rawFunctionName', 'filePath']
+                                      for key in data.keys():
+                                          if key not in metadata_keys and not key.startswith('_'):
+                                              forms.append(key)
+                          except Exception as e:
+                              print(f'Warning: Error reading {json_file}: {e}')
+              
+              # Remove duplicates and filter out metadata keys
+              metadata_keys = ['success', 'message', 'fileName', 'linksCount', 'links', 'formId', 'timestamp', 'status', 'error', 'rawFunctionName', 'filePath', 'path']
+              filtered_forms = []
+              for form in forms:
+                  if form not in metadata_keys and not form.startswith('_'):
+                      filtered_forms.append(form)
+              
+              return filtered_forms if filtered_forms else ['aini']
           
           def main():
               print('🎯 Enhanced XML Generator Starting...')
@@ -273,10 +312,20 @@ jobs:
                   reparsed = minidom.parseString(rough_string)
                   pretty_xml = reparsed.toprettyxml(indent='  ')
                   
-                  xml_file = form_dir / f'{form_id}.xml'
+                  # Use .block.xml extension like combined.py
+                  xml_file = form_dir / f'{form_id}.block.xml'
                   with open(xml_file, 'w', encoding='utf-8') as f:
                       f.write(pretty_xml)
                   print(f'✅ Generated {xml_file}')
+                  
+                  # Also create .block.properties file like combined.py
+                  properties_file = form_dir / f'{form_id}.block.properties'
+                  with open(properties_file, 'w', encoding='utf-8') as f:
+                      f.write(f'# Properties for {form_id}\n')
+                      f.write(f'form.id={form_id}\n')
+                      f.write(f'form.name={form_id}\n')
+                      f.write(f'generated.timestamp={int(__import__("time").time())}\n')
+                  print(f'✅ Generated {properties_file}')
               
               print(f'🎉 XML generation complete! Generated {len(forms)} files.')
               return 0
