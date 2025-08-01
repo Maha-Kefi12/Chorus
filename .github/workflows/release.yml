@@ -185,8 +185,8 @@ jobs:
         run: |
           cd spring-ftl/src/main/resources/scripts
           
-          # Create the enhanced XML generator using a more reliable method
-          cat > xml_generator.py << 'PYTHON_EOF'
+          # Create the enhanced XML generator using PowerShell-compatible method
+          $xmlContent = @'
           import os
           import sys
           import json
@@ -283,7 +283,9 @@ jobs:
           
           if __name__ == '__main__':
               sys.exit(main())
-          PYTHON_EOF
+          '@
+          
+          $xmlContent | Out-File -FilePath "xml_generator.py" -Encoding UTF8
           
           echo "✅ Enhanced XML generator created"
           cd ../../../..
@@ -572,8 +574,8 @@ jobs:
         run: |
           cd spring-ftl/src/main/resources/scripts
           
-          # Create the enhanced API GUI Runner using a more reliable method
-          cat > api_gui_runner.py << 'PYTHON_EOF'
+          # Create the enhanced API GUI Runner using PowerShell-compatible method
+          $apiContent = @'
           # Enhanced API GUI Runner with endpoint discovery
           import tkinter as tk
           from tkinter import filedialog, messagebox, scrolledtext
@@ -771,7 +773,9 @@ jobs:
           
           if __name__ == '__main__':
               main()
-          PYTHON_EOF
+          '@
+          
+          $apiContent | Out-File -FilePath "api_gui_runner.py" -Encoding UTF8
 
       - name: 🔨 Build enhanced API GUI Runner executable
         run: |
