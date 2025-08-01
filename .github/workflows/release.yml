@@ -185,103 +185,105 @@ jobs:
         run: |
           cd spring-ftl/src/main/resources/scripts
           
-          # Create the enhanced XML generator
-          echo "import os" > xml_generator.py
-          echo "import sys" >> xml_generator.py
-          echo "import json" >> xml_generator.py
-          echo "import requests" >> xml_generator.py
-          echo "from pathlib import Path" >> xml_generator.py
-          echo "import xml.etree.ElementTree as ET" >> xml_generator.py
-          echo "from xml.dom import minidom" >> xml_generator.py
-          echo "" >> xml_generator.py
-          echo "def test_server_connection():" >> xml_generator.py
-          echo "    \"\"\"Test if Spring Boot server is accessible\"\"\"" >> xml_generator.py
-          echo "    try:" >> xml_generator.py
-          echo "        # Try multiple endpoints" >> xml_generator.py
-          echo "        endpoints = ['/', '/actuator/health', '/error']" >> xml_generator.py
-          echo "        for endpoint in endpoints:" >> xml_generator.py
-          echo "            try:" >> xml_generator.py
-          echo "                response = requests.get(f'http://localhost:8080{endpoint}', timeout=5)" >> xml_generator.py
-          echo "                if response.status_code < 500:" >> xml_generator.py
-          echo "                    print(f'✅ Server accessible via {endpoint} (status: {response.status_code})')" >> xml_generator.py
-          echo "                    return True" >> xml_generator.py
-          echo "            except Exception as e:" >> xml_generator.py
-          echo "                print(f'❌ {endpoint} failed: {e}')" >> xml_generator.py
-          echo "        return False" >> xml_generator.py
-          echo "    except Exception as e:" >> xml_generator.py
-          echo "        print(f'❌ Server connection test failed: {e}')" >> xml_generator.py
-          echo "        return False" >> xml_generator.py
-          echo "" >> xml_generator.py
-          echo "def detect_forms():" >> xml_generator.py
-          echo "    \"\"\"Detect forms from available data\"\"\"" >> xml_generator.py
-          echo "    forms = ['aini']  # Default fallback" >> xml_generator.py
-          echo "    output_dir = Path('output')" >> xml_generator.py
-          echo "    if output_dir.exists():" >> xml_generator.py
-          echo "        for json_file in output_dir.glob('*.json'):" >> xml_generator.py
-          echo "            try:" >> xml_generator.py
-          echo "                with open(json_file, 'r', encoding='utf-8') as f:" >> xml_generator.py
-          echo "                    data = json.load(f)" >> xml_generator.py
-          echo "                if isinstance(data, dict) and data:" >> xml_generator.py
-          echo "                    if 'originalJson' in data:" >> xml_generator.py
-          echo "                        forms.extend(list(data['originalJson'].keys()))" >> xml_generator.py
-          echo "                    elif 'forms' in data:" >> xml_generator.py
-          echo "                        forms.extend(data['forms'])" >> xml_generator.py
-          echo "                    else:" >> xml_generator.py
-          echo "                        forms.extend(list(data.keys()))" >> xml_generator.py
-          echo "            except Exception as e:" >> xml_generator.py
-          echo "                print(f'Warning: Error reading {json_file}: {e}')" >> xml_generator.py
-          echo "    return list(set(forms))  # Remove duplicates" >> xml_generator.py
-          echo "" >> xml_generator.py
-          echo "def main():" >> xml_generator.py
-          echo "    print('🎯 Enhanced XML Generator Starting...')" >> xml_generator.py
-          echo "    " >> xml_generator.py
-          echo "    # Test server connection first" >> xml_generator.py
-          echo "    if test_server_connection():" >> xml_generator.py
-          echo "        print('✅ Server is accessible')" >> xml_generator.py
-          echo "    else:" >> xml_generator.py
-          echo "        print('⚠️ Server not accessible, proceeding with offline data')" >> xml_generator.py
-          echo "    " >> xml_generator.py
-          echo "    forms = detect_forms()" >> xml_generator.py
-          echo "    print(f'📋 Detected forms: {forms}')" >> xml_generator.py
-          echo "    " >> xml_generator.py
-          echo "    # Create output directory" >> xml_generator.py
-          echo "    demo_base = Path('.idea/demo')" >> xml_generator.py
-          echo "    demo_base.mkdir(parents=True, exist_ok=True)" >> xml_generator.py
-          echo "    " >> xml_generator.py
-          echo "    for form_id in forms:" >> xml_generator.py
-          echo "        form_dir = demo_base / form_id" >> xml_generator.py
-          echo "        form_dir.mkdir(parents=True, exist_ok=True)" >> xml_generator.py
-          echo "        " >> xml_generator.py
-          echo "        # Create enhanced XML with metadata" >> xml_generator.py
-          echo "        root = ET.Element('configuration')" >> xml_generator.py
-          echo "        root.set('type', 'SpringFTL')" >> xml_generator.py
-          echo "        root.set('formId', form_id)" >> xml_generator.py
-          echo "        root.set('version', '1.0')" >> xml_generator.py
-          echo "        " >> xml_generator.py
-          echo "        metadata = ET.SubElement(root, 'metadata')" >> xml_generator.py
-          echo "        ET.SubElement(metadata, 'generated-by').text = 'Spring FTL Enhanced XML Generator'" >> xml_generator.py
-          echo "        ET.SubElement(metadata, 'form-id').text = form_id" >> xml_generator.py
-          echo "        ET.SubElement(metadata, 'timestamp').text = str(int(__import__('time').time()))" >> xml_generator.py
-          echo "        " >> xml_generator.py
-          echo "        # Add data sources section" >> xml_generator.py
-          echo "        sources = ET.SubElement(root, 'data-sources')" >> xml_generator.py
-          echo "        ET.SubElement(sources, 'server-accessible').text = str(test_server_connection()).lower()" >> xml_generator.py
-          echo "        " >> xml_generator.py
-          echo "        # Format and save" >> xml_generator.py
-          echo "        rough_string = ET.tostring(root, 'utf-8')" >> xml_generator.py
-          echo "        reparsed = minidom.parseString(rough_string)" >> xml_generator.py
-          echo "        pretty_xml = reparsed.toprettyxml(indent='  ')" >> xml_generator.py
-          echo "        " >> xml_generator.py
-          echo "        xml_file = form_dir / f'{form_id}.xml'" >> xml_generator.py
-          echo "        with open(xml_file, 'w', encoding='utf-8') as f:" >> xml_generator.py
-          echo "            f.write(pretty_xml)" >> xml_generator.py
-          echo "        print(f'✅ Generated {xml_file}')" >> xml_generator.py
-          echo "    " >> xml_generator.py
-          echo "    print(f'🎉 XML generation complete! Generated {len(forms)} files.')" >> xml_generator.py
-          echo "    return 0" >> xml_generator.py
-          echo "" >> xml_generator.py
-          echo "if __name__ == '__main__':" >> xml_generator.py
-          echo "    sys.exit(main())" >> xml_generator.py
+          # Create the enhanced XML generator using a more reliable method
+          cat > xml_generator.py << 'PYTHON_EOF'
+          import os
+          import sys
+          import json
+          import requests
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          from xml.dom import minidom
+          
+          def test_server_connection():
+              """Test if Spring Boot server is accessible"""
+              try:
+                  # Try multiple endpoints
+                  endpoints = ['/', '/actuator/health', '/error']
+                  for endpoint in endpoints:
+                      try:
+                          response = requests.get(f'http://localhost:8080{endpoint}', timeout=5)
+                          if response.status_code < 500:
+                              print(f'✅ Server accessible via {endpoint} (status: {response.status_code})')
+                              return True
+                      except Exception as e:
+                          print(f'❌ {endpoint} failed: {e}')
+                  return False
+              except Exception as e:
+                  print(f'❌ Server connection test failed: {e}')
+                  return False
+          
+          def detect_forms():
+              """Detect forms from available data"""
+              forms = ['aini']  # Default fallback
+              output_dir = Path('output')
+              if output_dir.exists():
+                  for json_file in output_dir.glob('*.json'):
+                      try:
+                          with open(json_file, 'r', encoding='utf-8') as f:
+                              data = json.load(f)
+                          if isinstance(data, dict) and data:
+                              if 'originalJson' in data:
+                                  forms.extend(list(data['originalJson'].keys()))
+                              elif 'forms' in data:
+                                  forms.extend(data['forms'])
+                              else:
+                                  forms.extend(list(data.keys()))
+                      except Exception as e:
+                          print(f'Warning: Error reading {json_file}: {e}')
+              return list(set(forms))  # Remove duplicates
+          
+          def main():
+              print('🎯 Enhanced XML Generator Starting...')
+              
+              # Test server connection first
+              if test_server_connection():
+                  print('✅ Server is accessible')
+              else:
+                  print('⚠️ Server not accessible, proceeding with offline data')
+              
+              forms = detect_forms()
+              print(f'📋 Detected forms: {forms}')
+              
+              # Create output directory
+              demo_base = Path('.idea/demo')
+              demo_base.mkdir(parents=True, exist_ok=True)
+              
+              for form_id in forms:
+                  form_dir = demo_base / form_id
+                  form_dir.mkdir(parents=True, exist_ok=True)
+                  
+                  # Create enhanced XML with metadata
+                  root = ET.Element('configuration')
+                  root.set('type', 'SpringFTL')
+                  root.set('formId', form_id)
+                  root.set('version', '1.0')
+                  
+                  metadata = ET.SubElement(root, 'metadata')
+                  ET.SubElement(metadata, 'generated-by').text = 'Spring FTL Enhanced XML Generator'
+                  ET.SubElement(metadata, 'form-id').text = form_id
+                  ET.SubElement(metadata, 'timestamp').text = str(int(__import__('time').time()))
+                  
+                  # Add data sources section
+                  sources = ET.SubElement(root, 'data-sources')
+                  ET.SubElement(sources, 'server-accessible').text = str(test_server_connection()).lower()
+                  
+                  # Format and save
+                  rough_string = ET.tostring(root, 'utf-8')
+                  reparsed = minidom.parseString(rough_string)
+                  pretty_xml = reparsed.toprettyxml(indent='  ')
+                  
+                  xml_file = form_dir / f'{form_id}.xml'
+                  with open(xml_file, 'w', encoding='utf-8') as f:
+                      f.write(pretty_xml)
+                  print(f'✅ Generated {xml_file}')
+              
+              print(f'🎉 XML generation complete! Generated {len(forms)} files.')
+              return 0
+          
+          if __name__ == '__main__':
+              sys.exit(main())
+          PYTHON_EOF
           
           echo "✅ Enhanced XML generator created"
           cd ../../../..
@@ -570,203 +572,206 @@ jobs:
         run: |
           cd spring-ftl/src/main/resources/scripts
           
-          echo "# Enhanced API GUI Runner with endpoint discovery" > api_gui_runner.py
-          echo "import tkinter as tk" >> api_gui_runner.py
-          echo "from tkinter import filedialog, messagebox, scrolledtext" >> api_gui_runner.py
-          echo "import requests" >> api_gui_runner.py
-          echo "import os" >> api_gui_runner.py
-          echo "import sys" >> api_gui_runner.py
-          echo "import json" >> api_gui_runner.py
-          echo "import threading" >> api_gui_runner.py
-          echo "" >> api_gui_runner.py
-          echo "class APITester:" >> api_gui_runner.py
-          echo "    def __init__(self):" >> api_gui_runner.py
-          echo "        self.base_url = 'http://localhost:8080'" >> api_gui_runner.py
-          echo "        self.discovered_endpoints = []" >> api_gui_runner.py
-          echo "        self.results = {}" >> api_gui_runner.py
-          echo "" >> api_gui_runner.py
-          echo "    def discover_endpoints(self):" >> api_gui_runner.py
-          echo "        \"\"\"Discover available endpoints\"\"\"" >> api_gui_runner.py
-          echo "        test_endpoints = [" >> api_gui_runner.py
-          echo "            {'path': '/', 'method': 'GET', 'name': 'root'}," >> api_gui_runner.py
-          echo "            {'path': '/actuator/health', 'method': 'GET', 'name': 'health'}," >> api_gui_runner.py
-          echo "            {'path': '/actuator/info', 'method': 'GET', 'name': 'info'}," >> api_gui_runner.py
-          echo "            {'path': '/api', 'method': 'GET', 'name': 'api_root'}," >> api_gui_runner.py
-          echo "            {'path': '/api/analyze', 'method': 'GET', 'name': 'analyze'}," >> api_gui_runner.py
-          echo "            {'path': '/api/parser/fromCode', 'method': 'POST', 'name': 'parser_fromcode', 'content_type': 'text/plain'}," >> api_gui_runner.py
-          echo "            {'path': '/error', 'method': 'GET', 'name': 'error'}" >> api_gui_runner.py
-          echo "        ]" >> api_gui_runner.py
-          echo "        " >> api_gui_runner.py
-          echo "        self.discovered_endpoints = []" >> api_gui_runner.py
-          echo "        for endpoint in test_endpoints:" >> api_gui_runner.py
-          echo "            try:" >> api_gui_runner.py
-          echo "                url = f\"{self.base_url}{endpoint['path']}\"" >> api_gui_runner.py
-          echo "                if endpoint['method'] == 'GET':" >> api_gui_runner.py
-          echo "                    response = requests.get(url, timeout=5)" >> api_gui_runner.py
-          echo "                else:" >> api_gui_runner.py
-          echo "                    response = requests.post(url, data='test', timeout=5)" >> api_gui_runner.py
-          echo "                " >> api_gui_runner.py
-          echo "                endpoint['status'] = response.status_code" >> api_gui_runner.py
-          echo "                endpoint['accessible'] = response.status_code < 500" >> api_gui_runner.py
-          echo "                endpoint['response_preview'] = response.text[:200] if response.text else 'Empty'" >> api_gui_runner.py
-          echo "                self.discovered_endpoints.append(endpoint)" >> api_gui_runner.py
-          echo "            except Exception as e:" >> api_gui_runner.py
-          echo "                endpoint['status'] = 'ERROR'" >> api_gui_runner.py
-          echo "                endpoint['accessible'] = False" >> api_gui_runner.py
-          echo "                endpoint['error'] = str(e)" >> api_gui_runner.py
-          echo "                self.discovered_endpoints.append(endpoint)" >> api_gui_runner.py
-          echo "        " >> api_gui_runner.py
-          echo "        return self.discovered_endpoints" >> api_gui_runner.py
-          echo "" >> api_gui_runner.py
-          echo "    def test_with_java_file(self, java_file_path, progress_callback=None):" >> api_gui_runner.py
-          echo "        \"\"\"Test endpoints with actual Java file\"\"\"" >> api_gui_runner.py
-          echo "        os.makedirs('output', exist_ok=True)" >> api_gui_runner.py
-          echo "        " >> api_gui_runner.py
-          echo "        # Read Java file" >> api_gui_runner.py
-          echo "        try:" >> api_gui_runner.py
-          echo "            with open(java_file_path, 'r', encoding='utf-8') as f:" >> api_gui_runner.py
-          echo "                java_code = f.read()" >> api_gui_runner.py
-          echo "        except Exception as e:" >> api_gui_runner.py
-          echo "            return {'error': f'Could not read Java file: {e}'}" >> api_gui_runner.py
-          echo "        " >> api_gui_runner.py
-          echo "        results = {}" >> api_gui_runner.py
-          echo "        for i, endpoint in enumerate(self.discovered_endpoints):" >> api_gui_runner.py
-          echo "            if not endpoint.get('accessible', False):" >> api_gui_runner.py
-          echo "                continue" >> api_gui_runner.py
-          echo "            " >> api_gui_runner.py
-          echo "            if progress_callback:" >> api_gui_runner.py
-          echo "                progress_callback(f\"Testing {endpoint['name']}...\")" >> api_gui_runner.py
-          echo "            " >> api_gui_runner.py
-          echo "            try:" >> api_gui_runner.py
-          echo "                url = f\"{self.base_url}{endpoint['path']}\"" >> api_gui_runner.py
-          echo "                " >> api_gui_runner.py
-          echo "                if endpoint['method'] == 'GET':" >> api_gui_runner.py
-          echo "                    response = requests.get(url, timeout=10)" >> api_gui_runner.py
-          echo "                elif endpoint['method'] == 'POST' and endpoint.get('content_type') == 'text/plain':" >> api_gui_runner.py
-          echo "                    response = requests.post(url, data=java_code, headers={'Content-Type': 'text/plain'}, timeout=10)" >> api_gui_runner.py
-          echo "                else:" >> api_gui_runner.py
-          echo "                    response = requests.post(url, json={'code': java_code}, timeout=10)" >> api_gui_runner.py
-          echo "                " >> api_gui_runner.py
-          echo "                # Save response" >> api_gui_runner.py
-          echo "                output_file = f\"output/{endpoint['name']}_response.json\"" >> api_gui_runner.py
-          echo "                with open(output_file, 'w', encoding='utf-8') as f:" >> api_gui_runner.py
-          echo "                    f.write(response.text)" >> api_gui_runner.py
-          echo "                " >> api_gui_runner.py
-          echo "                results[endpoint['name']] = {" >> api_gui_runner.py
-          echo "                    'status': response.status_code," >> api_gui_runner.py
-          echo "                    'success': response.status_code < 400," >> api_gui_runner.py
-          echo "                    'output_file': output_file," >> api_gui_runner.py
-          echo "                    'response_size': len(response.text)" >> api_gui_runner.py
-          echo "                }" >> api_gui_runner.py
-          echo "            except Exception as e:" >> api_gui_runner.py
-          echo "                results[endpoint['name']] = {" >> api_gui_runner.py
-          echo "                    'status': 'ERROR'," >> api_gui_runner.py
-          echo "                    'success': False," >> api_gui_runner.py
-          echo "                    'error': str(e)" >> api_gui_runner.py
-          echo "                }" >> api_gui_runner.py
-          echo "        " >> api_gui_runner.py
-          echo "        self.results = results" >> api_gui_runner.py
-          echo "        return results" >> api_gui_runner.py
-          echo "" >> api_gui_runner.py
-          echo "def create_gui():" >> api_gui_runner.py
-          echo "    \"\"\"Create enhanced GUI with discovery and testing\"\"\"" >> api_gui_runner.py
-          echo "    root = tk.Tk()" >> api_gui_runner.py
-          echo "    root.title('Spring FTL API Tester')" >> api_gui_runner.py
-          echo "    root.geometry('800x600')" >> api_gui_runner.py
-          echo "    " >> api_gui_runner.py
-          echo "    tester = APITester()" >> api_gui_runner.py
-          echo "    " >> api_gui_runner.py
-          echo "    # Create main frame" >> api_gui_runner.py
-          echo "    main_frame = tk.Frame(root)" >> api_gui_runner.py
-          echo "    main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)" >> api_gui_runner.py
-          echo "    " >> api_gui_runner.py
-          echo "    # Title" >> api_gui_runner.py
-          echo "    title_label = tk.Label(main_frame, text='Spring FTL API Tester', font=('Arial', 16, 'bold'))" >> api_gui_runner.py
-          echo "    title_label.pack(pady=(0, 10))" >> api_gui_runner.py
-          echo "    " >> api_gui_runner.py
-          echo "    # Output text area" >> api_gui_runner.py
-          echo "    output_frame = tk.Frame(main_frame)" >> api_gui_runner.py
-          echo "    output_frame.pack(fill=tk.BOTH, expand=True)" >> api_gui_runner.py
-          echo "    " >> api_gui_runner.py
-          echo "    output_text = scrolledtext.ScrolledText(output_frame, height=20, width=80)" >> api_gui_runner.py
-          echo "    output_text.pack(fill=tk.BOTH, expand=True)" >> api_gui_runner.py
-          echo "    " >> api_gui_runner.py
-          echo "    def log_message(message):" >> api_gui_runner.py
-          echo "        output_text.insert(tk.END, message + '\\n')" >> api_gui_runner.py
-          echo "        output_text.see(tk.END)" >> api_gui_runner.py
-          echo "        root.update()" >> api_gui_runner.py
-          echo "    " >> api_gui_runner.py
-          echo "    # Button frame" >> api_gui_runner.py
-          echo "    button_frame = tk.Frame(main_frame)" >> api_gui_runner.py
-          echo "    button_frame.pack(fill=tk.X, pady=(10, 0))" >> api_gui_runner.py
-          echo "    " >> api_gui_runner.py
-          echo "    def discover_endpoints():" >> api_gui_runner.py
-          echo "        log_message('🔍 Discovering endpoints...')" >> api_gui_runner.py
-          echo "        endpoints = tester.discover_endpoints()" >> api_gui_runner.py
-          echo "        log_message(f'Found {len(endpoints)} endpoints:')" >> api_gui_runner.py
-          echo "        for ep in endpoints:" >> api_gui_runner.py
-          echo "            status = '✅' if ep.get('accessible') else '❌'" >> api_gui_runner.py
-          echo "            log_message(f\"  {status} {ep['method']} {ep['path']} - Status: {ep.get('status', 'Unknown')}\")" >> api_gui_runner.py
-          echo "    " >> api_gui_runner.py
-          echo "    def test_with_file():" >> api_gui_runner.py
-          echo "        java_file = filedialog.askopenfilename(" >> api_gui_runner.py
-          echo "            title='Select Java file'," >> api_gui_runner.py
-          echo "            filetypes=[('Java files', '*.java'), ('All files', '*.*')]" >> api_gui_runner.py
-          echo "        )" >> api_gui_runner.py
-          echo "        if not java_file:" >> api_gui_runner.py
-          echo "            return" >> api_gui_runner.py
-          echo "        " >> api_gui_runner.py
-          echo "        log_message(f'📁 Selected file: {java_file}')" >> api_gui_runner.py
-          echo "        log_message('🧪 Testing endpoints...')" >> api_gui_runner.py
-          echo "        " >> api_gui_runner.py
-          echo "        def run_tests():" >> api_gui_runner.py
-          echo "            results = tester.test_with_java_file(java_file, log_message)" >> api_gui_runner.py
-          echo "            log_message('\\n📋 Results Summary:')" >> api_gui_runner.py
-          echo "            for name, result in results.items():" >> api_gui_runner.py
-          echo "                status = '✅' if result.get('success') else '❌'" >> api_gui_runner.py
-          echo "                log_message(f\"  {status} {name}: {result.get('status', 'Unknown')}\")" >> api_gui_runner.py
-          echo "                if 'output_file' in result:" >> api_gui_runner.py
-          echo "                    log_message(f\"    📄 Saved to: {result['output_file']}\")" >> api_gui_runner.py
-          echo "            log_message('\\n🎉 Testing complete!')" >> api_gui_runner.py
-          echo "        " >> api_gui_runner.py
-          echo "        threading.Thread(target=run_tests, daemon=True).start()" >> api_gui_runner.py
-          echo "    " >> api_gui_runner.py
-          echo "    # Buttons" >> api_gui_runner.py
-          echo "    discover_btn = tk.Button(button_frame, text='🔍 Discover Endpoints', command=discover_endpoints)" >> api_gui_runner.py
-          echo "    discover_btn.pack(side=tk.LEFT, padx=(0, 10))" >> api_gui_runner.py
-          echo "    " >> api_gui_runner.py
-          echo "    test_btn = tk.Button(button_frame, text='🧪 Test with Java File', command=test_with_file)" >> api_gui_runner.py
-          echo "    test_btn.pack(side=tk.LEFT, padx=(0, 10))" >> api_gui_runner.py
-          echo "    " >> api_gui_runner.py
-          echo "    clear_btn = tk.Button(button_frame, text='🗑️ Clear Output', command=lambda: output_text.delete(1.0, tk.END))" >> api_gui_runner.py
-          echo "    clear_btn.pack(side=tk.LEFT)" >> api_gui_runner.py
-          echo "    " >> api_gui_runner.py
-          echo "    # Initial message" >> api_gui_runner.py
-          echo "    log_message('🚀 Spring FTL API Tester Ready!')" >> api_gui_runner.py
-          echo "    log_message('1. Click \"Discover Endpoints\" to find available APIs')" >> api_gui_runner.py
-          echo "    log_message('2. Click \"Test with Java File\" to run tests')" >> api_gui_runner.py
-          echo "    log_message('3. Check the \"output/\" directory for results')" >> api_gui_runner.py
-          echo "    log_message('\\nMake sure Spring Boot server is running on http://localhost:8080')" >> api_gui_runner.py
-          echo "    " >> api_gui_runner.py
-          echo "    return root" >> api_gui_runner.py
-          echo "" >> api_gui_runner.py
-          echo "def main():" >> api_gui_runner.py
-          echo "    \"\"\"Main function - can run GUI or command line\"\"\"" >> api_gui_runner.py
-          echo "    if len(sys.argv) > 1 and sys.argv[1] == '--cli':" >> api_gui_runner.py
-          echo "        # Command line mode" >> api_gui_runner.py
-          echo "        tester = APITester()" >> api_gui_runner.py
-          echo "        print('🔍 Discovering endpoints...')" >> api_gui_runner.py
-          echo "        endpoints = tester.discover_endpoints()" >> api_gui_runner.py
-          echo "        for ep in endpoints:" >> api_gui_runner.py
-          echo "            status = '✅' if ep.get('accessible') else '❌'" >> api_gui_runner.py
-          echo "            print(f\"  {status} {ep['method']} {ep['path']} - Status: {ep.get('status', 'Unknown')}\")" >> api_gui_runner.py
-          echo "    else:" >> api_gui_runner.py
-          echo "        # GUI mode" >> api_gui_runner.py
-          echo "        root = create_gui()" >> api_gui_runner.py
-          echo "        root.mainloop()" >> api_gui_runner.py
-          echo "" >> api_gui_runner.py
-          echo "if __name__ == '__main__':" >> api_gui_runner.py
-          echo "    main()" >> api_gui_runner.py
+          # Create the enhanced API GUI Runner using a more reliable method
+          cat > api_gui_runner.py << 'PYTHON_EOF'
+          # Enhanced API GUI Runner with endpoint discovery
+          import tkinter as tk
+          from tkinter import filedialog, messagebox, scrolledtext
+          import requests
+          import os
+          import sys
+          import json
+          import threading
+          
+          class APITester:
+              def __init__(self):
+                  self.base_url = 'http://localhost:8080'
+                  self.discovered_endpoints = []
+                  self.results = {}
+          
+              def discover_endpoints(self):
+                  """Discover available endpoints"""
+                  test_endpoints = [
+                      {'path': '/', 'method': 'GET', 'name': 'root'},
+                      {'path': '/actuator/health', 'method': 'GET', 'name': 'health'},
+                      {'path': '/actuator/info', 'method': 'GET', 'name': 'info'},
+                      {'path': '/api', 'method': 'GET', 'name': 'api_root'},
+                      {'path': '/api/analyze', 'method': 'GET', 'name': 'analyze'},
+                      {'path': '/api/parser/fromCode', 'method': 'POST', 'name': 'parser_fromcode', 'content_type': 'text/plain'},
+                      {'path': '/error', 'method': 'GET', 'name': 'error'}
+                  ]
+                  
+                  self.discovered_endpoints = []
+                  for endpoint in test_endpoints:
+                      try:
+                          url = f"{self.base_url}{endpoint['path']}"
+                          if endpoint['method'] == 'GET':
+                              response = requests.get(url, timeout=5)
+                          else:
+                              response = requests.post(url, data='test', timeout=5)
+                          
+                          endpoint['status'] = response.status_code
+                          endpoint['accessible'] = response.status_code < 500
+                          endpoint['response_preview'] = response.text[:200] if response.text else 'Empty'
+                          self.discovered_endpoints.append(endpoint)
+                      except Exception as e:
+                          endpoint['status'] = 'ERROR'
+                          endpoint['accessible'] = False
+                          endpoint['error'] = str(e)
+                          self.discovered_endpoints.append(endpoint)
+                  
+                  return self.discovered_endpoints
+          
+              def test_with_java_file(self, java_file_path, progress_callback=None):
+                  """Test endpoints with actual Java file"""
+                  os.makedirs('output', exist_ok=True)
+                  
+                  # Read Java file
+                  try:
+                      with open(java_file_path, 'r', encoding='utf-8') as f:
+                          java_code = f.read()
+                  except Exception as e:
+                      return {'error': f'Could not read Java file: {e}'}
+                  
+                  results = {}
+                  for i, endpoint in enumerate(self.discovered_endpoints):
+                      if not endpoint.get('accessible', False):
+                          continue
+                      
+                      if progress_callback:
+                          progress_callback(f"Testing {endpoint['name']}...")
+                      
+                      try:
+                          url = f"{self.base_url}{endpoint['path']}"
+                          
+                          if endpoint['method'] == 'GET':
+                              response = requests.get(url, timeout=10)
+                          elif endpoint['method'] == 'POST' and endpoint.get('content_type') == 'text/plain':
+                              response = requests.post(url, data=java_code, headers={'Content-Type': 'text/plain'}, timeout=10)
+                          else:
+                              response = requests.post(url, json={'code': java_code}, timeout=10)
+                          
+                          # Save response
+                          output_file = f"output/{endpoint['name']}_response.json"
+                          with open(output_file, 'w', encoding='utf-8') as f:
+                              f.write(response.text)
+                          
+                          results[endpoint['name']] = {
+                              'status': response.status_code,
+                              'success': response.status_code < 400,
+                              'output_file': output_file,
+                              'response_size': len(response.text)
+                          }
+                      except Exception as e:
+                          results[endpoint['name']] = {
+                              'status': 'ERROR',
+                              'success': False,
+                              'error': str(e)
+                          }
+                  
+                  self.results = results
+                  return results
+          
+          def create_gui():
+              """Create enhanced GUI with discovery and testing"""
+              root = tk.Tk()
+              root.title('Spring FTL API Tester')
+              root.geometry('800x600')
+              
+              tester = APITester()
+              
+              # Create main frame
+              main_frame = tk.Frame(root)
+              main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+              
+              # Title
+              title_label = tk.Label(main_frame, text='Spring FTL API Tester', font=('Arial', 16, 'bold'))
+              title_label.pack(pady=(0, 10))
+              
+              # Output text area
+              output_frame = tk.Frame(main_frame)
+              output_frame.pack(fill=tk.BOTH, expand=True)
+              
+              output_text = scrolledtext.ScrolledText(output_frame, height=20, width=80)
+              output_text.pack(fill=tk.BOTH, expand=True)
+              
+              def log_message(message):
+                  output_text.insert(tk.END, message + '\n')
+                  output_text.see(tk.END)
+                  root.update()
+              
+              # Button frame
+              button_frame = tk.Frame(main_frame)
+              button_frame.pack(fill=tk.X, pady=(10, 0))
+              
+              def discover_endpoints():
+                  log_message('🔍 Discovering endpoints...')
+                  endpoints = tester.discover_endpoints()
+                  log_message(f'Found {len(endpoints)} endpoints:')
+                  for ep in endpoints:
+                      status = '✅' if ep.get('accessible') else '❌'
+                      log_message(f"  {status} {ep['method']} {ep['path']} - Status: {ep.get('status', 'Unknown')}")
+              
+              def test_with_file():
+                  java_file = filedialog.askopenfilename(
+                      title='Select Java file',
+                      filetypes=[('Java files', '*.java'), ('All files', '*.*')]
+                  )
+                  if not java_file:
+                      return
+                  
+                  log_message(f'📁 Selected file: {java_file}')
+                  log_message('🧪 Testing endpoints...')
+                  
+                  def run_tests():
+                      results = tester.test_with_java_file(java_file, log_message)
+                      log_message('\n📋 Results Summary:')
+                      for name, result in results.items():
+                          status = '✅' if result.get('success') else '❌'
+                          log_message(f"  {status} {name}: {result.get('status', 'Unknown')}")
+                          if 'output_file' in result:
+                              log_message(f"    📄 Saved to: {result['output_file']}")
+                      log_message('\n🎉 Testing complete!')
+                  
+                  threading.Thread(target=run_tests, daemon=True).start()
+              
+              # Buttons
+              discover_btn = tk.Button(button_frame, text='🔍 Discover Endpoints', command=discover_endpoints)
+              discover_btn.pack(side=tk.LEFT, padx=(0, 10))
+              
+              test_btn = tk.Button(button_frame, text='🧪 Test with Java File', command=test_with_file)
+              test_btn.pack(side=tk.LEFT, padx=(0, 10))
+              
+              clear_btn = tk.Button(button_frame, text='🗑️ Clear Output', command=lambda: output_text.delete(1.0, tk.END))
+              clear_btn.pack(side=tk.LEFT)
+              
+              # Initial message
+              log_message('🚀 Spring FTL API Tester Ready!')
+              log_message('1. Click "Discover Endpoints" to find available APIs')
+              log_message('2. Click "Test with Java File" to run tests')
+              log_message('3. Check the "output/" directory for results')
+              log_message('\nMake sure Spring Boot server is running on http://localhost:8080')
+              
+              return root
+          
+          def main():
+              """Main function - can run GUI or command line"""
+              if len(sys.argv) > 1 and sys.argv[1] == '--cli':
+                  # Command line mode
+                  tester = APITester()
+                  print('🔍 Discovering endpoints...')
+                  endpoints = tester.discover_endpoints()
+                  for ep in endpoints:
+                      status = '✅' if ep.get('accessible') else '❌'
+                      print(f"  {status} {ep['method']} {ep['path']} - Status: {ep.get('status', 'Unknown')}")
+              else:
+                  # GUI mode
+                  root = create_gui()
+                  root.mainloop()
+          
+          if __name__ == '__main__':
+              main()
+          PYTHON_EOF
 
       - name: 🔨 Build enhanced API GUI Runner executable
         run: |
