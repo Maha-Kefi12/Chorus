@@ -394,7 +394,19 @@ jobs:
           echo "    }," >> api_gui_runner.py
           echo "]" >> api_gui_runner.py
           echo "" >> api_gui_runner.py
+          echo "def check_server_running():" >> api_gui_runner.py
+          echo "    try:" >> api_gui_runner.py
+          echo "        response = requests.get('http://localhost:8080/api/analyze', timeout=5)" >> api_gui_runner.py
+          echo "        return True" >> api_gui_runner.py
+          echo "    except:" >> api_gui_runner.py
+          echo "        return False" >> api_gui_runner.py
+          echo "" >> api_gui_runner.py
           echo "def run_requests(java_file_path):" >> api_gui_runner.py
+          echo "    # Check if server is running first" >> api_gui_runner.py
+          echo "    if not check_server_running():" >> api_gui_runner.py
+          echo "        messagebox.showerror('Error', 'Spring Boot server is not running!\\n\\nPlease start the server first:\\n1. Run start-server.bat\\n2. Wait for server to start\\n3. Try again')" >> api_gui_runner.py
+          echo "        return" >> api_gui_runner.py
+          echo "    " >> api_gui_runner.py
           echo "    os.makedirs('output', exist_ok=True)" >> api_gui_runner.py
           echo "    # Try different encodings to handle various file formats" >> api_gui_runner.py
           echo "    encodings = ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']" >> api_gui_runner.py
@@ -433,10 +445,12 @@ jobs:
           echo "                out_f.write(resp.text)" >> api_gui_runner.py
           echo "            print('Successfully called ' + ep['name'] + ' endpoint')" >> api_gui_runner.py
           echo "        except Exception as e:" >> api_gui_runner.py
-          echo "            print('Failed on ' + ep['name'] + ': ' + str(e))" >> api_gui_runner.py
-          echo "            # Create empty file to avoid missing file errors" >> api_gui_runner.py
+          echo "            error_msg = 'Failed on ' + ep['name'] + ': ' + str(e)" >> api_gui_runner.py
+          echo "            print(error_msg)" >> api_gui_runner.py
+          echo "            # Create error file with details" >> api_gui_runner.py
           echo "            with open(ep['output'], 'w', encoding='utf-8') as out_f:" >> api_gui_runner.py
-          echo "                out_f.write('{}')" >> api_gui_runner.py
+          echo "                error_json = '{\"error\": \"' + ep['name'] + ' endpoint failed\", \"details\": \"' + str(e).replace('\"', '\\\\\"') + '\"}'" >> api_gui_runner.py
+          echo "                out_f.write(error_json)" >> api_gui_runner.py
           echo "" >> api_gui_runner.py
           echo "def create_sample_data():" >> api_gui_runner.py
           echo "    # Create sample data files if they don't exist" >> api_gui_runner.py
