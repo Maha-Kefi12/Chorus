@@ -444,7 +444,7 @@ jobs:
           echo "        except Exception as e:" >> api_gui_runner.py
           echo "            print('Failed on ' + ep['name'] + ': ' + str(e))" >> api_gui_runner.py
           echo "            with open(ep['output'], 'w', encoding='utf-8') as out_f:" >> api_gui_runner.py
-          echo "                out_f.write('{\"error\": \"endpoint failed\"}')" >> api_gui_runner.py
+          echo "                out_f.write('{}')" >> api_gui_runner.py
           echo "" >> api_gui_runner.py
           echo "def run_xml_generator():" >> api_gui_runner.py
           echo "    try:" >> api_gui_runner.py
