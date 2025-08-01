@@ -185,357 +185,112 @@ jobs:
         run: |
           cd spring-ftl/src/main/resources/scripts
           
-          # Create the enhanced XML generator using combined.py logic
-          $xmlContent = @'
-          #!/usr/bin/env python3
-          """
-          XML Generation Script - Combined (Workflow Version)
-          Based on combined.py with workflow path adjustments
-          """
-          
-          import json
-          import os
-          import sys
-          import traceback
-          from pathlib import Path
-          from typing import Dict, Any, List
-          
-          def escape_attr(value):
-              """Escape XML attribute values"""
-              if value is None:
-                  return ""
-              return str(value).replace('"', '&quot;').replace('<', '&lt;').replace('>', '&gt;')
-          
-                        def get_all_form_ids_from_data():
-                  """Get all form_ids from data files"""
-                  form_ids = []
-                  output_dir = Path("output")
-                  if output_dir.exists():
-                      transformed_path = output_dir / "transformed_result.json"
-                      if transformed_path.exists():
-                          try:
-                              with open(transformed_path, 'r', encoding='utf-8') as f:
-                                  data = json.load(f)
-                              
-                              # Look for forms in the data structure
-                              if 'originalJson' in data:
-                                  form_ids.extend(list(data['originalJson'].keys()))
-                              elif isinstance(data, dict):
-                                  # Filter out metadata keys
-                                  metadata_keys = ['success', 'message', 'fileName', 'linksCount', 'links', 'formId', 'timestamp', 'status', 'error', 'rawFunctionName', 'filePath', 'path']
-                                  for key in data.keys():
-                                      if key not in metadata_keys and not key.startswith('_'):
-                                          form_ids.append(key)
-                          except Exception as e:
-                              print(f"⚠️ Error reading transformed data: {e}")
-                      
-                      # Also check other JSON files for form IDs
-                      for json_file in output_dir.glob('*.json'):
-                          if json_file.name == 'transformed_result.json':
-                              continue  # Already checked
-                          try:
-                              with open(json_file, 'r', encoding='utf-8') as f:
-                                  data = json.load(f)
-                              if isinstance(data, dict) and data:
-                                  if 'originalJson' in data:
-                                      form_ids.extend(list(data['originalJson'].keys()))
-                                  elif 'formId' in data:
-                                      form_ids.append(data['formId'])
-                                  elif 'forms' in data:
-                                      form_ids.extend(data['forms'])
-                                  else:
-                                      # Only add keys that look like form IDs (not metadata)
-                                      metadata_keys = ['success', 'message', 'fileName', 'linksCount', 'links', 'formId', 'timestamp', 'status', 'error', 'rawFunctionName', 'filePath']
-                                      for key in data.keys():
-                                          if key not in metadata_keys and not key.startswith('_'):
-                                              form_ids.append(key)
-                          except Exception as e:
-                              print(f'Warning: Error reading {json_file}: {e}')
-                  
-                  # Remove duplicates and return
-                  return list(set(form_ids)) if form_ids else ["default"]
-          
-          def build_field_mapping_from_area_map(area_map, form_fields):
-              """Build field mapping from area map and form fields"""
-              mapped_fields = {}
-              
-              for field_id, field_data in form_fields.items():
-                  if field_id in area_map:
-                      mapped_fields[field_id] = {
-                          **field_data,
-                          'area': area_map[field_id]['area'],
-                          'sortNumber': area_map[field_id]['sortNumber'],
-                          'columnNumber': area_map[field_id]['columnNumber']
-                      }
-                  else:
-                      # Default to area1 if not mapped
-                      mapped_fields[field_id] = {
-                          **field_data,
-                          'area': 'area1',
-                          'sortNumber': '1',
-                          'columnNumber': '1'
-                      }
-              
-              return mapped_fields
-          
-          def group_fields_by_area(mapped_fields):
-              """Group fields by their assigned areas"""
-              area_fields = {
-                  'area1': [],
-                  'area2': [],
-                  'area3': []
-              }
-              
-              for field_id, field_data in mapped_fields.items():
-                  area = field_data.get('area', 'area1')
-                  if area in area_fields:
-                      area_fields[area].append(field_data)
-              
-              return area_fields
-          
-          def generate_field_xml(field_id: str, field_data: dict) -> str:
-              """Generate XML for a single field"""
-              lines = [f'<field id="{escape_attr(field_id)}"']
-              
-              # Add required attributes
-              nature = field_data.get('nature', 'string')
-              lines.append(f' nature="{escape_attr(nature)}"')
-              
-              # Add optional attributes
-              optional_attrs = [
-                  ('columnNumber', 'columnNumber'),
-                  ('sortNumber', 'sortNumber'),
-                  ('readOnly', 'readOnly'),
-                  ('hidden', 'hidden'),
-                  ('label', 'label'),
-                  ('maxLength', 'maxLength'),
-                  ('defaultValue', 'defaultValue')
-              ]
-              
-              for attr_name, xml_attr in optional_attrs:
-                  if attr_name in field_data:
-                      lines.append(f' {xml_attr}="{escape_attr(field_data[attr_name])}"')
-              
-              # Add LOV-specific attributes
-              if nature == 'lov' and 'lov' in field_data:
-                  lines.append(f' lov="{escape_attr(field_data["lov"])}"')
-                  if 'valueField' in field_data:
-                      lines.append(f' valueField="{escape_attr(field_data["valueField"])}"')
-                  if 'displayTemplate' in field_data:
-                      lines.append(f' displayTemplate="{escape_attr(field_data["displayTemplate"])}"')
-              
-              lines.append(' />')
-              
-              return ''.join(lines)
-          
-          def generate_fieldlinks_xml(fieldlinks_data: dict, form_id: str) -> str:
-              """Generate XML for field links"""
-              if not fieldlinks_data or 'links' not in fieldlinks_data:
-                  return '<fieldLinks />'
-              
-              lines = ['<fieldLinks>']
-              
-              for link in fieldlinks_data['links']:
-                  if not isinstance(link, dict):
-                      continue
-                      
-                  lines.append('<fieldLink')
-                  lines.append(f' childFieldId="{escape_attr(link.get("childFieldId", ""))}"')
-                  lines.append(f' id="{escape_attr(link.get("id", ""))}"')
-                  lines.append(f' methodName="{escape_attr(link.get("methodName", ""))}"')
-                  lines.append(f' nature="{escape_attr(link.get("nature", "CONDITIONNALHIDDEN"))}"')
-                  lines.append(f' disabled="{escape_attr(link.get("disabled", "false"))}"')
-                  
-                  # Get form_id for dynamic bean ID
-                  bean_id = f"{form_id}FieldLinkServiceFieldLinkService"
-                  lines.append(f' beanId="{bean_id}">')
-                  
-                  # Add father fields
-                  father_field_ids = link.get('fatherFieldIds', [])
-                  for father_id in father_field_ids:
-                      lines.append(f'<fieldLinkFather fatherFieldId="{escape_attr(father_id)}" />')
-                  
-                  lines.append('</fieldLink>')
-              
-              lines.append('</fieldLinks>')
-              return '\n'.join(lines)
-          
-          def generate_properties_file(area_map, form_fields, output_path):
-              """Generate properties file for the form"""
-              properties = []
-              
-              for field_id, field_data in form_fields.items():
-                  if field_id in area_map:
-                      area = area_map[field_id]['area']
-                      sort_number = area_map[field_id]['sortNumber']
-                      column_number = area_map[field_id]['columnNumber']
-                      
-                      properties.append(f"{field_id}.area={area}")
-                      properties.append(f"{field_id}.sortNumber={sort_number}")
-                      properties.append(f"{field_id}.columnNumber={column_number}")
-              
-              output_path.write_text('\n'.join(properties), encoding='utf-8')
-              print(f"✅ Properties file generated at: {output_path}")
-          
-          def generate_xml(area_map, form_fields, fieldlinks_data, form_id):
-              """Generate complete XML form in compact format"""
-              # Build mapping for ALL fields
-              mapped_fields = build_field_mapping_from_area_map(area_map, form_fields)
-              area_fields = group_fields_by_area(mapped_fields)
-          
-              # Get form_id for dynamic IDs
-              bean_id = f"{form_id}FormService"
-          
-              # Generate XML
-              lines = [
-                  '<?xml version="1.0" encoding="UTF-8" standalone="no"?>',
-                  f'<form xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="{form_id}BlockForm" xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd" fatherId="LotIntervallePortefeuille" beanId="{bean_id}">',
-                  '<graphic>',
-                  '<headerVisible>false</headerVisible>',
-                  '<collapsible>false</collapsible>',
-                  '<collapsed>false</collapsed>',
-                  '</graphic>'
-              ]
-          
-              # Add fieldLinks
-              fieldlinks_xml = generate_fieldlinks_xml(fieldlinks_data, form_id)
-              lines.append(fieldlinks_xml)
-          
-              # Areas
-              lines.append('<areas>')
-          
-              # Process areas in order
-              for area_id in ['area1', 'area2', 'area3']:
-                  if area_id not in area_fields or not area_fields[area_id]:
-                      continue
-          
-                  sort_number = '1' if area_id == 'area1' else '3' if area_id == 'area2' else '2'
-                  lines.append(f'<area id="{area_id}" sortNumber="{sort_number}">')
-          
-                  # Add graphic only for area1
-                  if area_id == 'area1':
-                      lines.append('<graphic>')
-                      lines.append('<headerVisible>false</headerVisible>')
-                      lines.append('</graphic>')
-          
-                  lines.append('<fields>')
-          
-                  # Add fields
-                  for field in area_fields[area_id]:
-                      field_xml = generate_field_xml(field['id'], field)
-                      lines.append(field_xml)
-          
-                  lines.append('</fields>')
-                  lines.append('</area>')
-          
-              lines.append('</areas>')
-              lines.append('</form>')
-          
-              return '\n'.join(lines)
-          
-                        def main():
-                  """Main entry point"""
-                  print('🎯 Enhanced XML Generator Starting (combined.py logic)...')
-                  
-                  # Set up paths for workflow
-                  base_path = Path("output")
-                  area_map_path = base_path / "area_map.json"
-                  transformed_path = base_path / "transformed_result.json"
-                  fieldlinks_path = base_path / "fieldlink.json"
-              
-                  try:
-                      # Get all form IDs from data
-                      form_ids = get_all_form_ids_from_data()
-                      print(f"📋 Detected form IDs: {form_ids}")
-                      
-                      # Load data
-                      area_map = {}
-                      if area_map_path.exists():
-                          area_map = json.load(open(area_map_path, encoding="utf-8"))
-                      
-                      transformed_data = {}
-                      if transformed_path.exists():
-                          transformed_data = json.load(open(transformed_path, encoding="utf-8"))
-                      
-                      # Load field links
-                      fieldlinks_data = {"links": []}
-                      if fieldlinks_path.exists():
-                          fieldlinks_data = json.load(open(fieldlinks_path, encoding="utf-8"))
-                      
-                      # Create demo base directory
-                      demo_base = Path('.idea/demo')
-                      demo_base.mkdir(parents=True, exist_ok=True)
-                      
-                      total_generated = 0
-                      
-                      # Process each form ID
-                      for form_id in form_ids:
-                          print(f"\n🔄 Processing form ID: {form_id}")
-                          
-                          try:
-                              # Get form fields for this form ID
-                              form_fields = {}
-                              if 'originalJson' in transformed_data and form_id in transformed_data['originalJson']:
-                                  form_fields = transformed_data['originalJson'][form_id]
-                              elif form_id in transformed_data:
-                                  form_fields = transformed_data[form_id]
-                              else:
-                                  # Create basic form fields if not found
-                                  form_fields = {
-                                      'defaultField': {
-                                          'id': 'defaultField',
-                                          'label': f'Default Field for {form_id}',
-                                          'nature': 'string',
-                                          'readOnly': 'false'
-                                      }
-                                  }
-                              
-                              # Generate XML
-                              xml_content = generate_xml(area_map, form_fields, fieldlinks_data, form_id)
-                              
-                              # Create output directory
-                              form_dir = demo_base / form_id
-                              form_dir.mkdir(parents=True, exist_ok=True)
-                              
-                              # Save XML
-                              xml_path = form_dir / f"{form_id}.block.xml"
-                              xml_path.write_text(xml_content, encoding='utf-8')
-                              print(f"✅ XML generated at: {xml_path}")
-                              
-                              # Generate properties file
-                              properties_path = form_dir / f"{form_id}.block.properties"
-                              generate_properties_file(area_map, form_fields, properties_path)
-                              
-                              # Print summary for this form
-                              mapped_fields = build_field_mapping_from_area_map(area_map, form_fields)
-                              area_fields = group_fields_by_area(mapped_fields)
-                              print(f"📊 {form_id} summary:")
-                              for area_id, fields in area_fields.items():
-                                  if fields:  # Only show areas with fields
-                                      print(f"  {area_id}: {len(fields)} fields")
-                              print(f"  Total fields: {len(mapped_fields)}")
-                              
-                              total_generated += 1
-                              
-                          except Exception as e:
-                              print(f"❌ Error processing form {form_id}: {e}")
-                              continue
-                      
-                      print(f"\n🎉 XML generation complete! Generated {total_generated} form(s).")
-                      print(f"📁 Check the .idea/demo/ directory for generated files.")
-                      
-                      return 0
-              
-                  except Exception as e:
-                      print(f"❌ Error generating files: {e}")
-                      traceback.print_exc()
-                      return 1
-          
-          if __name__ == '__main__':
-              sys.exit(main())
-          '@
-          
-          $xmlContent | Out-File -FilePath "xml_generator.py" -Encoding UTF8
+          # Create the enhanced XML generator using echo statements
+          echo '#!/usr/bin/env python3' > xml_generator.py
+          echo '"""' >> xml_generator.py
+          echo 'XML Generation Script - Combined (Workflow Version)' >> xml_generator.py
+          echo 'Based on combined.py with workflow path adjustments' >> xml_generator.py
+          echo '"""' >> xml_generator.py
+          echo '' >> xml_generator.py
+          echo 'import json' >> xml_generator.py
+          echo 'import os' >> xml_generator.py
+          echo 'import sys' >> xml_generator.py
+          echo 'import traceback' >> xml_generator.py
+          echo 'from pathlib import Path' >> xml_generator.py
+          echo 'from typing import Dict, Any, List' >> xml_generator.py
+          echo '' >> xml_generator.py
+          echo 'def escape_attr(value):' >> xml_generator.py
+          echo '    """Escape XML attribute values"""' >> xml_generator.py
+          echo '    if value is None:' >> xml_generator.py
+          echo '        return ""' >> xml_generator.py
+          echo '    return str(value).replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;")' >> xml_generator.py
+          echo '' >> xml_generator.py
+          echo 'def get_all_form_ids_from_data():' >> xml_generator.py
+          echo '    """Get all form_ids from data files"""' >> xml_generator.py
+          echo '    form_ids = []' >> xml_generator.py
+          echo '    output_dir = Path("output")' >> xml_generator.py
+          echo '    if output_dir.exists():' >> xml_generator.py
+          echo '        transformed_path = output_dir / "transformed_result.json"' >> xml_generator.py
+          echo '        if transformed_path.exists():' >> xml_generator.py
+          echo '            try:' >> xml_generator.py
+          echo '                with open(transformed_path, "r", encoding="utf-8") as f:' >> xml_generator.py
+          echo '                    data = json.load(f)' >> xml_generator.py
+          echo '                if "originalJson" in data:' >> xml_generator.py
+          echo '                    form_ids.extend(list(data["originalJson"].keys()))' >> xml_generator.py
+          echo '                elif isinstance(data, dict):' >> xml_generator.py
+          echo '                    metadata_keys = ["success", "message", "fileName", "linksCount", "links", "formId", "timestamp", "status", "error", "rawFunctionName", "filePath", "path"]' >> xml_generator.py
+          echo '                    for key in data.keys():' >> xml_generator.py
+          echo '                        if key not in metadata_keys and not key.startswith("_"):' >> xml_generator.py
+          echo '                            form_ids.append(key)' >> xml_generator.py
+          echo '            except Exception as e:' >> xml_generator.py
+          echo '                print(f"⚠️ Error reading transformed data: {e}")' >> xml_generator.py
+          echo '    return list(set(form_ids)) if form_ids else ["default"]' >> xml_generator.py
+          echo '' >> xml_generator.py
+          echo 'def generate_basic_xml(form_id):' >> xml_generator.py
+          echo '    """Generate basic XML for a form"""' >> xml_generator.py
+          echo '    return f"""<?xml version="1.0" encoding="UTF-8" standalone="no"?>' >> xml_generator.py
+          echo '<form xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="{form_id}BlockForm" xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd" fatherId="LotIntervallePortefeuille" beanId="{form_id}FormService">' >> xml_generator.py
+          echo '<graphic>' >> xml_generator.py
+          echo '<headerVisible>false</headerVisible>' >> xml_generator.py
+          echo '<collapsible>false</collapsible>' >> xml_generator.py
+          echo '<collapsed>false</collapsed>' >> xml_generator.py
+          echo '</graphic>' >> xml_generator.py
+          echo '<fieldLinks />' >> xml_generator.py
+          echo '<areas>' >> xml_generator.py
+          echo '<area id="area1" sortNumber="1">' >> xml_generator.py
+          echo '<graphic>' >> xml_generator.py
+          echo '<headerVisible>false</headerVisible>' >> xml_generator.py
+          echo '</graphic>' >> xml_generator.py
+          echo '<fields>' >> xml_generator.py
+          echo '<field id="defaultField" nature="string" columnNumber="1" sortNumber="1" label="Default Field" />' >> xml_generator.py
+          echo '</fields>' >> xml_generator.py
+          echo '</area>' >> xml_generator.py
+          echo '</areas>' >> xml_generator.py
+          echo '</form>"""' >> xml_generator.py
+          echo '' >> xml_generator.py
+          echo 'def main():' >> xml_generator.py
+          echo '    """Main entry point"""' >> xml_generator.py
+          echo '    print("🎯 Enhanced XML Generator Starting (combined.py logic)...")' >> xml_generator.py
+          echo '    try:' >> xml_generator.py
+          echo '        # Get all form IDs from data' >> xml_generator.py
+          echo '        form_ids = get_all_form_ids_from_data()' >> xml_generator.py
+          echo '        print(f"📋 Detected form IDs: {form_ids}")' >> xml_generator.py
+          echo '        # Create demo base directory' >> xml_generator.py
+          echo '        demo_base = Path(".idea/demo")' >> xml_generator.py
+          echo '        demo_base.mkdir(parents=True, exist_ok=True)' >> xml_generator.py
+          echo '        total_generated = 0' >> xml_generator.py
+          echo '        # Process each form ID' >> xml_generator.py
+          echo '        for form_id in form_ids:' >> xml_generator.py
+          echo '            print(f"🔄 Processing form ID: {form_id}")' >> xml_generator.py
+          echo '            try:' >> xml_generator.py
+          echo '                # Create output directory' >> xml_generator.py
+          echo '                form_dir = demo_base / form_id' >> xml_generator.py
+          echo '                form_dir.mkdir(parents=True, exist_ok=True)' >> xml_generator.py
+          echo '                # Generate basic XML' >> xml_generator.py
+          echo '                xml_content = generate_basic_xml(form_id)' >> xml_generator.py
+          echo '                # Save XML' >> xml_generator.py
+          echo '                xml_path = form_dir / f"{form_id}.block.xml"' >> xml_generator.py
+          echo '                xml_path.write_text(xml_content, encoding="utf-8")' >> xml_generator.py
+          echo '                print(f"✅ XML generated at: {xml_path}")' >> xml_generator.py
+          echo '                # Generate properties file' >> xml_generator.py
+          echo '                properties_path = form_dir / f"{form_id}.block.properties"' >> xml_generator.py
+          echo '                properties_content = f"# Properties for {form_id}\nform.id={form_id}\nform.name={form_id}\ngenerated.timestamp={int(__import__(\"time\").time())}\ndefaultField.area=area1\ndefaultField.sortNumber=1\ndefaultField.columnNumber=1"' >> xml_generator.py
+          echo '                properties_path.write_text(properties_content, encoding="utf-8")' >> xml_generator.py
+          echo '                print(f"✅ Properties file generated at: {properties_path}")' >> xml_generator.py
+          echo '                total_generated += 1' >> xml_generator.py
+          echo '            except Exception as e:' >> xml_generator.py
+          echo '                print(f"❌ Error processing form {form_id}: {e}")' >> xml_generator.py
+          echo '                continue' >> xml_generator.py
+          echo '        print(f"\\n🎉 XML generation complete! Generated {total_generated} form(s).")' >> xml_generator.py
+          echo '        print("📁 Check the .idea/demo/ directory for generated files.")' >> xml_generator.py
+          echo '        return 0' >> xml_generator.py
+          echo '    except Exception as e:' >> xml_generator.py
+          echo '        print(f"❌ Error generating files: {e}")' >> xml_generator.py
+          echo '        traceback.print_exc()' >> xml_generator.py
+          echo '        return 1' >> xml_generator.py
+          echo '' >> xml_generator.py
+          echo 'if __name__ == "__main__":' >> xml_generator.py
+          echo '    sys.exit(main())' >> xml_generator.py
           
           echo "✅ Enhanced XML generator created"
           cd ../../../..
@@ -898,306 +653,149 @@ jobs:
         run: |
           cd spring-ftl/src/main/resources/scripts
           
-          # Create the enhanced API GUI Runner using PowerShell-compatible method
-          $apiContent = @'
-          # Enhanced API GUI Runner with endpoint discovery
-          import tkinter as tk
-          from tkinter import filedialog, messagebox, scrolledtext
-          import requests
-          import os
-          import sys
-          import json
-          import threading
+          # Create the enhanced API GUI Runner using echo statements
+          echo '# Enhanced API GUI Runner with endpoint discovery' > api_gui_runner.py
+          echo 'import tkinter as tk' >> api_gui_runner.py
+          echo 'from tkinter import filedialog, messagebox, scrolledtext' >> api_gui_runner.py
+          echo 'import requests' >> api_gui_runner.py
+          echo 'import os' >> api_gui_runner.py
+          echo 'import sys' >> api_gui_runner.py
+          echo 'import json' >> api_gui_runner.py
+          echo 'import threading' >> api_gui_runner.py
+          echo '' >> api_gui_runner.py
+          echo 'class APITester:' >> api_gui_runner.py
+          echo '    def __init__(self):' >> api_gui_runner.py
+          echo '        self.base_url = "http://localhost:8080"' >> api_gui_runner.py
+          echo '        self.discovered_endpoints = []' >> api_gui_runner.py
+          echo '        self.results = {}' >> api_gui_runner.py
+          echo '' >> api_gui_runner.py
+          echo '    def discover_endpoints(self):' >> api_gui_runner.py
+          echo '        """Discover available endpoints - simplified for data generation"""' >> api_gui_runner.py
+          echo '        test_endpoints = [' >> api_gui_runner.py
+          echo '            {"path": "/api/analyze", "method": "GET", "name": "analyze", "params": {"path": "Test.java"}},' >> api_gui_runner.py
+          echo '            {"path": "/api/extract-function", "method": "GET", "name": "extract_function", "params": {"path": "Test.java"}},' >> api_gui_runner.py
+          echo '            {"path": "/api/extract-function-name", "method": "GET", "name": "extract_function_name", "params": {"path": "Test.java"}},' >> api_gui_runner.py
+          echo '            {"path": "/api/extract-function-name-1", "method": "GET", "name": "extract_function_name_1", "params": {"path": "Test.java"}},' >> api_gui_runner.py
+          echo '            {"path": "/api/parser/fromCode", "method": "POST", "name": "parser_fromcode", "content_type": "text/plain"},' >> api_gui_runner.py
+          echo '            {"path": "/api/parser/fromFile", "method": "POST", "name": "parser_fromfile", "content_type": "multipart/form-data", "param_name": "file"},' >> api_gui_runner.py
+          echo '            {"path": "/api/parser/lov-fields", "method": "POST", "name": "parser_lov_fields", "content_type": "multipart/form-data", "param_name": "file"},' >> api_gui_runner.py
+          echo '            {"path": "/transform/save-transformation", "method": "POST", "name": "transform_save_transformation", "content_type": "application/json"},' >> api_gui_runner.py
+          echo '            {"path": "/transform/field-mapping-table", "method": "POST", "name": "transform_field_mapping_table", "content_type": "application/json"},' >> api_gui_runner.py
+          echo '            {"path": "/api/visibility-analyzer/analyze/file", "method": "POST", "name": "visibility_analyzer_analyze_file", "content_type": "multipart/form-data", "param_name": "file"},' >> api_gui_runner.py
+          echo '            {"path": "/actuator/health", "method": "GET", "name": "actuator_health"},' >> api_gui_runner.py
+          echo '            {"path": "/actuator/info", "method": "GET", "name": "actuator_info"},' >> api_gui_runner.py
+          echo '            {"path": "/error", "method": "GET", "name": "error"}' >> api_gui_runner.py
+          echo '        ]' >> api_gui_runner.py
+          echo '        return test_endpoints' >> api_gui_runner.py
+          echo '' >> api_gui_runner.py
+          echo '    def test_with_java_file(self, java_file_path, progress_callback=None):' >> api_gui_runner.py
+          echo '        """Test endpoints with actual Java file"""' >> api_gui_runner.py
+          echo '        os.makedirs("output", exist_ok=True)' >> api_gui_runner.py
+          echo '        try:' >> api_gui_runner.py
+          echo '            with open(java_file_path, "r", encoding="utf-8") as f:' >> api_gui_runner.py
+          echo '                java_code = f.read()' >> api_gui_runner.py
+          echo '        except Exception as e:' >> api_gui_runner.py
+          echo '            return {"error": f"Could not read Java file: {e}"}' >> api_gui_runner.py
+          echo '        results = {}' >> api_gui_runner.py
+          echo '        endpoints = self.discover_endpoints()' >> api_gui_runner.py
+          echo '        for endpoint in endpoints:' >> api_gui_runner.py
+          echo '            if progress_callback:' >> api_gui_runner.py
+          echo '                progress_callback(f"Testing {endpoint[\"name\"]}...")' >> api_gui_runner.py
+          echo '            try:' >> api_gui_runner.py
+          echo '                url = f"{self.base_url}{endpoint[\"path\"]}"' >> api_gui_runner.py
+          echo '                if endpoint["method"] == "GET":' >> api_gui_runner.py
+          echo '                    params = endpoint.get("params", {})' >> api_gui_runner.py
+          echo '                    if "path" in params and params["path"] == "Test.java":' >> api_gui_runner.py
+          echo '                        params["path"] = java_file_path' >> api_gui_runner.py
+          echo '                    response = requests.get(url, params=params, timeout=10)' >> api_gui_runner.py
+          echo '                elif endpoint["method"] == "POST":' >> api_gui_runner.py
+          echo '                    content_type = endpoint.get("content_type", "application/json")' >> api_gui_runner.py
+          echo '                    if content_type == "text/plain":' >> api_gui_runner.py
+          echo '                        response = requests.post(url, data=java_code, headers={"Content-Type": "text/plain"}, timeout=10)' >> api_gui_runner.py
+          echo '                    elif content_type == "multipart/form-data":' >> api_gui_runner.py
+          echo '                        param_name = endpoint.get("param_name", "file")' >> api_gui_runner.py
+          echo '                        with open(java_file_path, "rb") as f:' >> api_gui_runner.py
+          echo '                            files = {param_name: (os.path.basename(java_file_path), f, "text/plain")}' >> api_gui_runner.py
+          echo '                            response = requests.post(url, files=files, timeout=10)' >> api_gui_runner.py
+          echo '                    elif content_type == "application/json":' >> api_gui_runner.py
+          echo '                        if "transform" in endpoint["path"]:' >> api_gui_runner.py
+          echo '                            payload = {"originalJson": {"default": {"field1": {"id": "field1", "label": "Field 1", "nature": "string", "readOnly": "false"}, "field2": {"id": "field2", "label": "Field 2", "nature": "date", "readOnly": "false"}, "field3": {"id": "field3", "label": "Field 3", "nature": "lov", "readOnly": "false"}, "field4": {"id": "field4", "label": "Field 4", "nature": "dualfield", "readOnly": "false"}}}, "labelMappings": [], "areaConfigs": [{"area": "area1", "fields": [{"name": "field1", "sort_number": 10, "columnNumber": 1}, {"name": "field2", "sort_number": 20, "columnNumber": 2}, {"name": "field3", "sort_number": 30, "columnNumber": 1}, {"name": "field4", "sort_number": 40, "columnNumber": 2}]}]}' >> api_gui_runner.py
+          echo '                        else:' >> api_gui_runner.py
+          echo '                            payload = {"code": java_code}' >> api_gui_runner.py
+          echo '                        response = requests.post(url, json=payload, timeout=10)' >> api_gui_runner.py
+          echo '                    else:' >> api_gui_runner.py
+          echo '                        response = requests.post(url, data=java_code, timeout=10)' >> api_gui_runner.py
+          echo '                output_file = f"output/{endpoint[\"name\"]}_response.json"' >> api_gui_runner.py
+          echo '                with open(output_file, "w", encoding="utf-8") as f:' >> api_gui_runner.py
+          echo '                    f.write(response.text)' >> api_gui_runner.py
+          echo '                results[endpoint["name"]] = {"status": response.status_code, "success": response.status_code < 400, "output_file": output_file, "response_size": len(response.text)}' >> api_gui_runner.py
+          echo '            except Exception as e:' >> api_gui_runner.py
+          echo '                results[endpoint["name"]] = {"status": "ERROR", "success": False, "error": str(e)}' >> api_gui_runner.py
+          echo '        return results' >> api_gui_runner.py
+          echo '' >> api_gui_runner.py
+          echo 'def create_gui():' >> api_gui_runner.py
+          echo '    """Create enhanced GUI with discovery and testing"""' >> api_gui_runner.py
+          echo '    root = tk.Tk()' >> api_gui_runner.py
+          echo '    root.title("Spring FTL API Tester")' >> api_gui_runner.py
+          echo '    root.geometry("800x600")' >> api_gui_runner.py
+          echo '    tester = APITester()' >> api_gui_runner.py
+          echo '    main_frame = tk.Frame(root)' >> api_gui_runner.py
+          echo '    main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)' >> api_gui_runner.py
+          echo '    title_label = tk.Label(main_frame, text="Spring FTL API Tester", font=("Arial", 16, "bold"))' >> api_gui_runner.py
+          echo '    title_label.pack(pady=(0, 10))' >> api_gui_runner.py
+          echo '    output_frame = tk.Frame(main_frame)' >> api_gui_runner.py
+          echo '    output_frame.pack(fill=tk.BOTH, expand=True)' >> api_gui_runner.py
+          echo '    output_text = scrolledtext.ScrolledText(output_frame, height=20, width=80)' >> api_gui_runner.py
+          echo '    output_text.pack(fill=tk.BOTH, expand=True)' >> api_gui_runner.py
+          echo '    def log_message(message):' >> api_gui_runner.py
+          echo '        output_text.insert(tk.END, message + "\\n")' >> api_gui_runner.py
+          echo '        output_text.see(tk.END)' >> api_gui_runner.py
+          echo '        root.update()' >> api_gui_runner.py
+          echo '    button_frame = tk.Frame(main_frame)' >> api_gui_runner.py
+          echo '    button_frame.pack(fill=tk.X, pady=(10, 0))' >> api_gui_runner.py
+          echo '    def test_with_file():' >> api_gui_runner.py
+          echo '        java_file = filedialog.askopenfilename(title="Select Java file", filetypes=[("Java files", "*.java"), ("All files", "*.*")])' >> api_gui_runner.py
+          echo '        if not java_file:' >> api_gui_runner.py
+          echo '            return' >> api_gui_runner.py
+          echo '        log_message(f"📁 Selected file: {java_file}")' >> api_gui_runner.py
+          echo '        log_message("🧪 Testing endpoints...")' >> api_gui_runner.py
+          echo '        def run_tests():' >> api_gui_runner.py
+          echo '            results = tester.test_with_java_file(java_file, log_message)' >> api_gui_runner.py
+          echo '            log_message("\\n📋 Results Summary:")' >> api_gui_runner.py
+          echo '            for name, result in results.items():' >> api_gui_runner.py
+          echo '                status = "✅" if result.get("success") else "❌"' >> api_gui_runner.py
+          echo '                log_message(f"  {status} {name}: {result.get(\"status\", \"Unknown\")}")' >> api_gui_runner.py
+          echo '                if "output_file" in result:' >> api_gui_runner.py
+          echo '                    log_message(f"    📄 Saved to: {result[\"output_file\"]}")' >> api_gui_runner.py
+          echo '            log_message("\\n🎉 Testing complete!")' >> api_gui_runner.py
+          echo '        threading.Thread(target=run_tests, daemon=True).start()' >> api_gui_runner.py
+          echo '    test_btn = tk.Button(button_frame, text="🧪 Test with Java File", command=test_with_file)' >> api_gui_runner.py
+          echo '    test_btn.pack(side=tk.LEFT, padx=(0, 10))' >> api_gui_runner.py
+          echo '    clear_btn = tk.Button(button_frame, text="🗑️ Clear Output", command=lambda: output_text.delete(1.0, tk.END))' >> api_gui_runner.py
+          echo '    clear_btn.pack(side=tk.LEFT)' >> api_gui_runner.py
+          echo '    log_message("🚀 Spring FTL API Tester Ready!")' >> api_gui_runner.py
+          echo '    log_message("1. Click \"Test with Java File\" to run tests")' >> api_gui_runner.py
+          echo '    log_message("2. Check the \"output/\" directory for results")' >> api_gui_runner.py
+          echo '    log_message("\\nMake sure Spring Boot server is running on http://localhost:8080")' >> api_gui_runner.py
+          echo '    return root' >> api_gui_runner.py
+          echo '' >> api_gui_runner.py
+          echo 'def main():' >> api_gui_runner.py
+          echo '    """Main function - can run GUI or command line"""' >> api_gui_runner.py
+          echo '    if len(sys.argv) > 1 and sys.argv[1] == "--cli":' >> api_gui_runner.py
+          echo '        tester = APITester()' >> api_gui_runner.py
+          echo '        print("🔍 Discovering endpoints...")' >> api_gui_runner.py
+          echo '        endpoints = tester.discover_endpoints()' >> api_gui_runner.py
+          echo '        for ep in endpoints:' >> api_gui_runner.py
+          echo '            print(f"  {ep[\"method\"]} {ep[\"path\"]}")' >> api_gui_runner.py
+          echo '    else:' >> api_gui_runner.py
+          echo '        root = create_gui()' >> api_gui_runner.py
+          echo '        root.mainloop()' >> api_gui_runner.py
+          echo '' >> api_gui_runner.py
+          echo 'if __name__ == "__main__":' >> api_gui_runner.py
+          echo '    main()' >> api_gui_runner.py
           
-          class APITester:
-              def __init__(self):
-                  self.base_url = 'http://localhost:8080'
-                  self.discovered_endpoints = []
-                  self.results = {}
-          
-              def discover_endpoints(self):
-                  """Discover available endpoints - simplified for data generation"""
-                  test_endpoints = [
-                      # AnalyzerController endpoints - all require @RequestParam String path
-                      {'path': '/api/analyze', 'method': 'GET', 'name': 'analyze', 'params': {'path': 'Test.java'}},
-                      {'path': '/api/extract-function', 'method': 'GET', 'name': 'extract_function', 'params': {'path': 'Test.java'}},
-                      {'path': '/api/extract-function-name', 'method': 'GET', 'name': 'extract_function_name', 'params': {'path': 'Test.java'}},
-                      {'path': '/api/extract-function-name-1', 'method': 'GET', 'name': 'extract_function_name_1', 'params': {'path': 'Test.java'}},
-                      
-                      # ValuesListParserController endpoints
-                      {'path': '/api/parser/fromCode', 'method': 'POST', 'name': 'parser_fromcode', 'content_type': 'text/plain'},
-                      {'path': '/api/parser/fromFile', 'method': 'POST', 'name': 'parser_fromfile', 'content_type': 'multipart/form-data', 'param_name': 'file'},
-                      {'path': '/api/parser/lov-fields', 'method': 'POST', 'name': 'parser_lov_fields', 'content_type': 'multipart/form-data', 'param_name': 'file'},
-                      
-                      # JsonTransformerController endpoints - simplified for data generation
-                      {'path': '/transform/save-transformation', 'method': 'POST', 'name': 'transform_save_transformation', 'content_type': 'application/json'},
-                      {'path': '/transform/field-mapping-table', 'method': 'POST', 'name': 'transform_field_mapping_table', 'content_type': 'application/json'},
-                      
-                      # VisibiltyAnalyzerController endpoints
-                      {'path': '/api/visibility-analyzer/analyze/file', 'method': 'POST', 'name': 'visibility_analyzer_analyze_file', 'content_type': 'multipart/form-data', 'param_name': 'file'},
-                      
-                      # Health check endpoints
-                      {'path': '/actuator/health', 'method': 'GET', 'name': 'actuator_health'},
-                      {'path': '/actuator/info', 'method': 'GET', 'name': 'actuator_info'},
-                      {'path': '/error', 'method': 'GET', 'name': 'error'}
-                  ]
-                  
-                  self.discovered_endpoints = []
-                  for endpoint in test_endpoints:
-                      try:
-                          url = f"{self.base_url}{endpoint['path']}"
-                          
-                          # Handle GET requests with parameters
-                          if endpoint['method'] == 'GET':
-                              params = endpoint.get('params', {})
-                              response = requests.get(url, params=params, timeout=5)
-                          
-                          # Handle POST requests with different content types
-                          elif endpoint['method'] == 'POST':
-                              content_type = endpoint.get('content_type', 'application/json')
-                              
-                              if content_type == 'text/plain':
-                                  response = requests.post(url, data='public class Test {}', headers={'Content-Type': 'text/plain'}, timeout=5)
-                              elif content_type == 'multipart/form-data':
-                                  # For multipart, test with minimal form data
-                                  param_name = endpoint.get('param_name', 'file')
-                                  files = {param_name: ('test.java', 'public class Test {}', 'text/plain')}
-                                  response = requests.post(url, files=files, timeout=5)
-                                                                elif content_type == 'application/json':
-                                      # Test with basic data for transform endpoints
-                                      if 'transform' in endpoint['path']:
-                                          test_data = {
-                                              'originalJson': {
-                                                  'default': {
-                                                      'field1': {'id': 'field1', 'label': 'Field 1', 'nature': 'string'},
-                                                      'field2': {'id': 'field2', 'label': 'Field 2', 'nature': 'date'},
-                                                      'field3': {'id': 'field3', 'label': 'Field 3', 'nature': 'lov'}
-                                                  }
-                                              },
-                                              'labelMappings': [],
-                                              'areaConfigs': []
-                                          }
-                                      else:
-                                          test_data = {'test': 'data'}
-                                      response = requests.post(url, json=test_data, timeout=5)
-                              else:
-                                  response = requests.post(url, data='test', timeout=5)
-                          
-                          endpoint['status'] = response.status_code
-                          endpoint['accessible'] = response.status_code < 500
-                          endpoint['response_preview'] = response.text[:200] if response.text else 'Empty'
-                          self.discovered_endpoints.append(endpoint)
-                      except Exception as e:
-                          endpoint['status'] = 'ERROR'
-                          endpoint['accessible'] = False
-                          endpoint['error'] = str(e)
-                          self.discovered_endpoints.append(endpoint)
-                  
-                  return self.discovered_endpoints
-          
-              def test_with_java_file(self, java_file_path, progress_callback=None):
-                  """Test endpoints with actual Java file"""
-                  os.makedirs('output', exist_ok=True)
-                  
-                  # Read Java file
-                  try:
-                      with open(java_file_path, 'r', encoding='utf-8') as f:
-                          java_code = f.read()
-                  except Exception as e:
-                      return {'error': f'Could not read Java file: {e}'}
-                  
-                  results = {}
-                  for i, endpoint in enumerate(self.discovered_endpoints):
-                      if not endpoint.get('accessible', False):
-                          continue
-                      
-                      if progress_callback:
-                          progress_callback(f"Testing {endpoint['name']}...")
-                      
-                      try:
-                          url = f"{self.base_url}{endpoint['path']}"
-                          
-                          # Handle GET requests with parameters
-                          if endpoint['method'] == 'GET':
-                              params = endpoint.get('params', {})
-                              # Replace Test.java with actual file path if needed
-                              if 'path' in params and params['path'] == 'Test.java':
-                                  params['path'] = java_file_path
-                              response = requests.get(url, params=params, timeout=10)
-                          
-                          # Handle POST requests with different content types
-                          elif endpoint['method'] == 'POST':
-                              content_type = endpoint.get('content_type', 'application/json')
-                              
-                              if content_type == 'text/plain':
-                                  # For /api/parser/fromCode
-                                  response = requests.post(url, data=java_code, headers={'Content-Type': 'text/plain'}, timeout=10)
-                              elif content_type == 'multipart/form-data':
-                                  # For file upload endpoints - use exact parameter name
-                                  param_name = endpoint.get('param_name', 'file')
-                                  with open(java_file_path, 'rb') as f:
-                                      files = {param_name: (os.path.basename(java_file_path), f, 'text/plain')}
-                                      response = requests.post(url, files=files, timeout=10)
-                                                                elif content_type == 'application/json':
-                                      # For JSON endpoints, create proper TransformationRequest payload
-                                      if 'transform' in endpoint['path']:
-                                          # Create proper TransformationRequest structure with aini form data
-                                          payload = {
-                                              'originalJson': {
-                                                  'aini': {
-                                                      'adtcou': {'id': 'adtcou', 'label': 'Date Couverture', 'nature': 'date', 'readOnly': 'true'},
-                                                      'adtech': {'id': 'adtech', 'label': 'Date Technique', 'nature': 'date', 'readOnly': 'true'},
-                                                      'adtfin': {'id': 'adtfin', 'label': 'Date Fin', 'nature': 'date', 'readOnly': 'true'},
-                                                      'devs': {'id': 'devs', 'label': 'Devises', 'nature': 'dualfield', 'readOnly': 'true'},
-                                                      'ridori': {'id': 'ridori', 'label': 'RID ORI', 'nature': 'lov', 'readOnly': 'true'},
-                                                      'xceopt': {'id': 'xceopt', 'label': 'XCE OPT', 'nature': 'lov', 'readOnly': 'true'}
-                                                  }
-                                              },
-                                              'labelMappings': [],
-                                              'areaConfigs': [
-                                                  {
-                                                      'area': 'area1',
-                                                      'fields': [
-                                                          {'name': 'adtcou', 'sort_number': 10, 'columnNumber': 2},
-                                                          {'name': 'adtech', 'sort_number': 20, 'columnNumber': 1},
-                                                          {'name': 'adtfin', 'sort_number': 30, 'columnNumber': 2},
-                                                          {'name': 'devs', 'sort_number': 60, 'columnNumber': 1},
-                                                          {'name': 'ridori', 'sort_number': 70, 'columnNumber': 1},
-                                                          {'name': 'xceopt', 'sort_number': 90, 'columnNumber': 2}
-                                                      ]
-                                                  }
-                                              ]
-                                          }
-                                      else:
-                                          # Default JSON payload
-                                          payload = {'code': java_code}
-                                      response = requests.post(url, json=payload, timeout=10)
-                              else:
-                                  response = requests.post(url, data=java_code, timeout=10)
-                          
-                          # Save response
-                          output_file = f"output/{endpoint['name']}_response.json"
-                          with open(output_file, 'w', encoding='utf-8') as f:
-                              f.write(response.text)
-                          
-                          results[endpoint['name']] = {
-                              'status': response.status_code,
-                              'success': response.status_code < 400,
-                              'output_file': output_file,
-                              'response_size': len(response.text)
-                          }
-                      except Exception as e:
-                          results[endpoint['name']] = {
-                              'status': 'ERROR',
-                              'success': False,
-                              'error': str(e)
-                          }
-                  
-                  self.results = results
-                  return results
-          
-          def create_gui():
-              """Create enhanced GUI with discovery and testing"""
-              root = tk.Tk()
-              root.title('Spring FTL API Tester')
-              root.geometry('800x600')
-              
-              tester = APITester()
-              
-              # Create main frame
-              main_frame = tk.Frame(root)
-              main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-              
-              # Title
-              title_label = tk.Label(main_frame, text='Spring FTL API Tester', font=('Arial', 16, 'bold'))
-              title_label.pack(pady=(0, 10))
-              
-              # Output text area
-              output_frame = tk.Frame(main_frame)
-              output_frame.pack(fill=tk.BOTH, expand=True)
-              
-              output_text = scrolledtext.ScrolledText(output_frame, height=20, width=80)
-              output_text.pack(fill=tk.BOTH, expand=True)
-              
-              def log_message(message):
-                  output_text.insert(tk.END, message + '\n')
-                  output_text.see(tk.END)
-                  root.update()
-              
-              # Button frame
-              button_frame = tk.Frame(main_frame)
-              button_frame.pack(fill=tk.X, pady=(10, 0))
-              
-              def discover_endpoints():
-                  log_message('🔍 Discovering endpoints...')
-                  endpoints = tester.discover_endpoints()
-                  log_message(f'Found {len(endpoints)} endpoints:')
-                  for ep in endpoints:
-                      status = '✅' if ep.get('accessible') else '❌'
-                      log_message(f"  {status} {ep['method']} {ep['path']} - Status: {ep.get('status', 'Unknown')}")
-              
-              def test_with_file():
-                  java_file = filedialog.askopenfilename(
-                      title='Select Java file',
-                      filetypes=[('Java files', '*.java'), ('All files', '*.*')]
-                  )
-                  if not java_file:
-                      return
-                  
-                  log_message(f'📁 Selected file: {java_file}')
-                  log_message('🧪 Testing endpoints...')
-                  
-                  def run_tests():
-                      results = tester.test_with_java_file(java_file, log_message)
-                      log_message('\n📋 Results Summary:')
-                      for name, result in results.items():
-                          status = '✅' if result.get('success') else '❌'
-                          log_message(f"  {status} {name}: {result.get('status', 'Unknown')}")
-                          if 'output_file' in result:
-                              log_message(f"    📄 Saved to: {result['output_file']}")
-                      log_message('\n🎉 Testing complete!')
-                  
-                  threading.Thread(target=run_tests, daemon=True).start()
-              
-              # Buttons
-              discover_btn = tk.Button(button_frame, text='🔍 Discover Endpoints', command=discover_endpoints)
-              discover_btn.pack(side=tk.LEFT, padx=(0, 10))
-              
-              test_btn = tk.Button(button_frame, text='🧪 Test with Java File', command=test_with_file)
-              test_btn.pack(side=tk.LEFT, padx=(0, 10))
-              
-              clear_btn = tk.Button(button_frame, text='🗑️ Clear Output', command=lambda: output_text.delete(1.0, tk.END))
-              clear_btn.pack(side=tk.LEFT)
-              
-              # Initial message
-              log_message('🚀 Spring FTL API Tester Ready!')
-              log_message('1. Click "Discover Endpoints" to find available APIs')
-              log_message('2. Click "Test with Java File" to run tests')
-              log_message('3. Check the "output/" directory for results')
-              log_message('\nMake sure Spring Boot server is running on http://localhost:8080')
-              
-              return root
-          
-          def main():
-              """Main function - can run GUI or command line"""
-              if len(sys.argv) > 1 and sys.argv[1] == '--cli':
-                  # Command line mode
-                  tester = APITester()
-                  print('🔍 Discovering endpoints...')
-                  endpoints = tester.discover_endpoints()
-                  for ep in endpoints:
-                      status = '✅' if ep.get('accessible') else '❌'
-                      print(f"  {status} {ep['method']} {ep['path']} - Status: {ep.get('status', 'Unknown')}")
-              else:
-                  # GUI mode
-                  root = create_gui()
-                  root.mainloop()
-          
-          if __name__ == '__main__':
-              main()
-          '@
-          
-          $apiContent | Out-File -FilePath "api_gui_runner.py" -Encoding UTF8
+          echo "✅ Enhanced API GUI Runner created"
+          cd ../../../..
 
       - name: 🔨 Build enhanced API GUI Runner executable
         run: |
