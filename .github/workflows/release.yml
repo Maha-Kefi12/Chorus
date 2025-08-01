@@ -303,8 +303,8 @@ jobs:
           echo '    fieldlinks_data = load_field_links(form_id)' >> xml_generator.py
           echo '    # Generate XML content' >> xml_generator.py
           echo '    xml_lines = []' >> xml_generator.py
-          echo '    xml_lines.append("<?xml version=\\"1.0\\" encoding=\\"UTF-8\\" standalone=\\"no\\"?>")' >> xml_generator.py
-          echo '    xml_lines.append("<form xmlns:jxb=\\"http://java.sun.com/xml/ns/jaxb\\" xmlns:xjc=\\"http://java.sun.com/xml/ns/jaxb/xjc\\" xmlns:xsi=\\"http://www.w3.org/2001/XMLSchema-instance\\" id=\\"" + form_id + "BlockForm\\" xsi:noNamespaceSchemaLocation=\\"http://scheme.cf.linedata.com/function.xsd\\" fatherId=\\"LotIntervallePortefeuille\\" beanId=\\"" + form_id + "FormService\\">")' >> xml_generator.py
+          echo '    xml_lines.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>")' >> xml_generator.py
+          echo '    xml_lines.append("<form xmlns:jxb=\"http://java.sun.com/xml/ns/jaxb\" xmlns:xjc=\"http://java.sun.com/xml/ns/jaxb/xjc\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" id=\"" + form_id + "BlockForm\" xsi:noNamespaceSchemaLocation=\"http://scheme.cf.linedata.com/function.xsd\" fatherId=\"LotIntervallePortefeuille\" beanId=\"" + form_id + "FormService\">")' >> xml_generator.py
           echo '    xml_lines.append("<graphic>")' >> xml_generator.py
           echo '    xml_lines.append("<headerVisible>false</headerVisible>")' >> xml_generator.py
           echo '    xml_lines.append("<collapsible>false</collapsible>")' >> xml_generator.py
@@ -314,9 +314,9 @@ jobs:
           echo '    if fieldlinks_data.get("links"):' >> xml_generator.py
           echo '        xml_lines.append("<fieldLinks>")' >> xml_generator.py
           echo '        for link in fieldlinks_data["links"]:' >> xml_generator.py
-          echo '            xml_lines.append("<fieldLink childFieldId=\\"" + link.get("childFieldId", "") + "\\" id=\\"" + link.get("id", "") + "\\" methodName=\\"" + link.get("methodName", "") + "\\" nature=\\"" + link.get("nature", "CONDITIONNALHIDDEN") + "\\" disabled=\\"" + str(link.get("disabled", "false")).lower() + "\\" beanId=\\"" + link.get("beanId", form_id + "FieldLinkService") + "\\">")' >> xml_generator.py
+          echo '            xml_lines.append("<fieldLink childFieldId=\"" + link.get("childFieldId", "") + "\" id=\"" + link.get("id", "") + "\" methodName=\"" + link.get("methodName", "") + "\" nature=\"" + link.get("nature", "CONDITIONNALHIDDEN") + "\" disabled=\"" + str(link.get("disabled", "false")).lower() + "\" beanId=\"" + link.get("beanId", form_id + "FieldLinkService") + "\">")' >> xml_generator.py
           echo '            for father_id in link.get("fatherFieldIds", []):' >> xml_generator.py
-          echo '                xml_lines.append("<fieldLinkFather fatherFieldId=\\"" + father_id + "\\" />")' >> xml_generator.py
+          echo '                xml_lines.append("<fieldLinkFather fatherFieldId=\"" + father_id + "\" />")' >> xml_generator.py
           echo '            xml_lines.append("</fieldLink>")' >> xml_generator.py
           echo '        xml_lines.append("</fieldLinks>")' >> xml_generator.py
           echo '    else:' >> xml_generator.py
@@ -335,7 +335,7 @@ jobs:
           echo '    for area_id in ["area1", "area2", "area3"]:' >> xml_generator.py
           echo '        if area_fields[area_id]:' >> xml_generator.py
           echo '            sort_number = "1" if area_id == "area1" else "3" if area_id == "area2" else "2"' >> xml_generator.py
-          echo '            xml_lines.append("<area id=\\"" + area_id + "\\" sortNumber=\\"" + sort_number + "\\">")' >> xml_generator.py
+          echo '            xml_lines.append("<area id=\"" + area_id + "\" sortNumber=\"" + sort_number + "\">")' >> xml_generator.py
           echo '            if area_id == "area1":' >> xml_generator.py
           echo '                xml_lines.append("<graphic>")' >> xml_generator.py
           echo '                xml_lines.append("<headerVisible>false</headerVisible>")' >> xml_generator.py
@@ -345,22 +345,22 @@ jobs:
           echo '                field_id = field["id"]' >> xml_generator.py
           echo '                nature = field.get("nature", "string")' >> xml_generator.py
           echo '                area_info = area_mapping.get(field_id, {})' >> xml_generator.py
-          echo '                field_xml = "<field id=\\"" + field_id + "\\" nature=\\"" + nature + "\\""' >> xml_generator.py
+          echo '                field_xml = "<field id=\"" + field_id + "\" nature=\"" + nature + "\""' >> xml_generator.py
           echo '                if area_info:' >> xml_generator.py
-          echo '                    field_xml += " columnNumber=\\"" + area_info.get("columnNumber", "1") + "\\""' >> xml_generator.py
-          echo '                    field_xml += " sortNumber=\\"" + area_info.get("sortNumber", "1") + "\\""' >> xml_generator.py
+          echo '                    field_xml += " columnNumber=\"" + area_info.get("columnNumber", "1") + "\""' >> xml_generator.py
+          echo '                    field_xml += " sortNumber=\"" + area_info.get("sortNumber", "1") + "\""' >> xml_generator.py
           echo '                if "readOnly" in field:' >> xml_generator.py
-          echo '                    field_xml += " readOnly=\\"" + field["readOnly"] + "\\""' >> xml_generator.py
+          echo '                    field_xml += " readOnly=\"" + field["readOnly"] + "\""' >> xml_generator.py
           echo '                if "hidden" in field:' >> xml_generator.py
-          echo '                    field_xml += " hidden=\\"" + field["hidden"] + "\\""' >> xml_generator.py
+          echo '                    field_xml += " hidden=\"" + field["hidden"] + "\""' >> xml_generator.py
           echo '                if "label" in field:' >> xml_generator.py
-          echo '                    field_xml += " label=\\"" + field["label"] + "\\""' >> xml_generator.py
+          echo '                    field_xml += " label=\"" + field["label"] + "\""' >> xml_generator.py
           echo '                if "maxLength" in field:' >> xml_generator.py
-          echo '                    field_xml += " maxLength=\\"" + str(field["maxLength"]) + "\\""' >> xml_generator.py
+          echo '                    field_xml += " maxLength=\"" + str(field["maxLength"]) + "\""' >> xml_generator.py
           echo '                if "defaultValue" in field:' >> xml_generator.py
-          echo '                    field_xml += " defaultValue=\\"" + field["defaultValue"] + "\\""' >> xml_generator.py
+          echo '                    field_xml += " defaultValue=\"" + field["defaultValue"] + "\""' >> xml_generator.py
           echo '                if nature == "lov" and "lov" in field:' >> xml_generator.py
-          echo '                    field_xml += " lov=\\"" + field["lov"] + "\\""' >> xml_generator.py
+          echo '                    field_xml += " lov=\"" + field["lov"] + "\""' >> xml_generator.py
           echo '                field_xml += " />"' >> xml_generator.py
           echo '                xml_lines.append(field_xml)' >> xml_generator.py
           echo '            xml_lines.append("</fields>")' >> xml_generator.py
