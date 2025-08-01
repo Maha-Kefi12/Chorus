@@ -188,7 +188,7 @@ jobs:
           # Create the enhanced XML generator using echo statements
           echo '#!/usr/bin/env python3' > xml_generator.py
           echo '"""' >> xml_generator.py
-          echo 'XML Generation Script - Combined (Workflow Version)' >> xml_generator.py
+          echo 'XML Generation Script - Enhanced with Real Data' >> xml_generator.py
           echo 'Based on combined.py with workflow path adjustments' >> xml_generator.py
           echo '"""' >> xml_generator.py
           echo '' >> xml_generator.py
@@ -210,47 +210,202 @@ jobs:
           echo '    form_ids = []' >> xml_generator.py
           echo '    output_dir = Path("output")' >> xml_generator.py
           echo '    if output_dir.exists():' >> xml_generator.py
+          echo '        # Check transformed_result.json first' >> xml_generator.py
           echo '        transformed_path = output_dir / "transformed_result.json"' >> xml_generator.py
           echo '        if transformed_path.exists():' >> xml_generator.py
           echo '            try:' >> xml_generator.py
           echo '                with open(transformed_path, "r", encoding="utf-8") as f:' >> xml_generator.py
           echo '                    data = json.load(f)' >> xml_generator.py
-          echo '                if "originalJson" in data:' >> xml_generator.py
+          echo '                if "original_json" in data:' >> xml_generator.py
+          echo '                    form_ids.extend(list(data["original_json"].keys()))' >> xml_generator.py
+          echo '                elif "originalJson" in data:' >> xml_generator.py
           echo '                    form_ids.extend(list(data["originalJson"].keys()))' >> xml_generator.py
-          echo '                elif isinstance(data, dict):' >> xml_generator.py
-          echo '                    metadata_keys = ["success", "message", "fileName", "linksCount", "links", "formId", "timestamp", "status", "error", "rawFunctionName", "filePath", "path"]' >> xml_generator.py
-          echo '                    for key in data.keys():' >> xml_generator.py
-          echo '                        if key not in metadata_keys and not key.startswith("_"):' >> xml_generator.py
-          echo '                            form_ids.append(key)' >> xml_generator.py
           echo '            except Exception as e:' >> xml_generator.py
           echo '                print(f"⚠️ Error reading transformed data: {e}")' >> xml_generator.py
+          echo '        # Check area_map.json for form IDs' >> xml_generator.py
+          echo '        area_map_path = output_dir / "area_map.json"' >> xml_generator.py
+          echo '        if area_map_path.exists():' >> xml_generator.py
+          echo '            try:' >> xml_generator.py
+          echo '                with open(area_map_path, "r", encoding="utf-8") as f:' >> xml_generator.py
+          echo '                    area_data = json.load(f)' >> xml_generator.py
+          echo '                if isinstance(area_data, list):' >> xml_generator.py
+          echo '                    for item in area_data:' >> xml_generator.py
+          echo '                        if "formId" in item and item["formId"] not in form_ids:' >> xml_generator.py
+          echo '                            form_ids.append(item["formId"])' >> xml_generator.py
+          echo '            except Exception as e:' >> xml_generator.py
+          echo '                print(f"⚠️ Error reading area map: {e}")' >> xml_generator.py
           echo '    return list(set(form_ids)) if form_ids else ["default"]' >> xml_generator.py
           echo '' >> xml_generator.py
-          echo 'def generate_basic_xml(form_id):' >> xml_generator.py
-          echo '    """Generate basic XML for a form"""' >> xml_generator.py
-          echo '    return f"""<?xml version="1.0" encoding="UTF-8" standalone="no"?>' >> xml_generator.py
-          echo '<form xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="{form_id}BlockForm" xsi:noNamespaceSchemaLocation="http://scheme.cf.linedata.com/function.xsd" fatherId="LotIntervallePortefeuille" beanId="{form_id}FormService">' >> xml_generator.py
-          echo '<graphic>' >> xml_generator.py
-          echo '<headerVisible>false</headerVisible>' >> xml_generator.py
-          echo '<collapsible>false</collapsible>' >> xml_generator.py
-          echo '<collapsed>false</collapsed>' >> xml_generator.py
-          echo '</graphic>' >> xml_generator.py
-          echo '<fieldLinks />' >> xml_generator.py
-          echo '<areas>' >> xml_generator.py
-          echo '<area id="area1" sortNumber="1">' >> xml_generator.py
-          echo '<graphic>' >> xml_generator.py
-          echo '<headerVisible>false</headerVisible>' >> xml_generator.py
-          echo '</graphic>' >> xml_generator.py
-          echo '<fields>' >> xml_generator.py
-          echo '<field id="defaultField" nature="string" columnNumber="1" sortNumber="1" label="Default Field" />' >> xml_generator.py
-          echo '</fields>' >> xml_generator.py
-          echo '</area>' >> xml_generator.py
-          echo '</areas>' >> xml_generator.py
-          echo '</form>"""' >> xml_generator.py
+          echo 'def load_field_data(form_id):' >> xml_generator.py
+          echo '    """Load field data for a specific form ID"""' >> xml_generator.py
+          echo '    output_dir = Path("output")' >> xml_generator.py
+          echo '    field_data = {}' >> xml_generator.py
+          echo '    # Try to load from transformed_result.json' >> xml_generator.py
+          echo '    transformed_path = output_dir / "transformed_result.json"' >> xml_generator.py
+          echo '    if transformed_path.exists():' >> xml_generator.py
+          echo '        try:' >> xml_generator.py
+          echo '            with open(transformed_path, "r", encoding="utf-8") as f:' >> xml_generator.py
+          echo '                data = json.load(f)' >> xml_generator.py
+          echo '            if "original_json" in data and form_id in data["original_json"]:' >> xml_generator.py
+          echo '                field_data = data["original_json"][form_id]' >> xml_generator.py
+          echo '            elif "originalJson" in data and form_id in data["originalJson"]:' >> xml_generator.py
+          echo '                field_data = data["originalJson"][form_id]' >> xml_generator.py
+          echo '        except Exception as e:' >> xml_generator.py
+          echo '            print(f"⚠️ Error loading field data: {e}")' >> xml_generator.py
+          echo '    return field_data' >> xml_generator.py
+          echo '' >> xml_generator.py
+          echo 'def load_area_mapping(form_id):' >> xml_generator.py
+          echo '    """Load area mapping for a specific form ID"""' >> xml_generator.py
+          echo '    output_dir = Path("output")' >> xml_generator.py
+          echo '    area_mapping = {}' >> xml_generator.py
+          echo '    area_map_path = output_dir / "area_map.json"' >> xml_generator.py
+          echo '    if area_map_path.exists():' >> xml_generator.py
+          echo '        try:' >> xml_generator.py
+          echo '            with open(area_map_path, "r", encoding="utf-8") as f:' >> xml_generator.py
+          echo '                area_data = json.load(f)' >> xml_generator.py
+          echo '            if isinstance(area_data, list):' >> xml_generator.py
+          echo '                for item in area_data:' >> xml_generator.py
+          echo '                    if item.get("formId") == form_id and "fieldId" in item:' >> xml_generator.py
+          echo '                        field_id = item["fieldId"]' >> xml_generator.py
+          echo '                        area_mapping[field_id] = {' >> xml_generator.py
+          echo '                            "area": item.get("area", "area1"),' >> xml_generator.py
+          echo '                            "sortNumber": str(item.get("sortNumber", 1)),' >> xml_generator.py
+          echo '                            "columnNumber": str(item.get("columnNumber", 1)),' >> xml_generator.py
+          echo '                            "label": item.get("label", "")' >> xml_generator.py
+          echo '                        }' >> xml_generator.py
+          echo '        except Exception as e:' >> xml_generator.py
+          echo '            print(f"⚠️ Error loading area mapping: {e}")' >> xml_generator.py
+          echo '    return area_mapping' >> xml_generator.py
+          echo '' >> xml_generator.py
+          echo 'def load_field_links(form_id):' >> xml_generator.py
+          echo '    """Load field links for a specific form ID"""' >> xml_generator.py
+          echo '    output_dir = Path("output")' >> xml_generator.py
+          echo '    fieldlinks_data = {"links": []}' >> xml_generator.py
+          echo '    fieldlink_path = output_dir / "fieldlink.json"' >> xml_generator.py
+          echo '    if fieldlink_path.exists():' >> xml_generator.py
+          echo '        try:' >> xml_generator.py
+          echo '            with open(fieldlink_path, "r", encoding="utf-8") as f:' >> xml_generator.py
+          echo '                data = json.load(f)' >> xml_generator.py
+          echo '            if "links" in data and isinstance(data["links"], list):' >> xml_generator.py
+          echo '                # Filter links for this form ID' >> xml_generator.py
+          echo '                for link in data["links"]:' >> xml_generator.py
+          echo '                    if "beanId" in link and form_id in link["beanId"]:' >> xml_generator.py
+          echo '                        fieldlinks_data["links"].append(link)' >> xml_generator.py
+          echo '        except Exception as e:' >> xml_generator.py
+          echo '            print(f"⚠️ Error loading field links: {e}")' >> xml_generator.py
+          echo '    return fieldlinks_data' >> xml_generator.py
+          echo '' >> xml_generator.py
+          echo 'def generate_field_xml(field_id, field_data, area_info):' >> xml_generator.py
+          echo '    """Generate XML for a single field with real data"""' >> xml_generator.py
+          echo '    lines = [f"<field id=\"{escape_attr(field_id)}\""]' >> xml_generator.py
+          echo '    # Add nature attribute' >> xml_generator.py
+          echo '    nature = field_data.get("nature", "string")' >> xml_generator.py
+          echo '    lines.append(f" nature=\"{escape_attr(nature)}\"")' >> xml_generator.py
+          echo '    # Add area info' >> xml_generator.py
+          echo '    if area_info:' >> xml_generator.py
+          echo '        lines.append(f" columnNumber=\"{escape_attr(area_info.get(\"columnNumber\", \"1\"))}\"")' >> xml_generator.py
+          echo '        lines.append(f" sortNumber=\"{escape_attr(area_info.get(\"sortNumber\", \"1\"))}\"")' >> xml_generator.py
+          echo '    # Add other attributes' >> xml_generator.py
+          echo '    if "readOnly" in field_data:' >> xml_generator.py
+          echo '        lines.append(f" readOnly=\"{escape_attr(field_data[\"readOnly\"])}\"")' >> xml_generator.py
+          echo '    if "hidden" in field_data:' >> xml_generator.py
+          echo '        lines.append(f" hidden=\"{escape_attr(field_data[\"hidden\"])}\"")' >> xml_generator.py
+          echo '    if "label" in field_data:' >> xml_generator.py
+          echo '        lines.append(f" label=\"{escape_attr(field_data[\"label\"])}\"")' >> xml_generator.py
+          echo '    if "maxLength" in field_data:' >> xml_generator.py
+          echo '        lines.append(f" maxLength=\"{escape_attr(field_data[\"maxLength\"])}\"")' >> xml_generator.py
+          echo '    if "defaultValue" in field_data:' >> xml_generator.py
+          echo '        lines.append(f" defaultValue=\"{escape_attr(field_data[\"defaultValue\"])}\"")' >> xml_generator.py
+          echo '    # Add LOV-specific attributes' >> xml_generator.py
+          echo '    if nature == "lov" and "lov" in field_data:' >> xml_generator.py
+          echo '        lines.append(f" lov=\"{escape_attr(field_data[\"lov\"])}\"")' >> xml_generator.py
+          echo '    lines.append(" />")' >> xml_generator.py
+          echo '    return "".join(lines)' >> xml_generator.py
+          echo '' >> xml_generator.py
+          echo 'def generate_fieldlinks_xml(fieldlinks_data, form_id):' >> xml_generator.py
+          echo '    """Generate XML for field links"""' >> xml_generator.py
+          echo '    if not fieldlinks_data or "links" not in fieldlinks_data or not fieldlinks_data["links"]:' >> xml_generator.py
+          echo '        return "<fieldLinks />"' >> xml_generator.py
+          echo '    lines = ["<fieldLinks>"]' >> xml_generator.py
+          echo '    for link in fieldlinks_data["links"]:' >> xml_generator.py
+          echo '        if not isinstance(link, dict):' >> xml_generator.py
+          echo '            continue' >> xml_generator.py
+          echo '        lines.append("<fieldLink")' >> xml_generator.py
+          echo '        lines.append(f" childFieldId=\"{escape_attr(link.get(\"childFieldId\", \"\"))}\"")' >> xml_generator.py
+          echo '        lines.append(f" id=\"{escape_attr(link.get(\"id\", \"\"))}\"")' >> xml_generator.py
+          echo '        lines.append(f" methodName=\"{escape_attr(link.get(\"methodName\", \"\"))}\"")' >> xml_generator.py
+          echo '        lines.append(f" nature=\"{escape_attr(link.get(\"nature\", \"CONDITIONNALHIDDEN\"))}\"")' >> xml_generator.py
+          echo '        lines.append(f" disabled=\"{escape_attr(link.get(\"disabled\", \"false\"))}\"")' >> xml_generator.py
+          echo '        bean_id = link.get("beanId", f"{form_id}FieldLinkService")' >> xml_generator.py
+          echo '        lines.append(f" beanId=\"{bean_id}\">")' >> xml_generator.py
+          echo '        # Add father fields' >> xml_generator.py
+          echo '        father_field_ids = link.get("fatherFieldIds", [])' >> xml_generator.py
+          echo '        for father_id in father_field_ids:' >> xml_generator.py
+          echo '            lines.append(f"<fieldLinkFather fatherFieldId=\"{escape_attr(father_id)}\" />")' >> xml_generator.py
+          echo '        lines.append("</fieldLink>")' >> xml_generator.py
+          echo '    lines.append("</fieldLinks>")' >> xml_generator.py
+          echo '    return "\\n".join(lines)' >> xml_generator.py
+          echo '' >> xml_generator.py
+          echo 'def group_fields_by_area(field_data, area_mapping):' >> xml_generator.py
+          echo '    """Group fields by their assigned areas"""' >> xml_generator.py
+          echo '    area_fields = {"area1": [], "area2": [], "area3": []}' >> xml_generator.py
+          echo '    for field_id, field_info in field_data.items():' >> xml_generator.py
+          echo '        area = "area1"  # default' >> xml_generator.py
+          echo '        if field_id in area_mapping:' >> xml_generator.py
+          echo '            area = area_mapping[field_id].get("area", "area1")' >> xml_generator.py
+          echo '        if area in area_fields:' >> xml_generator.py
+          echo '            field_info["id"] = field_id' >> xml_generator.py
+          echo '            area_fields[area].append(field_info)' >> xml_generator.py
+          echo '    return area_fields' >> xml_generator.py
+          echo '' >> xml_generator.py
+          echo 'def generate_xml_with_real_data(form_id, field_data, area_mapping, fieldlinks_data):' >> xml_generator.py
+          echo '    """Generate complete XML form using real data"""' >> xml_generator.py
+          echo '    # Group fields by area' >> xml_generator.py
+          echo '    area_fields = group_fields_by_area(field_data, area_mapping)' >> xml_generator.py
+          echo '    # Get form_id for dynamic IDs' >> xml_generator.py
+          echo '    bean_id = f"{form_id}FormService"' >> xml_generator.py
+          echo '    # Generate XML' >> xml_generator.py
+          echo '    lines = [' >> xml_generator.py
+          echo '        "<?xml version=\\"1.0\\" encoding=\\"UTF-8\\" standalone=\\"no\\"?>",' >> xml_generator.py
+          echo '        f"<form xmlns:jxb=\\"http://java.sun.com/xml/ns/jaxb\\" xmlns:xjc=\\"http://java.sun.com/xml/ns/jaxb/xjc\\" xmlns:xsi=\\"http://www.w3.org/2001/XMLSchema-instance\\" id=\\"{form_id}BlockForm\\" xsi:noNamespaceSchemaLocation=\\"http://scheme.cf.linedata.com/function.xsd\\" fatherId=\\"LotIntervallePortefeuille\\" beanId=\\"{bean_id}\\">",' >> xml_generator.py
+          echo '        "<graphic>",' >> xml_generator.py
+          echo '        "<headerVisible>false</headerVisible>",' >> xml_generator.py
+          echo '        "<collapsible>false</collapsible>",' >> xml_generator.py
+          echo '        "<collapsed>false</collapsed>",' >> xml_generator.py
+          echo '        "</graphic>"' >> xml_generator.py
+          echo '    ]' >> xml_generator.py
+          echo '    # Add fieldLinks' >> xml_generator.py
+          echo '    fieldlinks_xml = generate_fieldlinks_xml(fieldlinks_data, form_id)' >> xml_generator.py
+          echo '    lines.append(fieldlinks_xml)' >> xml_generator.py
+          echo '    # Areas' >> xml_generator.py
+          echo '    lines.append("<areas>")' >> xml_generator.py
+          echo '    # Process areas in order' >> xml_generator.py
+          echo '    for area_id in ["area1", "area2", "area3"]:' >> xml_generator.py
+          echo '        if area_id not in area_fields or not area_fields[area_id]:' >> xml_generator.py
+          echo '            continue' >> xml_generator.py
+          echo '        sort_number = "1" if area_id == "area1" else "3" if area_id == "area2" else "2"' >> xml_generator.py
+          echo '        lines.append(f"<area id=\\"{area_id}\\" sortNumber=\\"{sort_number}\\">")' >> xml_generator.py
+          echo '        # Add graphic only for area1' >> xml_generator.py
+          echo '        if area_id == "area1":' >> xml_generator.py
+          echo '            lines.append("<graphic>")' >> xml_generator.py
+          echo '            lines.append("<headerVisible>false</headerVisible>")' >> xml_generator.py
+          echo '            lines.append("</graphic>")' >> xml_generator.py
+          echo '        lines.append("<fields>")' >> xml_generator.py
+          echo '        # Add fields' >> xml_generator.py
+          echo '        for field in area_fields[area_id]:' >> xml_generator.py
+          echo '            field_id = field["id"]' >> xml_generator.py
+          echo '            area_info = area_mapping.get(field_id, {})' >> xml_generator.py
+          echo '            field_xml = generate_field_xml(field_id, field, area_info)' >> xml_generator.py
+          echo '            lines.append(field_xml)' >> xml_generator.py
+          echo '        lines.append("</fields>")' >> xml_generator.py
+          echo '        lines.append("</area>")' >> xml_generator.py
+          echo '    lines.append("</areas>")' >> xml_generator.py
+          echo '    lines.append("</form>")' >> xml_generator.py
+          echo '    return "\\n".join(lines)' >> xml_generator.py
           echo '' >> xml_generator.py
           echo 'def main():' >> xml_generator.py
           echo '    """Main entry point"""' >> xml_generator.py
-          echo '    print("🎯 Enhanced XML Generator Starting (combined.py logic)...")' >> xml_generator.py
+          echo '    print("🎯 Enhanced XML Generator Starting with Real Data...")' >> xml_generator.py
           echo '    try:' >> xml_generator.py
           echo '        # Get all form IDs from data' >> xml_generator.py
           echo '        form_ids = get_all_form_ids_from_data()' >> xml_generator.py
@@ -263,18 +418,28 @@ jobs:
           echo '        for form_id in form_ids:' >> xml_generator.py
           echo '            print(f"🔄 Processing form ID: {form_id}")' >> xml_generator.py
           echo '            try:' >> xml_generator.py
+          echo '                # Load real data for this form' >> xml_generator.py
+          echo '                field_data = load_field_data(form_id)' >> xml_generator.py
+          echo '                area_mapping = load_area_mapping(form_id)' >> xml_generator.py
+          echo '                fieldlinks_data = load_field_links(form_id)' >> xml_generator.py
+          echo '                print(f"  📊 Loaded {len(field_data)} fields, {len(area_mapping)} area mappings, {len(fieldlinks_data.get(\"links\", []))} field links")' >> xml_generator.py
           echo '                # Create output directory' >> xml_generator.py
           echo '                form_dir = demo_base / form_id' >> xml_generator.py
           echo '                form_dir.mkdir(parents=True, exist_ok=True)' >> xml_generator.py
-          echo '                # Generate basic XML' >> xml_generator.py
-          echo '                xml_content = generate_basic_xml(form_id)' >> xml_generator.py
+          echo '                # Generate XML with real data' >> xml_generator.py
+          echo '                xml_content = generate_xml_with_real_data(form_id, field_data, area_mapping, fieldlinks_data)' >> xml_generator.py
           echo '                # Save XML' >> xml_generator.py
           echo '                xml_path = form_dir / f"{form_id}.block.xml"' >> xml_generator.py
           echo '                xml_path.write_text(xml_content, encoding="utf-8")' >> xml_generator.py
           echo '                print(f"✅ XML generated at: {xml_path}")' >> xml_generator.py
           echo '                # Generate properties file' >> xml_generator.py
           echo '                properties_path = form_dir / f"{form_id}.block.properties"' >> xml_generator.py
-          echo '                properties_content = "# Properties for " + form_id + "\nform.id=" + form_id + "\nform.name=" + form_id + "\ngenerated.timestamp=" + str(int(__import__("time").time())) + "\ndefaultField.area=area1\ndefaultField.sortNumber=1\ndefaultField.columnNumber=1"' >> xml_generator.py
+          echo '                properties_content = "# Properties for " + form_id + "\\nform.id=" + form_id + "\\nform.name=" + form_id + "\\ngenerated.timestamp=" + str(int(__import__("time").time())) + "\\n"' >> xml_generator.py
+          echo '                for field_id, field_info in field_data.items():' >> xml_generator.py
+          echo '                    area_info = area_mapping.get(field_id, {})' >> xml_generator.py
+          echo '                    properties_content += f"{field_id}.area={area_info.get(\"area\", \"area1\")}\\n"' >> xml_generator.py
+          echo '                    properties_content += f"{field_id}.sortNumber={area_info.get(\"sortNumber\", \"1\")}\\n"' >> xml_generator.py
+          echo '                    properties_content += f"{field_id}.columnNumber={area_info.get(\"columnNumber\", \"1\")}\\n"' >> xml_generator.py
           echo '                properties_path.write_text(properties_content, encoding="utf-8")' >> xml_generator.py
           echo '                print(f"✅ Properties file generated at: {properties_path}")' >> xml_generator.py
           echo '                total_generated += 1' >> xml_generator.py
@@ -290,9 +455,9 @@ jobs:
           echo '        return 1' >> xml_generator.py
           echo '' >> xml_generator.py
           echo 'if __name__ == "__main__":' >> xml_generator.py
-          echo '    sys.exit(main())' >> xml_generator.py
+          echo '    main()' >> xml_generator.py
           
-          echo "✅ Enhanced XML generator created"
+          echo "✅ Enhanced XML generator created with real data support"
           cd ../../../..
 
       - name: 🐍 Check Python architecture
