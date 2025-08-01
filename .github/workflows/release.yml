@@ -449,9 +449,37 @@ jobs:
           Accept: application/json
           
           {
-            "originalJson": {},
-            "labelMappings": [],
-            "areaConfigs": []
+            "originalJson": {
+              "default": {
+                "testField": {
+                  "id": "testField",
+                  "label": "Test Field",
+                  "type": "string",
+                  "nature": "input",
+                  "lovService": null,
+                  "label1": "Test Field",
+                  "label2": null
+                }
+              }
+            },
+            "labelMappings": [
+              {
+                "ancien": "Test Field",
+                "nouveau": "Test Field Updated"
+              }
+            ],
+            "areaConfigs": [
+              {
+                "area": "main",
+                "fields": [
+                  {
+                    "name": "Test Field",
+                    "sort_number": 1,
+                    "columnNumber": 1
+                  }
+                ]
+              }
+            ]
           }
           
           ###
@@ -462,9 +490,37 @@ jobs:
           Accept: application/json
           
           {
-            "originalJson": {},
-            "labelMappings": [],
-            "areaConfigs": []
+            "originalJson": {
+              "default": {
+                "testField": {
+                  "id": "testField",
+                  "label": "Test Field",
+                  "type": "string",
+                  "nature": "input",
+                  "lovService": null,
+                  "label1": "Test Field",
+                  "label2": null
+                }
+              }
+            },
+            "labelMappings": [
+              {
+                "ancien": "Test Field",
+                "nouveau": "Test Field Updated"
+              }
+            ],
+            "areaConfigs": [
+              {
+                "area": "main",
+                "fields": [
+                  {
+                    "name": "Test Field",
+                    "sort_number": 1,
+                    "columnNumber": 1
+                  }
+                ]
+              }
+            ]
           }
           
           ###
@@ -475,9 +531,37 @@ jobs:
           Accept: application/json
           
           {
-            "originalJson": {},
-            "labelMappings": [],
-            "areaConfigs": []
+            "originalJson": {
+              "default": {
+                "testField": {
+                  "id": "testField",
+                  "label": "Test Field",
+                  "type": "string",
+                  "nature": "input",
+                  "lovService": null,
+                  "label1": "Test Field",
+                  "label2": null
+                }
+              }
+            },
+            "labelMappings": [
+              {
+                "ancien": "Test Field",
+                "nouveau": "Test Field Updated"
+              }
+            ],
+            "areaConfigs": [
+              {
+                "area": "main",
+                "fields": [
+                  {
+                    "name": "Test Field",
+                    "sort_number": 1,
+                    "columnNumber": 1
+                  }
+                ]
+              }
+            ]
           }
           
           ###
@@ -544,9 +628,37 @@ jobs:
           Content-Type: application/json
           
           {
-            "originalJson": {},
-            "labelMappings": [],
-            "areaConfigs": []
+            "originalJson": {
+              "default": {
+                "testField": {
+                  "id": "testField",
+                  "label": "Test Field",
+                  "type": "string",
+                  "nature": "input",
+                  "lovService": null,
+                  "label1": "Test Field",
+                  "label2": null
+                }
+              }
+            },
+            "labelMappings": [
+              {
+                "ancien": "Test Field",
+                "nouveau": "Test Field Updated"
+              }
+            ],
+            "areaConfigs": [
+              {
+                "area": "main",
+                "fields": [
+                  {
+                    "name": "Test Field",
+                    "sort_number": 1,
+                    "columnNumber": 1
+                  }
+                ]
+              }
+            ]
           }
           
           ###
@@ -639,31 +751,31 @@ jobs:
                   self.results = {}
           
               def discover_endpoints(self):
-                  """Discover available endpoints"""
+                  """Discover available endpoints with exact method signatures"""
                   test_endpoints = [
-                      # AnalyzerController endpoints
-                      {'path': '/api/analyze', 'method': 'GET', 'name': 'analyze', 'params': {'path': 'Test.java'}},
-                      {'path': '/api/extract-function', 'method': 'GET', 'name': 'extract_function', 'params': {'path': 'Test.java'}},
-                      {'path': '/api/extract-function-name', 'method': 'GET', 'name': 'extract_function_name', 'params': {'path': 'Test.java'}},
-                      {'path': '/api/extract-function-name-1', 'method': 'GET', 'name': 'extract_function_name_1', 'params': {'path': 'Test.java'}},
+                      # AnalyzerController endpoints - all require @RequestParam String path
+                      {'path': '/api/analyze', 'method': 'GET', 'name': 'analyze', 'params': {'path': 'Test.java'}, 'signature': 'analyze(@RequestParam String path)'},
+                      {'path': '/api/extract-function', 'method': 'GET', 'name': 'extract_function', 'params': {'path': 'Test.java'}, 'signature': 'extractFunction(@RequestParam String path)'},
+                      {'path': '/api/extract-function-name', 'method': 'GET', 'name': 'extract_function_name', 'params': {'path': 'Test.java'}, 'signature': 'extractFunctionNameFromFile(@RequestParam String path)'},
+                      {'path': '/api/extract-function-name-1', 'method': 'GET', 'name': 'extract_function_name_1', 'params': {'path': 'Test.java'}, 'signature': 'extractFunctionNameFromFileF(@RequestParam String path)'},
                       
                       # ValuesListParserController endpoints
-                      {'path': '/api/parser/fromCode', 'method': 'POST', 'name': 'parser_fromcode', 'content_type': 'text/plain'},
-                      {'path': '/api/parser/fromFile', 'method': 'POST', 'name': 'parser_fromfile', 'content_type': 'multipart/form-data'},
-                      {'path': '/api/parser/lov-fields', 'method': 'POST', 'name': 'parser_lov_fields', 'content_type': 'multipart/form-data'},
+                      {'path': '/api/parser/fromCode', 'method': 'POST', 'name': 'parser_fromcode', 'content_type': 'text/plain', 'signature': 'parseFromCode(@RequestBody String javaCode)'},
+                      {'path': '/api/parser/fromFile', 'method': 'POST', 'name': 'parser_fromfile', 'content_type': 'multipart/form-data', 'param_name': 'file', 'signature': 'parseFromFile(@RequestParam("file") MultipartFile file)'},
+                      {'path': '/api/parser/lov-fields', 'method': 'POST', 'name': 'parser_lov_fields', 'content_type': 'multipart/form-data', 'param_name': 'file', 'signature': 'extractLovFieldsFromJavaFile(@RequestParam("file") MultipartFile file)'},
                       
-                      # JsonTransformerController endpoints
-                      {'path': '/transform/updateFieldOrder', 'method': 'POST', 'name': 'transform_update_field_order', 'content_type': 'application/json'},
-                      {'path': '/transform/save-transformation', 'method': 'POST', 'name': 'transform_save_transformation', 'content_type': 'application/json'},
-                      {'path': '/transform/field-mapping-table', 'method': 'POST', 'name': 'transform_field_mapping_table', 'content_type': 'application/json'},
+                      # JsonTransformerController endpoints - all require @RequestBody TransformationRequest
+                      {'path': '/transform/updateFieldOrder', 'method': 'POST', 'name': 'transform_update_field_order', 'content_type': 'application/json', 'signature': 'updateFieldOrder(@RequestBody TransformationRequest request)'},
+                      {'path': '/transform/save-transformation', 'method': 'POST', 'name': 'transform_save_transformation', 'content_type': 'application/json', 'signature': 'saveTransformationRequest(@RequestBody TransformationRequest request)'},
+                      {'path': '/transform/field-mapping-table', 'method': 'POST', 'name': 'transform_field_mapping_table', 'content_type': 'application/json', 'signature': 'getFieldMappingTable(@RequestBody TransformationRequest request)'},
                       
                       # VisibiltyAnalyzerController endpoints
-                      {'path': '/api/visibility-analyzer/analyze/file', 'method': 'POST', 'name': 'visibility_analyzer_analyze_file', 'content_type': 'multipart/form-data'},
+                      {'path': '/api/visibility-analyzer/analyze/file', 'method': 'POST', 'name': 'visibility_analyzer_analyze_file', 'content_type': 'multipart/form-data', 'param_name': 'file', 'signature': 'analyzeFile(@RequestParam("file") MultipartFile file)'},
                       
                       # Health check endpoints
-                      {'path': '/actuator/health', 'method': 'GET', 'name': 'actuator_health'},
-                      {'path': '/actuator/info', 'method': 'GET', 'name': 'actuator_info'},
-                      {'path': '/error', 'method': 'GET', 'name': 'error'}
+                      {'path': '/actuator/health', 'method': 'GET', 'name': 'actuator_health', 'signature': 'No parameters'},
+                      {'path': '/actuator/info', 'method': 'GET', 'name': 'actuator_info', 'signature': 'No parameters'},
+                      {'path': '/error', 'method': 'GET', 'name': 'error', 'signature': 'No parameters'}
                   ]
                   
                   self.discovered_endpoints = []
@@ -683,11 +795,48 @@ jobs:
                               if content_type == 'text/plain':
                                   response = requests.post(url, data='public class Test {}', headers={'Content-Type': 'text/plain'}, timeout=5)
                               elif content_type == 'multipart/form-data':
-                                  # For multipart, we'll just test if the endpoint exists
-                                  response = requests.post(url, data={}, timeout=5)
+                                  # For multipart, test with minimal form data
+                                  param_name = endpoint.get('param_name', 'file')
+                                  files = {param_name: ('test.java', 'public class Test {}', 'text/plain')}
+                                  response = requests.post(url, files=files, timeout=5)
                               elif content_type == 'application/json':
-                                  # Test with minimal JSON payload
-                                  test_data = {'test': 'data'}
+                                  # Test with proper TransformationRequest structure for transform endpoints
+                                  if 'transform' in endpoint['path']:
+                                      test_data = {
+                                          'originalJson': {
+                                              'default': {
+                                                  'testField': {
+                                                      'id': 'testField',
+                                                      'label': 'Test Field',
+                                                      'type': 'string',
+                                                      'nature': 'input',
+                                                      'lovService': None,
+                                                      'label1': 'Test Field',
+                                                      'label2': None
+                                                  }
+                                              }
+                                          },
+                                          'labelMappings': [
+                                              {
+                                                  'ancien': 'Test Field',
+                                                  'nouveau': 'Test Field Updated'
+                                              }
+                                          ],
+                                          'areaConfigs': [
+                                              {
+                                                  'area': 'main',
+                                                  'fields': [
+                                                      {
+                                                          'name': 'Test Field',
+                                                          'sort_number': 1,
+                                                          'columnNumber': 1
+                                                      }
+                                                  ]
+                                              }
+                                          ]
+                                      }
+                                  else:
+                                      test_data = {'test': 'data'}
                                   response = requests.post(url, json=test_data, timeout=5)
                               else:
                                   response = requests.post(url, data='test', timeout=5)
@@ -742,18 +891,47 @@ jobs:
                                   # For /api/parser/fromCode
                                   response = requests.post(url, data=java_code, headers={'Content-Type': 'text/plain'}, timeout=10)
                               elif content_type == 'multipart/form-data':
-                                  # For file upload endpoints
+                                  # For file upload endpoints - use exact parameter name
+                                  param_name = endpoint.get('param_name', 'file')
                                   with open(java_file_path, 'rb') as f:
-                                      files = {'file': (os.path.basename(java_file_path), f, 'text/plain')}
+                                      files = {param_name: (os.path.basename(java_file_path), f, 'text/plain')}
                                       response = requests.post(url, files=files, timeout=10)
                               elif content_type == 'application/json':
-                                  # For JSON endpoints, create appropriate payload based on endpoint
+                                  # For JSON endpoints, create proper TransformationRequest payload
                                   if 'transform' in endpoint['path']:
-                                      # For transformation endpoints
+                                      # Create proper TransformationRequest structure
                                       payload = {
-                                          'originalJson': {},
-                                          'labelMappings': [],
-                                          'areaConfigs': []
+                                          'originalJson': {
+                                              'default': {
+                                                  'testField': {
+                                                      'id': 'testField',
+                                                      'label': 'Test Field',
+                                                      'type': 'string',
+                                                      'nature': 'input',
+                                                      'lovService': None,
+                                                      'label1': 'Test Field',
+                                                      'label2': None
+                                                  }
+                                              }
+                                          },
+                                          'labelMappings': [
+                                              {
+                                                  'ancien': 'Test Field',
+                                                  'nouveau': 'Test Field Updated'
+                                              }
+                                          ],
+                                          'areaConfigs': [
+                                              {
+                                                  'area': 'main',
+                                                  'fields': [
+                                                      {
+                                                          'name': 'Test Field',
+                                                          'sort_number': 1,
+                                                          'columnNumber': 1
+                                                      }
+                                                  ]
+                                              }
+                                          ]
                                       }
                                   else:
                                       # Default JSON payload
