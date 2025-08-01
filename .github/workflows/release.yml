@@ -335,6 +335,7 @@ jobs:
 
       - name: 📝 Create API GUI Runner script
         run: |
+          cd spring-ftl/src/main/resources/scripts
           echo "# API GUI Runner - robust endpoint mapping" > api_gui_runner.py
           echo "# To add/adjust endpoints, edit the ENDPOINTS list below." >> api_gui_runner.py
           echo "# Each endpoint can specify method, url, output, params, body, content_type." >> api_gui_runner.py
