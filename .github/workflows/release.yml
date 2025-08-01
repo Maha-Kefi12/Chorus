@@ -360,45 +360,45 @@ jobs:
           # Create comprehensive HTTP test file
           cat > spring-ftl/httpRequests/comprehensive_api_tests.http << 'EOF'
           ### Spring FTL API Comprehensive Tests
-          ### Generated automatically - test various endpoints
+          ### Generated automatically - test all actual endpoints
           
-          ### Test 1: Root endpoint (should always work)
-          GET http://localhost:8080/
-          Accept: application/json
-          
-          ###
-          
-          ### Test 2: Health check (Actuator)
+          ### Test 1: Health check (Actuator)
           GET http://localhost:8080/actuator/health
           Accept: application/json
           
           ###
           
-          ### Test 3: Actuator info
+          ### Test 2: Actuator info
           GET http://localhost:8080/actuator/info  
           Accept: application/json
           
           ###
           
-          ### Test 4: API root
-          GET http://localhost:8080/api
-          Accept: application/json
-          
-          ###
-          
-          ### Test 5: Analyze endpoint (no parameters)
-          GET http://localhost:8080/api/analyze
-          Accept: application/json
-          
-          ###
-          
-          ### Test 6: Analyze endpoint (with path parameter)
+          ### Test 3: Analyzer - analyze with path parameter
           GET http://localhost:8080/api/analyze?path=Test.java
           Accept: application/json
           
           ###
           
-          ### Test 7: Parser fromCode (text/plain)
+          ### Test 4: Analyzer - extract function
+          GET http://localhost:8080/api/extract-function?path=Test.java
+          Accept: application/json
+          
+          ###
+          
+          ### Test 5: Analyzer - extract function name
+          GET http://localhost:8080/api/extract-function-name?path=Test.java
+          Accept: application/json
+          
+          ###
+          
+          ### Test 6: Analyzer - extract function name (alternative)
+          GET http://localhost:8080/api/extract-function-name-1?path=Test.java
+          Accept: application/json
+          
+          ###
+          
+          ### Test 7: Parser - fromCode (text/plain)
           POST http://localhost:8080/api/parser/fromCode
           Content-Type: text/plain
           Accept: application/json
@@ -417,59 +417,81 @@ jobs:
           
           ###
           
-          ### Test 8: Parser fromCode (JSON format - alternative)
-          POST http://localhost:8080/api/parser/fromCode
-          Content-Type: application/json
-          Accept: application/json
+          ### Test 8: Parser - fromFile (multipart/form-data)
+          POST http://localhost:8080/api/parser/fromFile
+          Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
           
-          {
-            "code": "public class JsonTest { private int id; public int getId() { return id; } }"
-          }
+          ------WebKitFormBoundary7MA4YWxkTrZu0gW
+          Content-Disposition: form-data; name="file"; filename="Test.java"
+          Content-Type: text/plain
           
-          ###
-          
-          ### Test 9: Extract function (if exists)
-          GET http://localhost:8080/api/extract-function
-          Accept: application/json
+          public class TestClass { }
+          ------WebKitFormBoundary7MA4YWxkTrZu0gW--
           
           ###
           
-          ### Test 10: Extract function with parameter
-          GET http://localhost:8080/api/extract-function?path=Test.java
-          Accept: application/json
+          ### Test 9: Parser - lov-fields (multipart/form-data)
+          POST http://localhost:8080/api/parser/lov-fields
+          Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+          
+          ------WebKitFormBoundary7MA4YWxkTrZu0gW
+          Content-Disposition: form-data; name="file"; filename="Test.java"
+          Content-Type: text/plain
+          
+          public class TestClass { }
+          ------WebKitFormBoundary7MA4YWxkTrZu0gW--
           
           ###
           
-          ### Test 11: Extract function name
-          GET http://localhost:8080/api/extract-function-name
-          Accept: application/json
-          
-          ###
-          
-          ### Test 12: Transform - save transformation
-          POST http://localhost:8080/transform/save-transformation
-          Content-Type: application/json
-          Accept: application/json
-          
-          {
-            "formId": "testForm",
-            "fields": [
-              {"name": "field1", "type": "string"},
-              {"name": "field2", "type": "integer"}
-            ]
-          }
-          
-          ###
-          
-          ### Test 13: Transform - update field order
+          ### Test 10: Transform - update field order
           POST http://localhost:8080/transform/updateFieldOrder
           Content-Type: application/json
           Accept: application/json
           
           {
-            "formId": "testForm",
-            "fieldOrder": ["field2", "field1"]
+            "originalJson": {},
+            "labelMappings": [],
+            "areaConfigs": []
           }
+          
+          ###
+          
+          ### Test 11: Transform - save transformation
+          POST http://localhost:8080/transform/save-transformation
+          Content-Type: application/json
+          Accept: application/json
+          
+          {
+            "originalJson": {},
+            "labelMappings": [],
+            "areaConfigs": []
+          }
+          
+          ###
+          
+          ### Test 12: Transform - field mapping table
+          POST http://localhost:8080/transform/field-mapping-table
+          Content-Type: application/json
+          Accept: application/json
+          
+          {
+            "originalJson": {},
+            "labelMappings": [],
+            "areaConfigs": []
+          }
+          
+          ###
+          
+          ### Test 13: Visibility Analyzer - analyze file
+          POST http://localhost:8080/api/visibility-analyzer/analyze/file
+          Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+          
+          ------WebKitFormBoundary7MA4YWxkTrZu0gW
+          Content-Disposition: form-data; name="file"; filename="Test.java"
+          Content-Type: text/plain
+          
+          public class TestClass { }
+          ------WebKitFormBoundary7MA4YWxkTrZu0gW--
           
           ###
           
@@ -491,29 +513,54 @@ jobs:
           ### Endpoint Discovery Tests
           ### Use these to quickly check what's available
           
-          ### Quick server check
-          GET http://localhost:8080/
-          
-          ###
-          
           ### Health check
           GET http://localhost:8080/actuator/health
           
           ###
           
-          ### Common API paths
-          GET http://localhost:8080/api
+          ### Analyzer endpoints
+          GET http://localhost:8080/api/analyze?path=Test.java
           
           ###
           
-          GET http://localhost:8080/api/analyze
+          GET http://localhost:8080/api/extract-function?path=Test.java
           
           ###
           
+          GET http://localhost:8080/api/extract-function-name?path=Test.java
+          
+          ###
+          
+          ### Parser endpoints
           POST http://localhost:8080/api/parser/fromCode
           Content-Type: text/plain
           
-          test
+          public class Test { }
+          
+          ###
+          
+          ### Transform endpoints
+          POST http://localhost:8080/transform/save-transformation
+          Content-Type: application/json
+          
+          {
+            "originalJson": {},
+            "labelMappings": [],
+            "areaConfigs": []
+          }
+          
+          ###
+          
+          ### Visibility analyzer
+          POST http://localhost:8080/api/visibility-analyzer/analyze/file
+          Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+          
+          ------WebKitFormBoundary7MA4YWxkTrZu0gW
+          Content-Disposition: form-data; name="file"; filename="Test.java"
+          Content-Type: text/plain
+          
+          public class Test { }
+          ------WebKitFormBoundary7MA4YWxkTrZu0gW--
           
           ###
           EOF
@@ -594,12 +641,28 @@ jobs:
               def discover_endpoints(self):
                   """Discover available endpoints"""
                   test_endpoints = [
-                      {'path': '/', 'method': 'GET', 'name': 'root'},
-                      {'path': '/actuator/health', 'method': 'GET', 'name': 'health'},
-                      {'path': '/actuator/info', 'method': 'GET', 'name': 'info'},
-                      {'path': '/api', 'method': 'GET', 'name': 'api_root'},
-                      {'path': '/api/analyze', 'method': 'GET', 'name': 'analyze'},
+                      # AnalyzerController endpoints
+                      {'path': '/api/analyze', 'method': 'GET', 'name': 'analyze', 'params': {'path': 'Test.java'}},
+                      {'path': '/api/extract-function', 'method': 'GET', 'name': 'extract_function', 'params': {'path': 'Test.java'}},
+                      {'path': '/api/extract-function-name', 'method': 'GET', 'name': 'extract_function_name', 'params': {'path': 'Test.java'}},
+                      {'path': '/api/extract-function-name-1', 'method': 'GET', 'name': 'extract_function_name_1', 'params': {'path': 'Test.java'}},
+                      
+                      # ValuesListParserController endpoints
                       {'path': '/api/parser/fromCode', 'method': 'POST', 'name': 'parser_fromcode', 'content_type': 'text/plain'},
+                      {'path': '/api/parser/fromFile', 'method': 'POST', 'name': 'parser_fromfile', 'content_type': 'multipart/form-data'},
+                      {'path': '/api/parser/lov-fields', 'method': 'POST', 'name': 'parser_lov_fields', 'content_type': 'multipart/form-data'},
+                      
+                      # JsonTransformerController endpoints
+                      {'path': '/transform/updateFieldOrder', 'method': 'POST', 'name': 'transform_update_field_order', 'content_type': 'application/json'},
+                      {'path': '/transform/save-transformation', 'method': 'POST', 'name': 'transform_save_transformation', 'content_type': 'application/json'},
+                      {'path': '/transform/field-mapping-table', 'method': 'POST', 'name': 'transform_field_mapping_table', 'content_type': 'application/json'},
+                      
+                      # VisibiltyAnalyzerController endpoints
+                      {'path': '/api/visibility-analyzer/analyze/file', 'method': 'POST', 'name': 'visibility_analyzer_analyze_file', 'content_type': 'multipart/form-data'},
+                      
+                      # Health check endpoints
+                      {'path': '/actuator/health', 'method': 'GET', 'name': 'actuator_health'},
+                      {'path': '/actuator/info', 'method': 'GET', 'name': 'actuator_info'},
                       {'path': '/error', 'method': 'GET', 'name': 'error'}
                   ]
                   
@@ -607,10 +670,27 @@ jobs:
                   for endpoint in test_endpoints:
                       try:
                           url = f"{self.base_url}{endpoint['path']}"
+                          
+                          # Handle GET requests with parameters
                           if endpoint['method'] == 'GET':
-                              response = requests.get(url, timeout=5)
-                          else:
-                              response = requests.post(url, data='test', timeout=5)
+                              params = endpoint.get('params', {})
+                              response = requests.get(url, params=params, timeout=5)
+                          
+                          # Handle POST requests with different content types
+                          elif endpoint['method'] == 'POST':
+                              content_type = endpoint.get('content_type', 'application/json')
+                              
+                              if content_type == 'text/plain':
+                                  response = requests.post(url, data='public class Test {}', headers={'Content-Type': 'text/plain'}, timeout=5)
+                              elif content_type == 'multipart/form-data':
+                                  # For multipart, we'll just test if the endpoint exists
+                                  response = requests.post(url, data={}, timeout=5)
+                              elif content_type == 'application/json':
+                                  # Test with minimal JSON payload
+                                  test_data = {'test': 'data'}
+                                  response = requests.post(url, json=test_data, timeout=5)
+                              else:
+                                  response = requests.post(url, data='test', timeout=5)
                           
                           endpoint['status'] = response.status_code
                           endpoint['accessible'] = response.status_code < 500
@@ -646,12 +726,41 @@ jobs:
                       try:
                           url = f"{self.base_url}{endpoint['path']}"
                           
+                          # Handle GET requests with parameters
                           if endpoint['method'] == 'GET':
-                              response = requests.get(url, timeout=10)
-                          elif endpoint['method'] == 'POST' and endpoint.get('content_type') == 'text/plain':
-                              response = requests.post(url, data=java_code, headers={'Content-Type': 'text/plain'}, timeout=10)
-                          else:
-                              response = requests.post(url, json={'code': java_code}, timeout=10)
+                              params = endpoint.get('params', {})
+                              # Replace Test.java with actual file path if needed
+                              if 'path' in params and params['path'] == 'Test.java':
+                                  params['path'] = java_file_path
+                              response = requests.get(url, params=params, timeout=10)
+                          
+                          # Handle POST requests with different content types
+                          elif endpoint['method'] == 'POST':
+                              content_type = endpoint.get('content_type', 'application/json')
+                              
+                              if content_type == 'text/plain':
+                                  # For /api/parser/fromCode
+                                  response = requests.post(url, data=java_code, headers={'Content-Type': 'text/plain'}, timeout=10)
+                              elif content_type == 'multipart/form-data':
+                                  # For file upload endpoints
+                                  with open(java_file_path, 'rb') as f:
+                                      files = {'file': (os.path.basename(java_file_path), f, 'text/plain')}
+                                      response = requests.post(url, files=files, timeout=10)
+                              elif content_type == 'application/json':
+                                  # For JSON endpoints, create appropriate payload based on endpoint
+                                  if 'transform' in endpoint['path']:
+                                      # For transformation endpoints
+                                      payload = {
+                                          'originalJson': {},
+                                          'labelMappings': [],
+                                          'areaConfigs': []
+                                      }
+                                  else:
+                                      # Default JSON payload
+                                      payload = {'code': java_code}
+                                  response = requests.post(url, json=payload, timeout=10)
+                              else:
+                                  response = requests.post(url, data=java_code, timeout=10)
                           
                           # Save response
                           output_file = f"output/{endpoint['name']}_response.json"
