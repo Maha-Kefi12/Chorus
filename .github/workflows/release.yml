@@ -351,7 +351,7 @@ jobs:
           echo "        'method': 'GET'," >> api_gui_runner.py
           echo "        'url': 'http://localhost:8080/api/analyze'," >> api_gui_runner.py
           echo "        'output': 'output/analyze_response.json'," >> api_gui_runner.py
-          echo "        'params': {}," >> api_gui_runner.py
+          echo "        'params': {'path': 'Test.java'}," >> api_gui_runner.py
           echo "        'body': None," >> api_gui_runner.py
           echo "        'content_type': None" >> api_gui_runner.py
           echo "    }," >> api_gui_runner.py
@@ -409,17 +409,24 @@ jobs:
           echo "    except:" >> api_gui_runner.py
           echo "        return False" >> api_gui_runner.py
           echo "" >> api_gui_runner.py
+          echo "def read_java_file(java_file_path):" >> api_gui_runner.py
+          echo "    encodings = ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']" >> api_gui_runner.py
+          echo "    for enc in encodings:" >> api_gui_runner.py
+          echo "        try:" >> api_gui_runner.py
+          echo "            with open(java_file_path, 'r', encoding=enc) as f:" >> api_gui_runner.py
+          echo "                return f.read()" >> api_gui_runner.py
+          echo "        except UnicodeDecodeError:" >> api_gui_runner.py
+          echo "            continue" >> api_gui_runner.py
+          echo "    messagebox.showerror('Error', 'Could not read Java file with any supported encoding (utf-8, latin-1, cp1252, iso-8859-1)')" >> api_gui_runner.py
+          echo "    return None" >> api_gui_runner.py
+          echo "" >> api_gui_runner.py
           echo "def run_requests(java_file_path):" >> api_gui_runner.py
           echo "    if not check_server_running():" >> api_gui_runner.py
           echo "        messagebox.showerror('Error', 'Spring Boot server is not running!\\n\\nPlease start the server first:\\n1. Run start-server.bat\\n2. Wait for server to start\\n3. Try again')" >> api_gui_runner.py
           echo "        return" >> api_gui_runner.py
           echo "    os.makedirs('output', exist_ok=True)" >> api_gui_runner.py
-          echo "    java_code = None" >> api_gui_runner.py
-          echo "    try:" >> api_gui_runner.py
-          echo "        with open(java_file_path, 'r', encoding='utf-8') as f:" >> api_gui_runner.py
-          echo "            java_code = f.read()" >> api_gui_runner.py
-          echo "    except Exception as e:" >> api_gui_runner.py
-          echo "        messagebox.showerror('Error', f'Could not read Java file: {e}')" >> api_gui_runner.py
+          echo "    java_code = read_java_file(java_file_path)" >> api_gui_runner.py
+          echo "    if java_code is None:" >> api_gui_runner.py
           echo "        return" >> api_gui_runner.py
           echo "    for ep in ENDPOINTS:" >> api_gui_runner.py
           echo "        try:" >> api_gui_runner.py
